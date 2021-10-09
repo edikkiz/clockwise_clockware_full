@@ -1,0 +1,29 @@
+
+
+.transparent-preloader {
+    position: fixed;
+    inset: 0px;
+    display: flex;
+    z-index: 999;
+    pointer-events: auto;
+    background: rgba(20, 26, 77, 0.7);
+    justify-content: center;
+    align-items: center;
+}
+  
+.transparent-preloader__spinner {
+    box-sizing: border-box;
+    width: 320px;
+    height: 232px;
+    border-radius: 10%;
+    animation: spin 5s linear infinite;
+    position: relative;
+    margin-right: 10px;  
+    background-image: url('./loadgif/dog-proggif_UNH9AGVG_bRn5.gif');
+}
+
+@keyframes spin {
+    100% {
+    transform: rotate(360deg);
+    }
+}

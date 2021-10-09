@@ -1,0 +1,109 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    background: #F2F2F2;
+}
+
+#root {
+    height: 100vh;
+}
+
+.wrapper_login {
+    width: 100wh;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.wrapper_login__email  {
+    padding-bottom: 15px
+}
+
+.wrapper_login__password {
+    padding-bottom: 25px;
+    position: relative;
+}
+
+
+.wrapper_login__email-input {
+    box-sizing: border-box;
+    width: 360px;
+    height: 64px;
+    padding: 20px 25px 15px 25px;
+    font-size: 20px;
+    border-radius: 5px;
+}
+
+.wrapper_login__password-input {
+    box-sizing: border-box;
+    width: 360px;
+    height: 64px;
+    padding: 20px 25px 15px 25px;
+    font-size: 20px;
+    border-radius: 5px;
+}
+
+.visible {
+    width: 30px;
+    height: 120px;
+    position: absolute;
+    right: 5px;
+    top: -25px;
+}
+
+.wrapper_login__email-input:focus-visible, .wrapper_login__password-input:focus-visible {
+    outline: none
+}
+
+
+.wrapper_login__singin-button {
+    width: 360px;
+    height: 64px;
+    background: #000000;
+    color: white;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 0;
+}
+
+.wrapper_login__singin-button:hover {    
+  background: black;
+  color: white;
+  border-radius: 25% 10%;
+  cursor: pointer;
+}
+
+.wrapper_login__singin-link {
+    text-decoration: none;
+    width: 100%;
+    height: 64px;
+}
+
+.link-content:hover {    
+    background: black;
+    color: white;
+    border-radius: 25% 10%;
+    cursor: pointer;
+  }
+
+.link-content {
+    text-decoration: none;
+    width: 100%;
+    height: 64px;
+    background: #000000;
+    color: white;
+    font-size: 18px;
+    border-radius: 5px;
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wrapper_login__singin-master {
+    padding-top: 20px;
+    width: 360px;
+}

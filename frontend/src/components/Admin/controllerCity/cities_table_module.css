@@ -1,0 +1,78 @@
+#root {
+    height: 100vh;
+}
+
+.warapper_cities {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper_cities__table {
+    width: 100%;
+}
+
+.table_link__city {
+    border: solid;
+    width: 5%;
+}
+
+.table_block_id__city {
+    height: 10px;
+    border: solid;
+}
+
+.table_block_name__city {
+    width: 70%;
+    border: solid;
+}
+
+
+.link_create__city {
+    color: black;
+    font-size: 30px;
+    text-decoration: none;
+}
+
+.link_update__city {
+    width: 100%;
+    color: black;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.table_link__city:hover {
+    background-color: black;
+    color:  white;
+    border-radius: 25% 10%;
+}
+
+.next_button, .after_button {
+    width: 120px;
+    height: 30px;
+    background: white;
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: solid;
+  }
+
+  
+  .next_button:disabled:hover, .after_button:disabled:hover {
+    width: 120px;
+    height: 30px;
+    background: white;
+    color: black;
+    font-size: 18px;
+    border-radius: 5px;
+    border: solid;
+    cursor: auto;
+  }
+
+  
+.next_button:hover, .after_button:hover {    
+  background: black;
+  color: white;
+  border-radius: 25% 10%;
+  cursor: pointer;
+  }

@@ -1,0 +1,49 @@
+select {
+  font-size: 16px;
+}
+
+.order_form {
+  width: 50%;
+}
+
+.info {
+  font-size: 25px;
+}
+
+.wrapper_controller__order__form {
+  width: 50%
+}
+
+.wrapper_controller__order{
+  height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; 
+}
+
+.controller_order__input, .controller_order__select {  
+  box-sizing: border-box;
+  width: 100%;
+  height: 40px;
+  font-size: 25px;
+  border-radius: 5px;
+}
+
+
+.onsubmit_button {
+  width: 120px;
+  height: 30px;
+  background: white;
+  color: black;
+  font-size: 18px;
+  border-radius: 5px;
+  border: solid;
+}
+
+.onsubmit_button:hover {    
+background: black;
+color: white;
+border-radius: 25% 10%;
+cursor: pointer;
+}

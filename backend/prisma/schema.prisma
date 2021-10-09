@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_LOCAL")
+  // shadowDatabaseUrl = env("DATABASE_LOCAL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  name     String  @db.VarChar(255)
+  email    String  @unique @db.VarChar(255)
+  personId Int
+  person   Person  @relation(fields: [personId], references: [id])
+  orders   Order[]
+
+  @@map("users")
+}
+
+model ClockSize {
+  id         Int     @id @default(autoincrement())
+  size       String  @db.VarChar(255)
+  price      Int
+  timeToDone Int
+  orders     Order[]
+
+  @@map("clockSizes")
+}
+
+model City {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  masters Master[]
+  orders  Order[]
+
+  @@map("cities")
+}
+
+model Master {
+  id       Int     @id @default(autoincrement())
+  name     String  @db.VarChar(255)
+  city     City    @relation(fields: [cityId], references: [id])
+  cityId   Int
+  personId Int
+  person   Person  @relation(fields: [personId], references: [id])
+  orders   Order[]
+
+  @@map("masters")
+}
+
+model Person {
+  id       Int      @id @default(autoincrement())
+  login    String   @unique @db.VarChar(255)
+  password String   @db.VarChar(255)
+  role     Role
+  masters  Master[]
+  users    User[]
+  token    String?
+}
+
+enum Role {
+  MASTER
+  ADMIN
+  USER
+}
+
+enum OrderStatus {
+  CREATED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
+  masterId      Int
+  master        Master      @relation(fields: [masterId], references: [id])
+  cityId        Int
+  city          City        @relation(fields: [cityId], references: [id])
+  clockSizeId   Int
+  clockSize     ClockSize   @relation(fields: [clockSizeId], references: [id])
+  price         Int
+  startAt       DateTime
+  endAt         DateTime
+  feedbackToken String
+  rating        Float?
+  feedback      String?     @default("null") @db.VarChar(255)
+  status        OrderStatus @default(CREATED)
+  active        Boolean     @default(true)
+  images        String[]     
+  @@map("orders")
+}

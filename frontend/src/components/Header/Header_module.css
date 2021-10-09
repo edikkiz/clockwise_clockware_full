@@ -1,0 +1,49 @@
+.menu__logo-img img {
+  width: 100px;
+  height: 75px;
+}
+
+.wrapper_header {
+  height: 82px;
+}
+
+.menu__logo-img {
+  overflow: hidden;
+  border-radius: 40%;
+  padding: 5px;
+  height: 73px;
+}
+
+header {
+  background: linear-gradient(90deg, rgba(121,142,156,1) 0%, rgba(194,178,178,1) 40%, rgba(30,56,97,1) 100%);
+  width: 100%;
+  position: fixed;
+}
+
+.menu_link {
+  overflow: hidden;
+  padding: 10px;
+  margin: 10px;
+  color: black;
+  text-decoration: none;
+  outline: none
+}
+
+.menu_link:hover {
+  text-decoration: none;
+  color: white;
+  background-color: black;
+  border-radius: 25% 10%;
+}
+
+.menu {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  margin: 0px auto;
+  font-size: 30px;
+}
+
+.cleaner {
+  padding-top: 82px;
+}
