@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Master, Order } from '@prisma/client'
 import { Request, Response, NextFunction } from 'express'
 import validator from 'email-validator'
-import { createOrderSchema, updateOrderSchema, deleteOrderSchema, orderByFeedbackTokenSchema, allOrderSchema, allOrdersToTheMasterSchema, updateOrderStatusSchema, allOrdersToTheUserSchema, allOrderFiltredSchema } from './order.shape';
+import { createOrderSchema, updateOrderSchema, deleteOrderSchema, orderByFeedbackTokenSchema, allOrderSchema, allOrdersToTheMasterSchema, updateOrderStatusSchema, allOrdersToTheUserSchema, allOrderFiltredSchema, allOrderChartsSchema } from './order.shape';
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 
@@ -52,6 +52,46 @@ class OrderController {
     async getClockSizes(req: Request, res: Response) {
         const clockSizes = await prisma.clockSize.findMany()
         res.status(200).json(clockSizes)
+    }
+
+    async getAllOrderCharts(req: Request, res: Response) {
+        const params = allOrderChartsSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const {
+            cityId,
+            masterId,
+            filterStart,
+            filterEnd,
+        } = params.data
+        const filterStartAt = new Date(`${filterStart} UTC`)
+        const filterEndAt = new Date(`${filterEnd} 23:59:59`)
+        const Orders = await prisma.order.aggregate({
+            where: {
+                AND: [
+                    {
+                        cityId: cityId ? Number(cityId) : undefined,
+                    },
+                    {
+                        masterId: masterId ? Number(masterId) : undefined,
+                    },
+                    {
+                        startAt: filterStart
+                            ? { gte: filterStartAt }
+                            : undefined,
+                    },
+                    {
+                        endAt: filterEnd ? { lte: filterEndAt } : undefined,
+                    },
+                ],
+            },
+            _count: {
+                masterId: true,
+                cityId: true,
+            }
+        })
+        res.status(200).json(Orders)
     }
 
     async getAllOrderFiltred(req: Request, res: Response) {
@@ -144,9 +184,7 @@ class OrderController {
 
     async getAllOrder(req: Request, res: Response) {
         const params = allOrderSchema.safeParse(req.query)
-        if (!params.success) {
-            return
-        }
+        if (params.success) {
         const { offset, limit } = params.data
 
         const orders = await prisma.order.findMany({
@@ -192,8 +230,52 @@ class OrderController {
                 },
             },
         })
-
-        res.status(200).json(orders)
+            res.status(200).json(orders)
+        }
+        else {
+            const orders = await prisma.order.findMany({
+                where: {
+                    active: true,
+                },
+                orderBy: [{ id: 'desc' }],
+                select: {
+                    images: true,
+                    id: true,
+                    status: true,
+                    feedback: true,
+                    rating: true,
+                    price: true,
+                    startAt: true,
+                    endAt: true,
+                    master: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                    clockSize: {
+                        select: {
+                            id: true,
+                            size: true,
+                        },
+                    },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                    city: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                },
+            })
+                res.status(200).json(orders)
+        }
     }
     
     async getAllOrdersToTheMasterTable(req: Request, res: Response) {

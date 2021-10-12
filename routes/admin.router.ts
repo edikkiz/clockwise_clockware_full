@@ -39,6 +39,12 @@ router.get(
 )
 
 router.get(
+  '/admin/allOrderCharts',
+  AuthController.checkAccessToken,
+  orderController.getAllOrderCharts,
+)
+
+router.get(
   '/admin/allOrderFiltred',
   AuthController.checkAccessToken,
   orderController.getAllOrderFiltred,

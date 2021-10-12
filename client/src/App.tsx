@@ -22,6 +22,7 @@ import MasterRegistration from './components/Master/masterRegistration/masterReg
 import MasterWorkList from './components/Master/masterWorkList/masterWorkList'
 import Calendar from './components/calendar/Calendar'
 import UserList from './components/User/userList/UserList'
+import OrderCharts from './components/Admin/controllerOrder/orderCharts/OrderCharts'
 
 
 function App() {
@@ -51,6 +52,8 @@ function App() {
           <PrivateRoute path='/admin/users' component={UsersTable} />
 
           <PrivateRoute path="/admin/orders" component={OrderTable} />
+
+          <PrivateRoute path="/admin/orderCharts" component={OrderCharts} />
 
           <PrivateRoute path="/admin/navOrder/:id?/:userId?/:masterId?/:cityId?/:clockSizeId?/:startAt?/:price?/:status?" component={AllControllerOrder} />
 

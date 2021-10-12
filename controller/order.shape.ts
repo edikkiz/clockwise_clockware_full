@@ -60,6 +60,15 @@ const allOrderFiltredShape = {
 
 export const allOrderFiltredSchema = z.object(allOrderFiltredShape)
 
+const allOrderChartsShape = {
+    masterId: z.string().optional(),
+    cityId: z.string().optional(),
+    filterStart: z.string().optional(),
+    filterEnd: z.string().optional()
+}
+
+export const allOrderChartsSchema = z.object(allOrderChartsShape)
+
 const allOrdersToTheMasterShape = {
     limit: z.string(),
     offset: z.string(),
