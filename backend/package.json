@@ -4,6 +4,8 @@
   "description": "Clockwise Clockware",
   "main": "index.ts",
   "scripts": {
+    "heroku-prebuild": "npm install --prefix server && npm install",
+    "heroku-postbuild": "npm run build --prefix server",
     "prettier": "prettier",
     "start": "ts-node index.ts",
     "server": "npx prisma migrate dev && npx prisma generate && ts-node index.ts"
