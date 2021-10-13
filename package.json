@@ -6,7 +6,7 @@
   "scripts": {
     "prettier": "prettier",
     "start": "ts-node index.ts",
-    "server": "npx prisma migrate dev && npx prisma generate && cd client && npm i && ts-node ../index.ts "
+    "server": "cd client && npm i && ts-node ../index.ts "
   },
   "author": "Edik",
   "license": "ISC",
