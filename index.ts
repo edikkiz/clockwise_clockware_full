@@ -1,4 +1,4 @@
-import express, {Request, Response} from 'express'
+import express, { Request, Response } from 'express'
 const PORT = process.env.PORT || 3333
 import userRouter from './routes/user.routes'
 import cityRouter from './routes/city.routes'
@@ -20,9 +20,6 @@ app.use(cors({
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static("build"));
-  app.get('*', (req: Request, res: Response) => {
-    req.sendFile(path.resolve(__dirname, 'build', 'index.html'))
-  })
 }
 
 app.use(express.json({ limit: '5mb' }))
