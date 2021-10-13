@@ -4,7 +4,7 @@
     "description": "Clockwise Clockware",
     "main": "index.ts",
     "scripts": {
-        "postinstall": "tsc && cd client && npm i && npm run build",
+        "postinstall": "cd client && npm i && npm run build",
         "prettier": "prettier",
         "start": "ts-node dist/index.ts",
         "server": "ts-node index.ts"
