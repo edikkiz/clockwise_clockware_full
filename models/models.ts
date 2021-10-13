@@ -14,8 +14,8 @@ export type MasterWithRating = {
   name: string
   cityId: number
   rating?: number
-  login?:    String
-  password?: String 
+  login?: String
+  password?: String
 }
 
 export type OrderForFeedback = {
@@ -28,4 +28,9 @@ export type OrderForFeedback = {
   price: number
   startAt: string
   endAt: string
+}
+
+export type ChartsData = {
+  date: string
+  count: number
 }

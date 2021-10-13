@@ -1,4 +1,4 @@
-import { OrderForFeedback } from './../models/models'
+import { ChartsData, OrderForFeedback } from './../models/models'
 import transporter from '../services/emailNotification'
 import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Master, Order } from '@prisma/client'
@@ -16,11 +16,9 @@ const minutes = date.getMinutes()
 const day = date.getDate()
 const month = date.getMonth() + 1
 const year = date.getFullYear()
-const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-${
-    day < 10 ? `0${day}` : `${day}`
-} ${hours < 10 ? `0${hours}` : `${hours}`}:${
-    minutes < 10 ? `0${minutes}` : `${minutes}`
-}`
+const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-${day < 10 ? `0${day}` : `${day}`
+    } ${hours < 10 ? `0${hours}` : `${hours}`}:${minutes < 10 ? `0${minutes}` : `${minutes}`
+    }`
 const corDate = new Date(`${correctDate} UTC`)
 
 const prisma = new PrismaClient()
@@ -55,7 +53,8 @@ class OrderController {
     }
 
     async getAllOrderCharts(req: Request, res: Response) {
-        const params = allOrderChartsSchema.safeParse(req.query)
+        const params = allOrderChartsSchema.safeParse(req.body)
+        console.log(req.body)
         if (!params.success) {
             return
         }
@@ -65,33 +64,44 @@ class OrderController {
             filterStart,
             filterEnd,
         } = params.data
-        const filterStartAt = new Date(`${filterStart} UTC`)
-        const filterEndAt = new Date(`${filterEnd} 23:59:59`)
-        const Orders = await prisma.order.aggregate({
-            where: {
-                AND: [
-                    {
-                        cityId: cityId ? Number(cityId) : undefined,
+        if (filterStart && filterEnd) {
+            let filterStartDay = new Date(`${filterStart} UTC`)
+            let filterEndDay = new Date(`${filterStart} 23:59:59`)
+            const filterEndAt = new Date(`${filterEnd} UTC`)
+            const result: ChartsData[] = []
+            for (; filterStartDay <= filterEndAt; filterStartDay.setDate(filterStartDay.getDate() + 1), filterEndDay.setDate(filterEndDay.getDate() + 1)) {
+                const filteredCharts = await prisma.order.aggregate({
+                    where: {
+                        AND: [
+                            {
+                                cityId: cityId?.length ? { in: cityId } : undefined,
+                            },
+                            {
+                                masterId: masterId?.length ? { in: masterId } : undefined,
+                            },
+                            {
+                                startAt: filterStartDay
+                                    ? { gte: filterStartDay }
+                                    : undefined,
+                                AND: {
+                                    startAt: filterEndDay
+                                        ? { lte: filterEndDay }
+                                        : undefined
+                                }
+                            },
+                        ],
                     },
-                    {
-                        masterId: masterId ? Number(masterId) : undefined,
-                    },
-                    {
-                        startAt: filterStart
-                            ? { gte: filterStartAt }
-                            : undefined,
-                    },
-                    {
-                        endAt: filterEnd ? { lte: filterEndAt } : undefined,
-                    },
-                ],
-            },
-            _count: {
-                masterId: true,
-                cityId: true,
+
+                    _count: { id: true }
+                })
+                result.push({
+                    date: filterStartDay.toLocaleDateString(),
+                    count: filteredCharts._count.id
+                })
             }
-        })
-        res.status(200).json(Orders)
+
+            res.status(200).json(result)
+        }
     }
 
     async getAllOrderFiltred(req: Request, res: Response) {
@@ -185,51 +195,51 @@ class OrderController {
     async getAllOrder(req: Request, res: Response) {
         const params = allOrderSchema.safeParse(req.query)
         if (params.success) {
-        const { offset, limit } = params.data
+            const { offset, limit } = params.data
 
-        const orders = await prisma.order.findMany({
-            where: {
-                active: true,
-            },
-            orderBy: [{ id: 'desc' }],
-            take: Number(limit),
-            skip: Number(offset),
-            select: {
-                images: true,
-                id: true,
-                status: true,
-                feedback: true,
-                rating: true,
-                price: true,
-                startAt: true,
-                endAt: true,
-                master: {
-                    select: {
-                        id: true,
-                        name: true,
+            const orders = await prisma.order.findMany({
+                where: {
+                    active: true,
+                },
+                orderBy: [{ id: 'desc' }],
+                take: Number(limit),
+                skip: Number(offset),
+                select: {
+                    images: true,
+                    id: true,
+                    status: true,
+                    feedback: true,
+                    rating: true,
+                    price: true,
+                    startAt: true,
+                    endAt: true,
+                    master: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
+                    clockSize: {
+                        select: {
+                            id: true,
+                            size: true,
+                        },
+                    },
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                    city: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
                     },
                 },
-                clockSize: {
-                    select: {
-                        id: true,
-                        size: true,
-                    },
-                },
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                city: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
-            },
-        })
+            })
             res.status(200).json(orders)
         }
         else {
@@ -274,10 +284,10 @@ class OrderController {
                     },
                 },
             })
-                res.status(200).json(orders)
+            res.status(200).json(orders)
         }
     }
-    
+
     async getAllOrdersToTheMasterTable(req: Request, res: Response) {
         const params = allOrdersToTheMasterSchema.safeParse(req.query)
         if (params.success) {
@@ -289,11 +299,11 @@ class OrderController {
                                                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
                                                 INNER JOIN users ON orders."userId" = users.id
                                                 WHERE orders."masterId" = ${Number(
-                                                    masterId,
-                                                )} AND orders.active = true
+                    masterId,
+                )} AND orders.active = true
                                                 ORDER BY orders.id DESC LIMIT ${Number(
-                                                    limit,
-                                                )} OFFSET ${Number(offset)}`
+                    limit,
+                )} OFFSET ${Number(offset)}`
             res.status(200).json(orderListForOneMaster)
         } else {
             const { masterId } = req.query
@@ -304,8 +314,8 @@ class OrderController {
                                                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
                                                 INNER JOIN users ON orders."userId" = users.id
                                                 WHERE orders."masterId" = ${Number(
-                                                    masterId,
-                                                )} AND orders.active = true
+                    masterId,
+                )} AND orders.active = true
                                                 ORDER BY orders.id`
             res.status(200).json(orderListForOneMaster)
         }

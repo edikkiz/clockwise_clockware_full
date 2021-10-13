@@ -8,8 +8,8 @@ import cityController from '../controller/city.controller'
 import userController from '../controller/user.controller'
 
 router.put(
-  '/admin/order', 
-  AuthController.checkAccessToken, 
+  '/admin/order',
+  AuthController.checkAccessToken,
   orderController.updateOrder,
 )
 
@@ -21,7 +21,7 @@ router.get(
 
 router.put(
   '/admin/deleteOrder',
-  AuthController.checkAccessToken, 
+  AuthController.checkAccessToken,
   orderController.deleteOrder,
 )
 
@@ -38,7 +38,7 @@ router.get(
   orderController.getAllOrder,
 )
 
-router.get(
+router.post(
   '/admin/allOrderCharts',
   AuthController.checkAccessToken,
   orderController.getAllOrderCharts,

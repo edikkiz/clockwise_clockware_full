@@ -125,3 +125,14 @@ export type Rating = {
   id: number
   rating: number
 }
+
+
+export type ChartsData = {
+  date: string
+  count: number
+}
+
+export type MultiSelectOption = {
+  label: string
+  value: number
+}

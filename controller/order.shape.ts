@@ -61,8 +61,8 @@ const allOrderFiltredShape = {
 export const allOrderFiltredSchema = z.object(allOrderFiltredShape)
 
 const allOrderChartsShape = {
-    masterId: z.string().optional(),
-    cityId: z.string().optional(),
+    masterId: z.array(z.number()).optional(),
+    cityId: z.array(z.number()).optional(),
     filterStart: z.string().optional(),
     filterEnd: z.string().optional()
 }
@@ -81,7 +81,7 @@ const allOrdersToTheUserShape = {
     limit: z.string(),
     offset: z.string(),
     userId: z.string(),
-} 
+}
 
 export const allOrdersToTheUserSchema = z.object(allOrdersToTheUserShape)
 

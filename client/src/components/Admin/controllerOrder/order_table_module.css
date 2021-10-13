@@ -9,8 +9,12 @@
 }
 
 .selectFilter {
-    width: 220px;
-    height: 30px;
+  width: 220px;
+  height: 30px;
+}
+
+.rmsc .dropdown-heading {
+  position: static;
 }
 
 .wrapperFilter {

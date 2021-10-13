@@ -22,6 +22,9 @@ const AdminHeader: FC<ControllerHeaderProps> = () => {
               <Link to="/"> <img src={logo} alt={'logo'}></img> </Link>
             </div>
             <div className="menu__link">
+              <Link to="/admin/orderCharts" className="menu_link">
+                Charts{' '}
+              </Link>
               <Link to="/admin/masters" className="menu_link">
                 Masters{' '}
               </Link>
