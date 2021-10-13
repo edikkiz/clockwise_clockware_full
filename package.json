@@ -4,13 +4,10 @@
   "description": "Clockwise Clockware",
   "main": "index.ts",
   "scripts": {
-    "heroku-prebuild": "npm install --prefix server && npm install",
-    "heroku-postbuild": "npm run build --prefix server",
-    "postinstall": "tsc && cd client && npm i && npm run build",
     "prettier": "prettier",
     "build": "tsc",
     "start": "ts-node index.ts",
-    "server": "npx prisma migrate dev && npx prisma generate && ts-node index.ts"
+    "server": "npx prisma migrate dev && npx prisma generate && npm build && ts-node index.ts"
   },
   "author": "Edik",
   "license": "ISC",
