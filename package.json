@@ -5,9 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "prettier": "prettier",
-    "build": "tsc",
     "start": "ts-node index.ts",
-    "server": "npx prisma migrate dev && npx prisma generate && npm build && ts-node index.ts"
+    "server": "npx prisma migrate dev && npx prisma generate && ts-node index.ts"
   },
   "author": "Edik",
   "license": "ISC",
