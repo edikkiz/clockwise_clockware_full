@@ -31,15 +31,12 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "heroku-prebuild": "npm install --prefix server && npm install",
-    "heroku-postbuild": "npm run build --prefix server",
-
     "prettier": "prettier",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "npm run build && serve -l $PORT -s build "
+    "server": "serve -l $PORT -s build "
   },
   "eslintConfig": {
     "extends": [
