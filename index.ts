@@ -18,8 +18,12 @@ app.use(cors({
   exposedHeaders: 'Authorization',
 }))
 
-app.use(express.static("build"));
-
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static("build"));
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'))
+  })
+}
 
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ limit: '5mb', extended: true }))
