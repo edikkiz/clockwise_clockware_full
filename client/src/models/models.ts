@@ -126,13 +126,55 @@ export type Rating = {
   rating: number
 }
 
+export type dataMasterGraph = {
+  label: string
+  masterCount: number
+}
+
+export type dataCityGraph = {
+  label: string
+  cityCount: number
+}
 
 export type ChartsData = {
-  date: string
+  label: string
+  cityCount: number
+  masterCount: number
+  count: number
+}
+
+export type dataMasterAndCityGraph = {
+  label: string
+  cityCount: number
+  masterCount: number
+}
+
+export type dataGraph = {
+  label: string
   count: number
 }
 
 export type MultiSelectOption = {
   label: string
   value: number
+}
+
+export type ChartsDataMaster = {
+  masterId: number
+  _count: number
+}
+
+export type ChartsDataCity = {
+  cityId: number
+  _count: number
+}
+
+export type MasterForTableCharts = {
+  clockSize: number[]
+  completedOrder: number | null
+  id: number
+  name: string
+  notCompletedOrder: number | null
+  profit: number | null
+  rating: number | null
 }

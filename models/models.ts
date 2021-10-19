@@ -31,6 +31,29 @@ export type OrderForFeedback = {
 }
 
 export type ChartsData = {
-  date: string
-  count: number
+  label: string
+  count?: number
+  cityCount?: number
+  masterCount?: number
 }
+
+export type ChartsDataMaster = {
+  oneMasterLabel: string
+  oneMasterCount: number
+}
+
+export type ChartsDataCity = {
+  oneCityLabel: string
+  oneCityCount: number
+}
+
+export type MasterForTableCharts = {
+  clockSize: number[]
+  completedOrder: number | null
+  id: number
+  name: string
+  notCompletedOrder: number | null
+  profit: number | null
+  rating: number | null
+}
+

@@ -1,6 +1,6 @@
 import { PrismaClient, Master, Order } from '@prisma/client'
 import { Request, Response, NextFunction } from 'express';
-import { MasterWithRating } from '../models/models';
+import { MasterForTableCharts, MasterWithRating } from '../models/models';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { z } from "zod"
@@ -31,7 +31,6 @@ class MasterController {
     }
   }
 
-
   async getFreeMasters(req: Request, res: Response) {
     const params = getFreeMastersSchema.safeParse(req.query)
     if (!params.success) {
@@ -53,16 +52,17 @@ class MasterController {
 
       const gOrderMasterId = await prisma.order.findMany({
         where: {
-              cityId: Number(cityId),
+          cityId: Number(cityId),
           AND: {
             OR: [{
               startAt: { lt: newOrderEndAt },
               AND: { endAt: { gt: newOrderEndAt } }
             },
             {
-                    startAt: { lt: newOrderStartAt },
-              AND: { endAt: { gt: newOrderStartAt }, 
-               }
+              startAt: { lt: newOrderStartAt },
+              AND: {
+                endAt: { gt: newOrderStartAt },
+              }
             },
             {
               startAt: newOrderStartAt,
@@ -336,6 +336,83 @@ class MasterController {
       res.status(204).json(delMaster)
     }
   }
+
+  async getAllMastersForTableCharts(req: Request, res: Response) {
+
+    const params = getMastersSchema.safeParse(req.query)
+    if (!params.success) {
+      return
+    }
+    const { limit, offset } = params.data
+    const getClocksize = await prisma.clockSize.findMany({
+      select: {
+        id: true
+      }
+    })
+    const getMasters = await prisma.master.findMany({
+      select: {
+        name: true,
+        id: true
+      }
+    })
+    const result: MasterForTableCharts[] = []
+    let clockSizeResult = []
+    for (let i = 0; i < getMasters.length; i++) {
+      clockSizeResult = []
+      for (let j = 0; j < getClocksize.length; j++) {
+        const clockSizeCount = await prisma.order.aggregate({
+          where: {
+            masterId: getMasters[i].id,
+            clockSizeId: getClocksize[j].id,
+            active: true,
+          },
+          _count: true
+        })
+        clockSizeResult.push(clockSizeCount._count)
+      }
+      const rating = await prisma.order.aggregate({
+        where: {
+          masterId: getMasters[i].id,
+        },
+        _avg: { rating: true }
+      })
+      const completedOrdersCount = await prisma.order.aggregate({
+        where: {
+          status: "COMPLETED",
+          masterId: getMasters[i].id,
+        },
+        _count: true
+      })
+
+      const notCompletedOrdersCount = await prisma.order.aggregate({
+        where: {
+          status: { not: "COMPLETED" },
+          masterId: getMasters[i].id,
+        },
+        _count: true
+      })
+
+      const sumProfit = await prisma.order.aggregate({
+        where: {
+          status: "COMPLETED",
+          masterId: getMasters[i].id,
+        },
+        _sum: { price: true }
+      })
+      result.push({
+        clockSize: clockSizeResult,
+        name: getMasters[i].name,
+        id: getMasters[i].id,
+        rating: rating._avg.rating,
+        completedOrder: completedOrdersCount._count,
+        notCompletedOrder: notCompletedOrdersCount._count,
+        profit: sumProfit._sum.price
+      })
+    }
+    const final = result.splice(Number(offset), Number(limit))
+    res.status(200).json(final)
+  }
+
 }
 
 

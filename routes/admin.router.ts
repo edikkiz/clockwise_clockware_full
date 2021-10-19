@@ -39,11 +39,28 @@ router.get(
 )
 
 router.post(
-  '/admin/allOrderCharts',
+  '/admin/allOrderGraph',
   AuthController.checkAccessToken,
   orderController.getAllOrderCharts,
 )
 
+router.post(
+  '/admin/allOrderMasterDiagram',
+  AuthController.checkAccessToken,
+  orderController.getAllOrderMasterCharts,
+)
+
+router.get(
+  '/admin/allMastersTableCharts',
+  AuthController.checkAccessToken,
+  masterController.getAllMastersForTableCharts,
+)
+
+router.post(
+  '/admin/allOrderCityDiagram',
+  AuthController.checkAccessToken,
+  orderController.getAllOrderCityCharts,
+)
 router.get(
   '/admin/allOrderFiltred',
   AuthController.checkAccessToken,

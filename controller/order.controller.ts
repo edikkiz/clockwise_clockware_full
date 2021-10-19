@@ -1,4 +1,4 @@
-import { ChartsData, OrderForFeedback } from './../models/models'
+import { ChartsData, ChartsDataMaster, OrderForFeedback } from './../models/models'
 import transporter from '../services/emailNotification'
 import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Master, Order } from '@prisma/client'
@@ -54,7 +54,6 @@ class OrderController {
 
     async getAllOrderCharts(req: Request, res: Response) {
         const params = allOrderChartsSchema.safeParse(req.body)
-        console.log(req.body)
         if (!params.success) {
             return
         }
@@ -64,18 +63,40 @@ class OrderController {
             filterStart,
             filterEnd,
         } = params.data
-        if (filterStart && filterEnd) {
-            let filterStartDay = new Date(`${filterStart} UTC`)
-            let filterEndDay = new Date(`${filterStart} 23:59:59`)
-            const filterEndAt = new Date(`${filterEnd} UTC`)
-            const result: ChartsData[] = []
-            for (; filterStartDay <= filterEndAt; filterStartDay.setDate(filterStartDay.getDate() + 1), filterEndDay.setDate(filterEndDay.getDate() + 1)) {
+        let filterStartDay = new Date(`${filterStart} UTC`)
+        let filterEndDay = new Date(`${filterStart} 23:59:59`)
+        const filterEndAt = new Date(`${filterEnd} UTC`)
+        const result: ChartsData[] = []
+        for (; filterStartDay <= filterEndAt; filterStartDay.setDate(filterStartDay.getDate() + 1), filterEndDay.setDate(filterEndDay.getDate() + 1)) {
+            if (!cityId?.length && !masterId?.length) {
                 const filteredCharts = await prisma.order.aggregate({
                     where: {
                         AND: [
                             {
-                                cityId: cityId?.length ? { in: cityId } : undefined,
+                                startAt: filterStartDay
+                                    ? { gte: filterStartDay }
+                                    : undefined,
+                                AND: {
+                                    startAt: filterEndDay
+                                        ? { lte: filterEndDay }
+                                        : undefined
+                                }
                             },
+                        ],
+                    },
+
+                    _count: true
+                })
+                result.push({
+                    label: filterStartDay.toLocaleDateString(),
+                    count: filteredCharts._count,
+                })
+            }
+
+            if (cityId?.length && masterId?.length) {
+                const filteredMasterCharts = await prisma.order.aggregate({
+                    where: {
+                        AND: [
                             {
                                 masterId: masterId?.length ? { in: masterId } : undefined,
                             },
@@ -92,16 +113,198 @@ class OrderController {
                         ],
                     },
 
-                    _count: { id: true }
+                    _count: true
+                })
+                const filteredCityCharts = await prisma.order.aggregate({
+                    where: {
+                        AND: [
+                            {
+                                cityId: cityId?.length ? { in: cityId } : undefined,
+                            },
+                            {
+                                startAt: filterStartDay
+                                    ? { gte: filterStartDay }
+                                    : undefined,
+                                AND: {
+                                    startAt: filterEndDay
+                                        ? { lte: filterEndDay }
+                                        : undefined
+                                }
+                            },
+                        ],
+                    },
+
+                    _count: true
                 })
                 result.push({
-                    date: filterStartDay.toLocaleDateString(),
-                    count: filteredCharts._count.id
+                    label: filterStartDay.toLocaleDateString(),
+                    masterCount: filteredMasterCharts._count,
+                    cityCount: filteredCityCharts._count,
                 })
             }
 
-            res.status(200).json(result)
+            if (masterId?.length && !cityId?.length) {
+                const filteredMasterCharts = await prisma.order.aggregate({
+                    where: {
+                        AND: [
+                            {
+                                masterId: masterId?.length ? { in: masterId } : undefined,
+                            },
+                            {
+                                startAt: filterStartDay
+                                    ? { gte: filterStartDay }
+                                    : undefined,
+                                AND: {
+                                    startAt: filterEndDay
+                                        ? { lte: filterEndDay }
+                                        : undefined
+                                }
+                            },
+                        ],
+                    },
+
+                    _count: true
+                })
+                result.push({
+                    label: filterStartDay.toLocaleDateString(),
+                    masterCount: filteredMasterCharts._count,
+                })
+
+            }
+            if (!masterId?.length && cityId?.length) {
+
+                const filteredCityCharts = await prisma.order.aggregate({
+                    where: {
+                        AND: [
+                            {
+                                cityId: cityId?.length ? { in: cityId } : undefined,
+                            },
+                            {
+                                startAt: filterStartDay
+                                    ? { gte: filterStartDay }
+                                    : undefined,
+                                AND: {
+                                    startAt: filterEndDay
+                                        ? { lte: filterEndDay }
+                                        : undefined
+                                }
+                            },
+                        ],
+                    },
+
+                    _count: true
+                })
+                result.push({
+                    label: filterStartDay.toLocaleDateString(),
+                    cityCount: filteredCityCharts._count,
+                })
+            }
         }
+        res.status(200).json(result)
+    }
+
+    async getAllOrderMasterCharts(req: Request, res: Response) {
+        const params = allOrderChartsSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const {
+            masterId,
+            filterStart,
+            filterEnd,
+        } = params.data
+        const filterStartDay = new Date(`${filterStart} UTC`)
+        const filterEndAt = new Date(`${filterEnd} UTC`)
+        const filteredMasterCharts = await prisma.order.groupBy({
+            by: ['masterId'],
+            where: {
+                masterId: { in: masterId },
+                AND: [
+                    {
+                        startAt: filterStartDay
+                            ? { gte: filterStartDay }
+                            : undefined,
+                    },
+                    {
+                        endAt: filterEndAt ? { lte: filterEndAt } : undefined,
+                    },
+                ],
+            },
+            _count: true,
+        })
+        const result = []
+        let max = 0
+        let id = 0
+        let index = 0
+        for (let top = 0; top < 3; top++) {
+            max = 0
+            id = 0
+            index = 0
+            for (let i = 0; i < filteredMasterCharts.length; i++) {
+                if (max < filteredMasterCharts[i]._count) {
+                    max = filteredMasterCharts[i]._count
+                    id = filteredMasterCharts[i].masterId
+                    index = i
+                }
+            }
+            result.push({ masterId: id, _count: max })
+            filteredMasterCharts.splice(index, 1)
+        }
+        if (filteredMasterCharts.length) {
+            const masterIdWithOutTop = filteredMasterCharts.map((elem) => elem.masterId)
+            const sumCountWithOutTop = await prisma.order.aggregate({
+                where: {
+                    masterId: { in: masterIdWithOutTop },
+
+                    AND: [
+                        {
+                            startAt: filterStartDay
+                                ? { gte: filterStartDay }
+                                : undefined,
+                        },
+                        {
+                            endAt: filterEndAt ? { lte: filterEndAt } : undefined,
+                        },
+                    ],
+                },
+                _count: true,
+            })
+            result.push({ masterId: 0, _count: sumCountWithOutTop._count })
+        }
+        res.status(200).json(result)
+    }
+
+
+    async getAllOrderCityCharts(req: Request, res: Response) {
+        const params = allOrderChartsSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const {
+            cityId,
+            filterStart,
+            filterEnd,
+        } = params.data
+        const filterStartDay = new Date(`${filterStart} UTC`)
+        const filterEndAt = new Date(`${filterEnd} UTC`)
+        const filteredCityCharts = await prisma.order.groupBy({
+            by: ['cityId'],
+            where: {
+                cityId: { in: cityId },
+                AND: [
+                    {
+                        startAt: filterStartDay
+                            ? { gte: filterStartDay }
+                            : undefined,
+                    },
+                    {
+                        endAt: filterEndAt ? { lte: filterEndAt } : undefined,
+                    },
+                ],
+            },
+            _count: true,
+        })
+        res.status(200).json(filteredCityCharts)
     }
 
     async getAllOrderFiltred(req: Request, res: Response) {
