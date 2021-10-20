@@ -9,7 +9,6 @@ import adminRouter from './routes/admin.router'
 import masterRoleRouter from './routes/masterRole.router'
 import userRoleRouter from './routes/userRole.route'
 import cors from 'cors'
-// const startWorkCommunicate = require('./communicationWithUsers')
 const app = express.default()
 const path = require('path')
 

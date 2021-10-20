@@ -5,7 +5,6 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "strict": true,
-    "skipLibCheck": false,
     "noUnusedLocals": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
