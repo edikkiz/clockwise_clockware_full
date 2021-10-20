@@ -1,6 +1,6 @@
 import { PrismaClient, Master } from '@prisma/client'
 import { Request, Response } from 'express';
-import { MasterWithRating } from '../models/models';
+import { MasterWithRating } from '../models';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { z } from "zod"
