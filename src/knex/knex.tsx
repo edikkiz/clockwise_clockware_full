@@ -79,4 +79,4 @@ const config: Knex.Config = {
     searchPath: ['knex', 'public'],
 };
 
-const knexInstance = knex(config);
+knex(config);

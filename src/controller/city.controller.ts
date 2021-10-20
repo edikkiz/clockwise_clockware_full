@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response} from 'express';
 import { createCitySchema, deleteCitySchema, updateCitySchema, getCitiesSchema } from './city.shape';
 
 const regName = new RegExp("[A-Za-zА-Яа-я]")

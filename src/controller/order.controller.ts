@@ -1,14 +1,13 @@
 import { OrderForFeedback } from '../models/models'
 import transporter from '../services/emailNotification'
 import { v4 as uuidv4 } from 'uuid'
-import { PrismaClient, Master, Order } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { Request, Response } from 'express'
 import validator from 'email-validator'
 import { createOrderSchema, updateOrderSchema, deleteOrderSchema, orderByFeedbackTokenSchema, allOrderSchema, allOrdersToTheMasterSchema, updateOrderStatusSchema, allOrdersToTheUserSchema, allOrderFiltredSchema } from './order.shape';
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 
-const regPrice = new RegExp("[0-9]")
 const regName = new RegExp("[A-Za-zА-Яа-я]")
 const date = new Date()
 const hours = date.getHours()

@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from 'express'
 
 const prisma = new PrismaClient()
 
-const saltRounds = 10
+// const saltRounds = 10
 const exp = { expiresIn: '2h' }
 
 class AuthController {

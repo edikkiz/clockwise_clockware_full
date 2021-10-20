@@ -1,5 +1,5 @@
-import { PrismaClient, Master, Order } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express';
+import { PrismaClient } from '@prisma/client'
+import { Request, Response } from 'express';
 import { createUserSchema, updateUserSchema, deleteUserSchema, getUsersSchema } from './user.shape';
 import validator from 'email-validator'
 import { v4 as uuidv4 } from 'uuid'

@@ -1,5 +1,5 @@
-import { PrismaClient, Master, Order } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express';
+import { PrismaClient, Master } from '@prisma/client'
+import { Request, Response } from 'express';
 import { MasterWithRating } from '../models/models';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'

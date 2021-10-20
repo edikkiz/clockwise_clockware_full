@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import * as express from "express"
 const PORT = process.env.PORT || 3333
 import userRouter from './routes/user.routes'
 import cityRouter from './routes/city.routes'
@@ -9,8 +9,8 @@ import adminRouter from './routes/admin.router'
 import masterRoleRouter from './routes/masterRole.router'
 import userRoleRouter from './routes/userRole.route'
 import cors from 'cors'
-const startWorkCommunicate = require('./communicationWithUsers')
-const app = express()
+// const startWorkCommunicate = require('./communicationWithUsers')
+const app = express.default()
 const path = require('path')
 
 
@@ -20,7 +20,7 @@ app.use(cors({
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(`client/build`));
-  app.get('/', (req: Request, res: Response) => {
+  app.get('/', (req: express.Request, res: express.Response) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
   })
 }

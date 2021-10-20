@@ -1,8 +1,7 @@
 import { CronJob } from "cron"
 import transporter from './services/emailNotification'
 
-import { PrismaClient, Master, Order } from '@prisma/client'
-import { Request, Response, NextFunction } from 'express';
+import { PrismaClient } from '@prisma/client'
 
 
 const prisma = new PrismaClient()
