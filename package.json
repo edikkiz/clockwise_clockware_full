@@ -6,8 +6,8 @@
     "scripts": {
         "postinstall": "cd client && npm i && npm run build",
         "prettier": "prettier",
-        "start": "ts-node dist/index.ts",
-        "server": "ts-node index.ts"
+        "start": "ts-node src/index.ts",
+        "server": "ts-node dist/index.ts"
     },
     "author": "Edik",
     "license": "ISC",
