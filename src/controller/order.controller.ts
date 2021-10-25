@@ -80,12 +80,12 @@ class OrderController {
             masterId,
             clockSizeId,
             status,
-            filterStart,
-            filterEnd,
+            start,
+            end,
         } = params.data
 
-        const filterStartAt = new Date(`${filterStart} UTC`)
-        const filterEndAt = new Date(`${filterEnd} 23:59:59`)
+        const filterStartAt = new Date(`${start} UTC`)
+        const filterEndAt = new Date(`${end} 23:59:59`)
         const Orders = await prisma.order.findMany({
             where: {
                 active: true,
@@ -105,12 +105,10 @@ class OrderController {
                         status: status ? status : undefined,
                     },
                     {
-                        startAt: filterStart
-                            ? { gte: filterStartAt }
-                            : undefined,
+                        startAt: start ? { gte: filterStartAt } : undefined,
                     },
                     {
-                        endAt: filterEnd ? { lte: filterEndAt } : undefined,
+                        endAt: end ? { lte: filterEndAt } : undefined,
                     },
                 ],
             },

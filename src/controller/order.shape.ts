@@ -52,8 +52,8 @@ const allOrderFiltredShape = {
     cityId: z.string().optional(),
     clockSizeId: z.string().optional(),
     status: z.nativeEnum(OrderStatus).optional(),
-    filterStart: z.string().optional(),
-    filterEnd: z.string().optional(),
+    start: z.string().optional(),
+    end: z.string().optional(),
 }
 
 export const allOrderFiltredSchema = z.object(allOrderFiltredShape)

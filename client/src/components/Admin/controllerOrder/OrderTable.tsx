@@ -106,8 +106,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
             masterId: masterFilter,
             clockSizeId: clockSizeFilter,
             status: statusFilter,
-            filterStart: filterStart,
-            filterEnd: filterEnd,
+            start: filterStart,
+            end: filterEnd,
           },
         },
       )
@@ -351,19 +351,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               </button>
               {order.status != Status.Completed ? (
                 <Link
-                to={{
-                  pathname: `/admin/nav-order`,
-                  state: {
-                    id: order.id,
-                    userId: order.user.id,
-                    masterId: order.master.id,
-                    cityId: order.city.id,
-                    clockSizeId: order.clockSize.id,
-                    startAt: order.startAt,
-                    price: order.price
-                  }
-                }}
-                title="update the order"
+                  to={{
+                    pathname: `/admin/nav-order`,
+                    state: {
+                      id: order.id,
+                      userId: order.user.id,
+                      masterId: order.master.id,
+                      cityId: order.city.id,
+                      clockSizeId: order.clockSize.id,
+                      startAt: order.startAt,
+                      price: order.price,
+                    },
+                  }}
+                  title="update the order"
                   className="link_update__order"
                 >
                   <th className="table_link__order">update</th>
