@@ -11,8 +11,30 @@ import cors from 'cors'
 import authController from './controller/auth.controller'
 
 const PORT = process.env.PORT || 3333
+// import { loadStripe } from '@stripe/stripe-js'
 const app = express.default()
 const path = require('path')
+const stripe = require('stripe')(
+    'sk_test_51JoRKQAsmDgU6NBKaoFerhzascwnn6ok47hRAB094jdKvaco58UV9mUWe9MX44AYf4WvmfVXcGu4pLlZ2eMJBW6B00Hx4npo9E',
+)
+
+app.post('/api/create-checkout-session', async (req, res) => {
+    const session = await stripe.checkout.sessions.create({
+        line_items: [
+            {
+                // TODO: replace this with the `price` of the product you want to sell
+                price: '{{PRICE_ID}}',
+                unit_amount: 1000,
+                quantity: 1,
+            },
+        ],
+        payment_method_types: ['card'],
+        mode: 'payment',
+        success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
+        cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
+    })
+    res.redirect(303, session.url)
+})
 
 app.use(
     cors({
