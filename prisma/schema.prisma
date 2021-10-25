@@ -70,9 +70,11 @@ enum Role {
 }
 
 enum OrderStatus {
-  Pending
   IN_PROGRESS
-  Completed
+  COMPLETED
+  PENDING
+  ACTIVE
+  INACTIVE
 }
 
 model Order {
@@ -91,7 +93,7 @@ model Order {
   feedbackToken String
   rating        Float?
   feedback      String?     @default("null") @db.VarChar(255)
-  status        OrderStatus @default(Pending)
+  status        OrderStatus @default(PENDING)
   active        Boolean     @default(true)
   images        String[]
 

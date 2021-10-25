@@ -29,11 +29,11 @@ const minutes = date.getMinutes()
 const day = date.getDate()
 const month = date.getMonth() + 1
 const year = date.getFullYear()
-const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-${
-    day < 10 ? `0${day}` : `${day}`
-} ${hours < 10 ? `0${hours}` : `${hours}`}:${
-    minutes < 10 ? `0${minutes}` : `${minutes}`
-}`
+const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-
+${day < 10 ? `0${day}` : `${day}`} 
+${hours < 10 ? `0${hours}` : `${hours}`}:
+${minutes < 10 ? `0${minutes}` : `${minutes}`}`
+
 const corDate = new Date(`${correctDate} UTC`)
 
 const prisma = new PrismaClient()

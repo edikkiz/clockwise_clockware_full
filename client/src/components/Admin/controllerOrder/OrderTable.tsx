@@ -39,8 +39,10 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const [statusesFilter, setStatusesFilter] = useState<Status[]>([
     Status.Completed,
-    Status.CREATED,
+    Status.ACTIVE,
     Status.INPROGRESS,
+    Status.INACTIVE,
+    Status.PENDING,
   ])
 
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)

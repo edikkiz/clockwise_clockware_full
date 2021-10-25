@@ -47,7 +47,9 @@ export enum FormError {
 export enum Status {
   Completed = 'COMPLETED',
   INPROGRESS = 'IN_PROGRESS',
-  CREATED = 'CREATED',
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export type Order = {
