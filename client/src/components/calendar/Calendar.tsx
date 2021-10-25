@@ -4,7 +4,7 @@ import interactionPlugin from "@fullcalendar/interaction" // needed for dayClick
 import { EventClickArg } from "@fullcalendar/common"
 import React, { Component, useState, useEffect, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrderForOneMaster, Order } from '../../models/models'
+import { AllOrderForOneMaster, Order } from '../../models'
 import { useParams } from 'react-router-dom'
 import Modal from './modal'
 
@@ -22,7 +22,7 @@ const Calendar: FC<CalendarProps> = () => {
     const getOrdersList = useCallback(() => {
         const getAllOrders = async () => {
             const { data } = await axios.get<AllOrderForOneMaster[]>(
-                `/master/allMasterOrder`, {
+                `/master/all-master-order`, {
                 params: {
                     masterId: masterId
                 }

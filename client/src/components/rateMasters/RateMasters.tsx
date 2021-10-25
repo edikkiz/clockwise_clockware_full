@@ -1,7 +1,7 @@
 import axios from 'axios'
 import './rate_masters_module.css'
 import React, { Component, useState, useEffect, FC } from 'react'
-import { AllOrder, } from '../../models/models'
+import { AllOrder, } from '../../models'
 import { useHistory, useParams } from 'react-router-dom'
 import Preloader from '../Preloader'
 import { Redirect } from 'react-router-dom'
@@ -28,7 +28,7 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
 
     useEffect(() => {
         const getOrder = async () => {
-            const { data } = await axios.get<AllOrder[]>('/getOrderForFeedback', {
+            const { data } = await axios.get<AllOrder[]>('/get-order-for-feedback', {
                 params: {
                     feedbackToken: feedbackToken
                 }
@@ -45,7 +45,7 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
         if (order[0]) {
             setIsLoading(true)
 
-            axios.put('/updateFeedbackOrder', {
+            axios.put('/update-feedback-order', {
                 feedbackText: feedbackText,
                 rating: rating,
                 id: +order[0].id

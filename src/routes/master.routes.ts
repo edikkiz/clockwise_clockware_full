@@ -2,10 +2,10 @@ import { Router } from 'express'
 const router = Router()
 import masterController from '../controller/master.controller'
 
-router.get('/getFreeMasters', masterController.getFreeMasters)
+router.get('/get-free-masters', masterController.getFreeMasters)
 
 router.post(
-    '/masterRegistration',
+    '/master-registration',
     masterController.createMasters,
   )
 // router.get('/getRating', masterController.getRating)

@@ -4,7 +4,7 @@ import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import validator from 'email-validator';
-import { City, FormError, Master } from '../../../models/models'
+import { City, FormError, Master } from '../../../models'
 import './masterRegistration_module.css'
 import { useHistory } from 'react-router-dom'
 
@@ -62,7 +62,7 @@ const MasterRegistration: FC<MasterRegistrationProps> = () => {
     const onSubmit: SubmitHandler<MasterRegistrationForm> = async (data) => {
         if (data.city != null) {
             setIsLoading(true)
-            await axios.post('/masterRegistration', {
+            await axios.post('/master-registration', {
                 name: data.name,
                 cityId: +data.city,
                 login: data.login,

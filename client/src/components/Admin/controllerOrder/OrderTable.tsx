@@ -17,7 +17,7 @@ import {
   Order,
   Status,
   User,
-} from '../../../models/models'
+} from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -78,7 +78,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const getClockSizes = useCallback(async () => {
     setIsLoading(true)
-    const { data } = await axios.get<ClockSize[]>(`/clockSizes`)
+    const { data } = await axios.get<ClockSize[]>(`/clock-sizes`)
     setClockSizes(data)
     setIsLoading(false)
   }, [])
@@ -97,7 +97,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       filterEnd
     ) {
       const { data } = await axios.get<OrderForTable[]>(
-        '/admin/allOrderFiltred',
+        '/admin/all-order-filtred',
         {
           params: {
             offset: offset,
@@ -127,7 +127,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       setIsLoading(true)
       if (window.confirm('confirm deletion of the selected order')) {
         axios
-          .put<Order[]>(`/admin/deleteOrder`, {
+          .put<Order[]>(`/admin/delete-order`, {
             id: +id,
           })
           .then(() => {
@@ -141,7 +141,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
             const getAllOrders = async () => {
               const { data } = await axios.get<OrderForTable[]>(
-                `/admin/allOrder`,
+                `/admin/all-order`,
                 {
                   params: {
                     offset,
@@ -186,7 +186,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       return
     }
     setIsLoading(true)
-    const { data } = await axios.get<OrderForTable[]>(`/admin/allOrder`, {
+    const { data } = await axios.get<OrderForTable[]>(`/admin/all-order`, {
       params: {
         offset,
         limit,
@@ -351,19 +351,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               </button>
               {order.status != Status.Completed ? (
                 <Link
-                  to={{
-                    pathname: `/admin/navOrder`,
-                    state: {
-                      id: order.id,
-                      userId: order.user.id,
-                      masterId: order.master.id,
-                      cityId: order.city.id,
-                      clockSizeId: order.clockSize.id,
-                      startAt: order.startAt,
-                      price: order.price,
-                    },
-                  }}
-                  title="update the order"
+                to={{
+                  pathname: `/admin/nav-order`,
+                  state: {
+                    id: order.id,
+                    userId: order.user.id,
+                    masterId: order.master.id,
+                    cityId: order.city.id,
+                    clockSizeId: order.clockSize.id,
+                    startAt: order.startAt,
+                    price: order.price
+                  }
+                }}
+                title="update the order"
                   className="link_update__order"
                 >
                   <th className="table_link__order">update</th>
@@ -371,7 +371,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               ) : (
                 <Link
                   to={{
-                    pathname: `/admin/navOrder`,
+                    pathname: `/admin/nav-order`,
                     state: {
                       id: order.id,
                       userId: order.user.id,

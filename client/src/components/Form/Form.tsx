@@ -1,13 +1,6 @@
 import axios from 'axios'
-import React, {
-  Component,
-  useState,
-  useEffect,
-  FC,
-  useCallback,
-  SetStateAction,
-} from 'react'
-import { City, ClockSize, FormError, Master, Order } from '../../models/models'
+import React, { Component, useState, useEffect, FC, useCallback, SetStateAction } from 'react'
+import { City, ClockSize, FormError, Master, Order } from '../../models'
 import './Form_module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -87,7 +80,7 @@ const Form: FC<ControllerFormProps> = () => {
 
   useEffect(() => {
     const getClockSize = async () => {
-      const sizes = await axios.get<ClockSize[]>('/clockSizes')
+      const sizes = await axios.get<ClockSize[]>('/clock-sizes')
       setClockSizes(sizes.data)
       if (sizes.data) {
         const { id } = sizes.data[0]
@@ -101,8 +94,10 @@ const Form: FC<ControllerFormProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getMaters = async () => {
-      if (dataForFreeMaster.every(elem => !!elem)) {
-        const { data } = await axios.get<Master[]>('/getFreeMasters', {
+      if (
+        dataForFreeMaster.every((elem) => !!elem)
+      ) {
+        const { data } = await axios.get<Master[]>('/get-free-masters', {
           params: {
             startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
             cityId: dataForFreeMaster[2],

@@ -45,8 +45,8 @@ export enum FormError {
 }
 
 export enum Status {
-  Completed = "COMPLETED",
-  INPROGRESS = 'INPROGRESS',
+  Completed = 'COMPLETED',
+  INPROGRESS = 'IN_PROGRESS',
   CREATED = 'CREATED',
 }
 
@@ -124,4 +124,16 @@ export type OrderForTable = {
 export type Rating = {
   id: number
   rating: number
+}
+
+export type MasterForTable = {
+  rating: number | null
+  countClockSizeLargeOrders: number
+  countClockSizeMiddleOrders: number
+  countClockSizeSmallOrders: number
+  countCompletedOrders: number
+  countNotCompletedOrders: number
+  id: number
+  name: string
+  profit: number | null
 }

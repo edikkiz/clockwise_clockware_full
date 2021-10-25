@@ -1,7 +1,7 @@
 import React, { useEffect, useState, FC, ReactElement } from 'react'
 import './all_controller_user_module.css'
 import axios from 'axios'
-import { FormError, User } from '../../../models/models'
+import { FormError, User } from '../../../models'
 import { useHistory, useParams } from 'react-router-dom'
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { useToasts } from 'react-toast-notifications'

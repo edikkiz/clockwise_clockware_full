@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrder, City, Master, Order, Status } from '../../../models/models'
+import { AllOrder, City, Master, Order, Status } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useHistory, useParams } from 'react-router-dom'
@@ -27,7 +27,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     setIsLoading(true)
     const getAllOrders = async () => {
       const { data } = await axios.get<AllOrder[]>(
-        `/master/allMasterOrder`, {
+        `/master/all-master-order`, {
         params: {
           masterId,
           offset,
@@ -58,12 +58,12 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
 
   const reStatus = (id: number, email: string) => {
     if (window.confirm(`confirm change status in order: ${id}`)) {
-      axios.put('/master/reStatus', {
+      axios.put('/master/re-status', {
         id: +id,
         email: email
       }).then(async () => {
         const { data } = await axios.get<AllOrder[]>(
-          `/master/allMasterOrder`, {
+          `/master/all-master-order`, {
           params: {
             masterId,
             offset,

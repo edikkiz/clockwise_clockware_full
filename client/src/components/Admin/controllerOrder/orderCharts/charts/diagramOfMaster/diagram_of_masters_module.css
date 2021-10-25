@@ -1,0 +1,17 @@
+.pie-diagram {
+  width: 800px;
+}
+
+.wrapper_charts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 20px 0 0 0;
+}
+
+.date_filter {
+  width: 30%;
+  display: flex;
+  justify-content: space-around;
+}

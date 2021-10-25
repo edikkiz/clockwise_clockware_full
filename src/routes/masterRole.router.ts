@@ -5,13 +5,13 @@ import AuthController from '../controller/auth.controller'
 import orderController from '../controller/order.controller'
 
 router.put(
-    '/master/reStatus', 
+    '/master/re-status', 
     AuthController.checkAccessToken,
     orderController.updateOrderStatus,
   )
 
   router.get(
-    '/master/allMasterOrder',
+    '/master/all-master-order',
     AuthController.checkAccessToken,
     orderController.getAllOrdersToTheMasterTable,
   )

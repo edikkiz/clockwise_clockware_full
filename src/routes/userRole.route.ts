@@ -5,7 +5,7 @@ import AuthController from '../controller/auth.controller'
 import orderController from '../controller/order.controller'
 
   router.get(
-    '/user/allUserOrder',
+    '/user/all-user-order',
     AuthController.checkAccessToken,
     orderController.getAllOrdersToTheUserTable,
   )

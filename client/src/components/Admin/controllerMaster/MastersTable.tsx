@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState, FC, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import './masters_table_module.css'
-import { City, Master } from '../../../models/models'
+import { City, Master } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -106,17 +106,6 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
     }
   }, [offset])
 
-
-  // const after = useCallback(() => {
-  //   setOffset((currentOffSet: number) => {
-  //     if (currentOffSet >= 10) {
-  //       return currentOffSet - limit
-  //     }
-  //     return 0
-  //   })
-
-  // }, [])
-
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -127,7 +116,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
             <th className="table_block_id__master">id</th>
             <th className="table_block_name__master">Name</th>
             <th className="table_block_name__master">City</th>
-            <Link className="link_create__master" to="/admin/navMaster" title="add new master"><th className="table_link">+</th></Link>
+            <th className="link_delete__master">delete</th>
           </tr>
           {
             masters.map(({ id, name, cityId }) => (
@@ -136,7 +125,6 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
                 <th className="table_block_name__master">{`${name}`}</th>
                 <th className="table_block_name__master">{`${(city(cityId))}`}</th>
 
-                <Link to={`/admin/navMaster/${id}/${cityId}/${name}`} title="update the master" className="link_update__master"><th className="table_link">update</th></Link>
                 <button type="button" onClick={() => onSubmitDelete(id)} className="link_update__master"><th className="table_link">delete</th></button>
 
               </tr>

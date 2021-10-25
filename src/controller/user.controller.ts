@@ -90,7 +90,7 @@ class UserController {
       res.status(400).json(validationErrors)
     }
     else {
-      const upUser = await prisma.user.update({
+      await prisma.user.update({
         where: {
           id: Number(id)
         },
@@ -99,7 +99,20 @@ class UserController {
           email: email
         }
       })
-      res.status(201).json(upUser)
+      const userForUpdate = await prisma.user.findUnique({
+        where: {
+          id: Number(id)
+        }
+      })
+      await prisma.person.update({
+        where: {
+          id: Number(userForUpdate?.personId)
+        },
+        data: {
+          login: email
+        }
+      })
+      res.status(201).json()
     }
   }
 

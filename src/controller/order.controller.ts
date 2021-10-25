@@ -1,7 +1,7 @@
-import { OrderForFeedback } from '../models'
+import { DataForCharts, OrderForFeedback } from '../models'
 import transporter from '../services/emailNotification'
 import { v4 as uuidv4 } from 'uuid'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
 import validator from 'email-validator'
 import {
@@ -14,6 +14,10 @@ import {
     updateOrderStatusSchema,
     allOrdersToTheUserSchema,
     allOrderFiltredSchema,
+    dataForDiagramSchema,
+    dataForCityGraphSchema,
+    dataForMasterGraphSchema,
+    dataForMasterTableSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
@@ -565,6 +569,125 @@ class OrderController {
 
         res.status(204).json(delOrder)
     }
-}
 
+    async getDataForMasterDiagram(req: Request, res: Response) {
+        const params = dataForDiagramSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { start, end } = params.data
+        const firstDay = new Date(`${start} UTC`)
+        const lastDay = new Date(`${end} 23:59:59`)
+        const DataForMasterDiagram = await prisma.$queryRaw<DataForCharts[]>`
+            (SELECT COUNT(*) AS count, masters.name FROM orders  
+            INNER JOIN masters ON orders."masterId" = masters.id
+            WHERE "startAt" >= ${firstDay} AND "endAt" <= ${lastDay}
+            GROUP BY masters.name
+            ORDER BY count DESC LIMIT 3)
+            UNION
+            (SELECT SUM(count) AS count, 'other' as name FROM (
+            SELECT COUNT(*) AS count, masters.name FROM orders
+            INNER JOIN masters ON orders."masterId" = masters.id
+            WHERE "startAt" >= ${firstDay} AND "endAt" <= ${lastDay}
+            GROUP BY masters.name
+            ORDER BY count DESC OFFSET 3) AS result)
+            `
+
+        res.status(200).json(DataForMasterDiagram)
+    }
+
+    async getDataForCityDiagram(req: Request, res: Response) {
+        const params = dataForDiagramSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { start, end } = params.data
+        const firstDay = new Date(`${start} UTC`)
+        const lastDay = new Date(`${end} 23:59:59`)
+        const DataForMasterDiagram = await prisma.$queryRaw<DataForCharts[]>`
+            (SELECT COUNT(*) AS count, cities.name FROM orders  
+            INNER JOIN cities ON orders."cityId" = cities.id
+            WHERE "startAt" >= ${firstDay} AND "endAt" <= ${lastDay}
+            GROUP BY cities.name
+            ORDER BY count DESC)
+            `
+
+        res.status(200).json(DataForMasterDiagram)
+    }
+
+    async getDataForCityGraph(req: Request, res: Response) {
+        const params = dataForCityGraphSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { start, end, citiesId } = params.data
+        const startDate = new Date(`${start} UTC`)
+        const endDate = new Date(`${end} 23:59:59`)
+
+        const dataForCityGraph = await prisma.$queryRaw<DataForCharts[]>`
+        select date::date, (SELECT COUNT(*) 
+            FROM orders 
+            WHERE "cityId" IN (${Prisma.join(citiesId)}) 
+            AND DATE("startAt") = date) from generate_series(${startDate}::date,
+            ${endDate}::date,
+            '1 day'::interval) AS date
+        `
+        res.status(200).json(dataForCityGraph)
+    }
+
+    async getDataForMasterGraph(req: Request, res: Response) {
+        const params = dataForMasterGraphSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { start, end, mastersId } = params.data
+        const startDate = new Date(`${start} UTC`)
+        const endDate = new Date(`${end} 23:59:59`)
+
+        const dataForMasterGraph = await prisma.$queryRaw<DataForCharts[]>`
+        SELECT date::date, (SELECT COUNT(*) 
+            FROM orders 
+            WHERE "masterId" IN (${Prisma.join(mastersId)}) 
+            AND DATE("startAt") = date) FROM generate_series(${startDate}::date,
+            ${endDate}::date,
+            '1 day'::interval) AS date
+        `
+        res.status(200).json(dataForMasterGraph)
+    }
+
+    async getDataForMasterTable(req: Request, res: Response) {
+        const params = dataForMasterTableSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const { limit, offset } = params.data
+        const dataForMasterTable = await prisma.$queryRaw`
+        SELECT masters.id, masters.name AS name, (	
+            SELECT COUNT(*) FROM orders 
+            WHERE orders."clockSizeId" = 1 AND orders."masterId" = masters.id
+            ) AS "countClockSizeSmallOrders", (	
+                SELECT COUNT(*) FROM orders 
+                WHERE orders."clockSizeId" = 2 AND orders."masterId" = masters.id
+            ) AS "countClockSizeMiddleOrders", (	
+                SELECT COUNT(*) FROM orders 
+                WHERE orders."clockSizeId" = 3 AND orders."masterId" = masters.id
+            ) AS "countClockSizeLargeOrders", (	
+                SELECT COUNT(*) FROM orders 
+                WHERE orders.status = 'COMPLETED' AND orders."masterId" = masters.id
+            ) AS "countCompletedOrders", (	
+                SELECT COUNT(*) FROM orders 
+                WHERE orders.status != 'COMPLETED' AND orders."masterId" = masters.id
+            ) AS "countNotCompletedOrders", (
+                SELECT SUM(orders.price) FROM orders
+                WHERE orders.status = 'COMPLETED' AND orders."masterId" = masters.id
+            ) AS profit, AVG(orders.rating) AS rating
+                    FROM orders 
+                    RIGHT JOIN masters ON orders."masterId" = masters.id
+                    GROUP BY masters.name, masters.id
+                    ORDER BY masters.name DESC
+                    LIMIT ${Number(limit)} OFFSET ${Number(offset)}
+        `
+        res.status(200).json(dataForMasterTable)
+    }
+}
 export default new OrderController()

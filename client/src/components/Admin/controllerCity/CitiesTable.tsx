@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import './cities_table_module.css'
-import { City } from '../../../models/models'
+import { City } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -94,14 +94,14 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
         <tr>
           <th className="table_block_id__city">id</th>
           <th className="table_block_name__city">Name</th>
-          <Link className="link_create__city" to="/admin/navCity" title="add new city"><th className="table_link__city">+</th></Link>
+          <Link className="link_create__city" to="/admin/nav-city" title="add new city"><th className="table_link__city">+</th></Link>
         </tr>
         {
           cities.map(({ id, name }) => (
             <tr>
               <th className="table_block_id__city">{`${id}`}</th>
               <th className="table_block_name__city">{`${name}`}</th>
-              <Link to={`/admin/navCity/${id}/${name}`} title="update the city" className="link_update__city"><th className="table_link">update</th></Link>
+              <Link to={`/admin/nav-city/${id}/${name}`} title="update the city" className="link_update__city"><th className="table_link">update</th></Link>
               <button type="button" onClick={() => onSubmitDelete(id)} className="link_update__city"><th className="table_link">delete</th></button>
             </tr>
           ))

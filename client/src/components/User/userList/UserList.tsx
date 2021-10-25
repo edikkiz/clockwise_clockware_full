@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrder, City, Master, Order, Status } from '../../../models/models'
+import { AllOrder, City, Master, Order, Status } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useHistory, useParams } from 'react-router-dom'
@@ -27,7 +27,7 @@ const UserList: FC<userListProps> = () => {
     setIsLoading(true)
     const getAllOrders = async () => {
       const { data } = await axios.get<AllOrder[]>(
-        `/user/allUserOrder`, {
+        `/user/all-user-order`, {
         params: {
           userId,
           offset,
