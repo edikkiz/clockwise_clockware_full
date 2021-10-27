@@ -3,16 +3,24 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import { format } from 'date-fns'
 import './diagram_of_cities_module.css'
+import Preloader from '../../../../../Preloader'
 
-const nowDate = new Date()
-const firstDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth(), 1),
-  'yyyy-MM-dd',
-)
-const lastDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0),
-  'yyyy-MM-dd',
-)
+export const FirstDayMonth = () => {
+  const currentDate = new Date()
+  const firstDayMonth = format(
+    new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+    'yyyy-MM-dd',
+  )
+  return firstDayMonth
+}
+export const LastDayMonth = () => {
+  const currentDate = new Date()
+  const lastDayMonth = format(
+    new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+    'yyyy-MM-dd',
+  )
+  return lastDayMonth
+}
 
 type DataForCityDiagram = {
   count: number
@@ -21,41 +29,38 @@ type DataForCityDiagram = {
 
 interface DiagramOfCitiesProps {}
 const DiagramOfCities: FC<DiagramOfCitiesProps> = () => {
-  const [filterStart, setFilterStart] = useState<string>(firstDayMonth)
-  const [filterEnd, setFilterEnd] = useState<string>(lastDayMonth)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
 
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])
-  const [allColors, setAllColors] = useState<string[]>([])
 
   useEffect(() => {
+    setIsLoading(true)
     const getDataForDiagram = async () => {
-      const { data } = await axios.post<DataForCityDiagram[]>(
-        '/admin/get-data-for-city-diagram',
+      const { data } = await axios.get<DataForCityDiagram[]>(
+        '/admin/diagrama/city',
         {
-          start: filterStart,
-          end: filterEnd,
+          params: {
+            start: filterStart,
+            end: filterEnd,
+          },
         },
       )
       const count = data.map(dataForDiagram => dataForDiagram.count)
       const label = data.map(dataForDiagram => dataForDiagram.name)
       setCitiesLabels(label)
       setCitiesCount(count)
-
-      const result: string[] = []
-      for (let i = 0; i < data.length; i++) {
-        const r = Math.round(Math.random() * 255)
-        const g = Math.round(Math.random() * 255)
-        const b = Math.round(Math.random() * 255)
-        result.push(`rgb(${r}, ${g}, ${b})`)
-      }
-      setAllColors(result)
+      setIsLoading(false)
     }
     getDataForDiagram()
   }, [filterStart, filterEnd])
 
   return (
     <div className="wrapper_charts">
+      <Preloader isLoading={isLoading} />
       <div className="date_filter">
         <label>Start:</label>
         <input
@@ -85,7 +90,30 @@ const DiagramOfCities: FC<DiagramOfCitiesProps> = () => {
             labels: citiesLabels,
             datasets: [
               {
-                backgroundColor: allColors,
+                backgroundColor: [
+                  'black',
+                  'blue',
+                  'red',
+                  'green',
+                  'yellow',
+                  'pink',
+                  'navy',
+                  'brown',
+                  'gray',
+                  'orange',
+                ],
+                hoverBackgroundColor: [
+                  'black',
+                  'blue',
+                  'red',
+                  'green',
+                  'yellow',
+                  'pink',
+                  'navy',
+                  'brown',
+                  'rgb(50, 50, 50)',
+                  'orange',
+                ],
                 label: 'orders for this city',
                 data: citiesCount,
                 borderWidth: 4,

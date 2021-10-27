@@ -26,11 +26,11 @@ class AuthController {
                     res.status(401).send()
                 }
                 if (
-                    (req.url.split('/')[1] === 'admin' &&
+                    (req.originalUrl.split('/')[2] === 'admin' &&
                         role[0].role === 'ADMIN') ||
-                    (req.url.split('/')[1] === 'master' &&
+                    (req.originalUrl.split('/')[2] === 'master' &&
                         role[0].role === 'MASTER') ||
-                    (req.url.split('/')[1] === 'user' &&
+                    (req.originalUrl.split('/')[2] === 'user' &&
                         role[0].role === 'USER')
                 ) {
                     next()

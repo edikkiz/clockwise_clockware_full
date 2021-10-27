@@ -4,9 +4,9 @@ import './App.css'
 import CitiesTable from './components/Admin/controllerCity/CitiesTable'
 import Header from './components/Header/Header'
 
-import AllControllerCity from './components/Admin/controllerCity/AllControllerCity'
-import AllControllerOrder from './components/Admin/controllerOrder/AllControllerOrder'
-import AllControllerUser from './components/Admin/controllerUser/AllControllerUser'
+import FormForChangeOrCreateCity from './components/Admin/controllerCity/FormForChangeOrCreateCity'
+import ChangeOrderForm from './components/Admin/controllerOrder/ChangeOrderForm'
+import ChangeUserForm from './components/Admin/controllerUser/ChangeUserForm'
 import Form from './components/Form/Form'
 import Login from './components/Admin/Login'
 import PrivateRoute from './PrivateRoute'
@@ -32,30 +32,26 @@ function App() {
           <PrivateRoute path="/role/master/:id?" component={MasterWorkList} />
 
           <Route path="/master/registration">
-            {' '}
-            <Header /> <MasterRegistration />{' '}
+            <Header /> <MasterRegistration />
           </Route>
 
           <Route path="/" exact>
-            {' '}
-            <Header /> <Form />{' '}
+            <Header /> <Form />
           </Route>
 
           <PrivateRoute path="/admin/charts" component={OrderCharts} />
 
           <Route path="/calendar/:masterId?" exact>
-            {' '}
-            <Calendar />{' '}
+            <Calendar />
           </Route>
 
           <Route path="/rate/:feedbackToken">
-            {' '}
-            <Header /> <RateMaster />{' '}
+            <Header /> <RateMaster />
           </Route>
 
           <PrivateRoute
             path="/admin/nav-city/:id?/:name?"
-            component={AllControllerCity}
+            component={FormForChangeOrCreateCity}
           />
 
           <PrivateRoute path="/admin/users" component={UsersTable} />
@@ -64,12 +60,12 @@ function App() {
 
           <PrivateRoute
             path="/admin/nav-order/:id?/:userId?/:masterId?/:cityId?/:clockSizeId?/:startAt?/:price?/:status?"
-            component={AllControllerOrder}
+            component={ChangeOrderForm}
           />
 
           <PrivateRoute
             path="/admin/nav-user/:id?/:userName?/:userEmail?"
-            component={AllControllerUser}
+            component={ChangeUserForm}
           />
 
           <PrivateRoute path="/admin/masters" component={MastersTable} />
@@ -77,7 +73,6 @@ function App() {
           <PrivateRoute path="/admin/cities" component={CitiesTable} />
 
           <Route path="/login">
-            {' '}
             <Header /> <Login />
           </Route>
         </Switch>

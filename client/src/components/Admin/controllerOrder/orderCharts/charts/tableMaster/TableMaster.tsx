@@ -2,10 +2,13 @@ import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import { ClockSize, MasterForTable } from '../../../../../../models'
 import './table_master_module.css'
+import Preloader from '../../../../../Preloader'
 
 const limit = 10
 interface MasterTableChartsProps {}
 const MasterTableCharts: FC<MasterTableChartsProps> = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const [offset, setOffset] = useState<number>(0)
 
   const [masters, setMasters] = useState<MasterForTable[]>([])
@@ -13,19 +16,23 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
   const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
 
   useEffect(() => {
+    setIsLoading(true)
     const getClockSizes = async () => {
       const { data } = await axios.get('/clock-sizes')
       setClockSizes(data)
+      setIsLoading(false)
     }
     getClockSizes()
   }, [])
 
   useEffect(() => {
+    setIsLoading(true)
     const getMasterForTable = async () => {
-      const { data } = await axios.get('/admin/get-data-for-master-table', {
+      const { data } = await axios.get('/admin/tabel/masters', {
         params: { limit: limit, offset: offset },
       })
       setMasters(data)
+      setIsLoading(false)
     }
     getMasterForTable()
   }, [])
@@ -45,6 +52,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
 
   return (
     <div>
+      <Preloader isLoading={isLoading} />
       <div className="wrapper_masters__charts">
         <table className="wrapper_masters__table__charts">
           <tr>
@@ -62,9 +70,9 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
             <tr>
               <th className="table_block_id__master">{`${master.id}`}</th>
               <th className="table_block_name__master__charts">{`${master.name}`}</th>
-              <th className="table_block_name__master__charts">{`${master.countClockSizeSmallOrders}`}</th>
-              <th className="table_block_name__master__charts">{`${master.countClockSizeMiddleOrders}`}</th>
-              <th className="table_block_name__master__charts">{`${master.countClockSizeLargeOrders}`}</th>
+              <th className="table_block_name__master__charts">{`${master.smallOrdersCount}`}</th>
+              <th className="table_block_name__master__charts">{`${master.middleOrdersCount}`}</th>
+              <th className="table_block_name__master__charts">{`${master.largeOrdersCount}`}</th>
 
               <th className="table_block_name__master__charts">{`${
                 master.rating === null ? 0 : master.rating

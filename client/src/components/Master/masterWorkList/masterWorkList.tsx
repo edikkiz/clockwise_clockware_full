@@ -27,7 +27,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     setIsLoading(true)
     const getAllOrders = async () => {
       const { data } = await axios.get<AllOrder[]>(
-        `/master/all-master-order`, {
+        `/master/master-orders`, {
         params: {
           masterId,
           offset,
@@ -58,12 +58,12 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
 
   const reStatus = (id: number, email: string) => {
     if (window.confirm(`confirm change status in order: ${id}`)) {
-      axios.put('/master/re-status', {
+      axios.put('/master/change-status', {
         id: +id,
         email: email
       }).then(async () => {
         const { data } = await axios.get<AllOrder[]>(
-          `/master/all-master-order`, {
+          `/master/master-orders`, {
           params: {
             masterId,
             offset,

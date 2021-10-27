@@ -1,20 +1,10 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Line } from 'react-chartjs-2'
-import { format } from 'date-fns'
-import { Master } from '../../../../../../models'
-import { MultiSelect } from 'react-multi-select-component'
-import './graph_of_master.css'
-
-const nowDate = new Date()
-const firstDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth(), 1),
-  'yyyy-MM-dd',
-)
-const lastDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0),
-  'yyyy-MM-dd',
-)
+import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
+import './graph_of_master_module.css'
+import MasterMultiSelect from '../../../../../reusableСomponents/masterMultiSelect/MasterMultiSelect'
+import Preloader from '../../../../../Preloader'
 
 type DataForMasterDiagram = {
   count: number
@@ -28,8 +18,10 @@ type MultiSelectOption = {
 
 interface GraphOfMastersProps {}
 const GraphOfMasters: FC<GraphOfMastersProps> = () => {
-  const [filterStart, setFilterStart] = useState<string>(firstDayMonth)
-  const [filterEnd, setFilterEnd] = useState<string>(lastDayMonth)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
 
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])
@@ -38,50 +30,38 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
     MultiSelectOption[]
   >([])
 
-  const [mastersOptionForSelect, setMastersOptionForSelect] = useState<
-    MultiSelectOption[]
-  >([])
-
-  useEffect(() => {
-    const getCities = async () => {
-      const masters = await axios.get<Master[]>(`/admin/master`)
-      const mastersOptions: MultiSelectOption[] = []
-      masters.data.forEach(({ name, id }) =>
-        mastersOptions.push({ label: name, value: id }),
-      )
-      setMastersOptionForSelect(mastersOptions)
-      setMastersIdMultiSelect(mastersOptions)
-    }
-    getCities()
-  }, [])
-
   useEffect(() => {
     if (mastersIdMultiSelect.length) {
+      setIsLoading(true)
       const mastersId = mastersIdMultiSelect.map(({ value }) => value)
       const getDataForDiagram = async () => {
-        const { data } = await axios.post<DataForMasterDiagram[]>(
-          '/admin/get-data-for-master-graph',
+        const { data } = await axios.get<DataForMasterDiagram[]>(
+          '/admin/graph/master',
           {
-            start: filterStart,
-            end: filterEnd,
-            mastersId: mastersId,
+            params: {
+              start: filterStart,
+              end: filterEnd,
+              mastersIDs: mastersId,
+            },
           },
         )
         const count = data.map(day => day.count)
         const label = data.map(day => day.date)
         setMastersLabels(label)
         setMastersCount(count)
+        setIsLoading(false)
       }
       getDataForDiagram()
-    }
-    if (!mastersIdMultiSelect.length) {
+    } else {
       setMastersLabels([])
       setMastersCount([])
+      setIsLoading(false)
     }
   }, [filterStart, filterEnd, mastersIdMultiSelect])
 
   return (
     <div className="wrapper_graph">
+      <Preloader isLoading={isLoading} />
       <div className="filter">
         <label>Start:</label>
         <input
@@ -105,12 +85,9 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
           }}
         />
         <label>Choose masters:</label>
-        <MultiSelect
-          className="selectFilter"
-          onChange={setMastersIdMultiSelect}
-          options={mastersOptionForSelect}
-          value={mastersIdMultiSelect}
-          labelledBy="No master for filter"
+        <MasterMultiSelect
+          setMultiSelectValue={setMastersIdMultiSelect}
+          multiSelectValue={mastersIdMultiSelect}
         />
       </div>
       <div className="pie-diagram">

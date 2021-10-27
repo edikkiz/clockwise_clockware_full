@@ -8,118 +8,86 @@ import cityController from '../controller/city.controller'
 import userController from '../controller/user.controller'
 
 router.put(
-    '/admin/order',
+    '/order',
     AuthController.checkAccessToken,
     orderController.updateOrder,
 )
 
 router.get(
-    '/admin/get-free-masters',
+    '/free-masters',
     AuthController.checkAccessToken,
     masterController.getFreeMastersForPutOrder,
 )
 
-router.put(
-    '/admin/delete-order',
+router.delete(
+    '/delete-order',
     AuthController.checkAccessToken,
     orderController.deleteOrder,
 )
 
 router.get(
-    '/admin/order',
+    '/orders-filtered',
     AuthController.checkAccessToken,
-    orderController.getOrder,
-) // where i need this??
-
-router.get(
-    '/admin/all-order',
-    AuthController.checkAccessToken,
-    orderController.getAllOrder,
+    orderController.getAllOrders,
 )
 
-router.get(
-    '/admin/all-order-filtred',
-    AuthController.checkAccessToken,
-    orderController.getAllOrderFiltred,
-)
-
-router.put(
-    '/admin/master',
-    AuthController.checkAccessToken,
-    masterController.updateMaster,
-)
 router.delete(
-    '/admin/master',
+    '/master',
     AuthController.checkAccessToken,
     masterController.deleteMaster,
 )
 
 router.get(
-    '/admin/master',
+    '/masters',
     AuthController.checkAccessToken,
     masterController.getMasters,
 )
 
-router.post(
-    '/admin/city',
-    AuthController.checkAccessToken,
-    cityController.createCity,
-)
-router.put(
-    '/admin/city',
-    AuthController.checkAccessToken,
-    cityController.updateCity,
-)
+router.post('/city', AuthController.checkAccessToken, cityController.createCity)
+
+router.put('/city', AuthController.checkAccessToken, cityController.updateCity)
 router.delete(
-    '/admin/city',
+    '/city',
     AuthController.checkAccessToken,
     cityController.deleteCity,
 )
 
-router.get(
-    '/admin/user',
-    AuthController.checkAccessToken,
-    userController.getUsers,
-)
+router.get('/users', AuthController.checkAccessToken, userController.getUsers)
 
-router.put(
-    '/admin/user',
-    AuthController.checkAccessToken,
-    userController.updateUser,
-)
+router.put('/user', AuthController.checkAccessToken, userController.updateUser)
 
 router.delete(
-    '/admin/user',
+    '/user',
     AuthController.checkAccessToken,
     userController.deleteUser,
 )
 
-router.post(
-    '/admin/get-data-for-master-diagram',
+router.get(
+    '/diagrama/master',
     AuthController.checkAccessToken,
     orderController.getDataForMasterDiagram,
 )
 
-router.post(
-    '/admin/get-data-for-city-diagram',
+router.get(
+    '/diagrama/city',
     AuthController.checkAccessToken,
     orderController.getDataForCityDiagram,
 )
 
-router.post(
-    '/admin/get-data-for-city-graph',
+router.get(
+    '/graph/city',
     AuthController.checkAccessToken,
     orderController.getDataForCityGraph,
 )
 
-router.post(
-    '/admin/get-data-for-master-graph',
+router.get(
+    '/graph/master',
     AuthController.checkAccessToken,
     orderController.getDataForMasterGraph,
 )
 
 router.get(
-    '/admin/get-data-for-master-table',
+    '/tabel/masters',
     AuthController.checkAccessToken,
     orderController.getDataForMasterTable,
 )

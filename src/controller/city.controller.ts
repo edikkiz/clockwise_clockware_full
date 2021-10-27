@@ -18,8 +18,8 @@ class CityController {
       res.status(200).json(cities)
     }
     else {
-      const city = await prisma.city.findMany()
-      res.status(200).json(city)
+      const cities = await prisma.city.findMany()
+      res.status(200).json(cities)
     }
   }
 

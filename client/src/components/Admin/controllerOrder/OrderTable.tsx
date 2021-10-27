@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
+import { format } from 'date-fns'
 
 const limit = 10
 interface ControllerOrderTableProps {}
@@ -39,10 +40,10 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const [statusesFilter, setStatusesFilter] = useState<Status[]>([
     Status.Completed,
-    Status.ACTIVE,
-    Status.INPROGRESS,
-    Status.INACTIVE,
-    Status.PENDING,
+    Status.Active,
+    Status.InProgress,
+    Status.InActive,
+    Status.Pending,
   ])
 
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)
@@ -58,7 +59,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const getMasters = useCallback(async () => {
     setIsLoading(true)
-    const { data } = await axios.get<Master[]>(`/admin/master`)
+    const { data } = await axios.get<Master[]>(`/admin/masters`)
     setMasters(data)
     setIsLoading(false)
   }, [])
@@ -99,7 +100,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       filterEnd
     ) {
       const { data } = await axios.get<OrderForTable[]>(
-        '/admin/all-order-filtred',
+        '/admin/orders-filtered',
         {
           params: {
             offset: offset,
@@ -129,8 +130,10 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       setIsLoading(true)
       if (window.confirm('confirm deletion of the selected order')) {
         axios
-          .put<Order[]>(`/admin/delete-order`, {
-            id: +id,
+          .delete<Order[]>(`/admin/delete-order`, {
+            data: {
+              id: +id,
+            },
           })
           .then(() => {
             const localCopy = [...orders]
@@ -143,7 +146,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
             const getAllOrders = async () => {
               const { data } = await axios.get<OrderForTable[]>(
-                `/admin/all-order`,
+                `/admin/orders-filtered`,
                 {
                   params: {
                     offset,
@@ -188,12 +191,15 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       return
     }
     setIsLoading(true)
-    const { data } = await axios.get<OrderForTable[]>(`/admin/all-order`, {
-      params: {
-        offset,
-        limit,
+    const { data } = await axios.get<OrderForTable[]>(
+      `/admin/orders-filtered`,
+      {
+        params: {
+          offset,
+          limit,
+        },
       },
-    })
+    )
     setOrders(data)
     setIsLoading(false)
   }, [offset])
@@ -209,13 +215,11 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       <div className="wrapperFilter">
         <select
           className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No city for filter'
-              ? setCityFilter(null)
-              : setCityFilter(+event.currentTarget.value)
-          }}
+          onChange={event => setCityFilter(+event.currentTarget.value || null)}
         >
-          <option selected>No city for filter</option>
+          <option value="null" selected>
+            Select city filter
+          </option>
           {cities.map(({ id, name }) => (
             <option selected={id === cityFilter} value={+id}>
               {`${name}`}
@@ -225,13 +229,13 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
         <select
           className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No master for filter'
-              ? setMasterFilter(null)
-              : setMasterFilter(+event.currentTarget.value)
-          }}
+          onChange={event =>
+            setMasterFilter(+event.currentTarget.value || null)
+          }
         >
-          <option selected>No master for filter</option>
+          <option value="null" selected>
+            Select master filter
+          </option>
           {masters.map(({ id, name }) => (
             <option selected={id === masterFilter} value={+id}>
               {`${name}`}
@@ -241,14 +245,14 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
         <select
           className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No clock size for filter'
-              ? setClockSizeFilter(null)
-              : setClockSizeFilter(+event.currentTarget.value)
-          }}
+          onChange={event =>
+            setClockSizeFilter(+event.currentTarget.value || null)
+          }
         >
-          <option selected>No clock size for filter</option>
-          {clockSizes.map(({ id, name }) => (
+          <option value="null" selected>
+            Select clock size filter
+          </option>
+          {clockSizes.map(({ id, size }) => (
             <option selected={id === clockSizeFilter} value={+id}>
               {`${name}`}
             </option>
@@ -258,13 +262,12 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <select
           className="selectFilter"
           onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-            const { value } = event.currentTarget
-            value !== 'No status for filter'
-              ? setStatusFilter(value as Status | null)
-              : setStatusFilter(null)
+            setStatusFilter((event.currentTarget.value as Status) || null)
           }}
         >
-          <option selected>No status for filter</option>
+          <option value="" selected>
+            Select status filter
+          </option>
           {statusesFilter.map(elem => (
             <option value={elem}>{`${elem}`}</option>
           ))}
@@ -330,12 +333,14 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               <th className="table_block_name__order">{`${order.city.name}`}</th>
               <th className="table_block_name__order">{`${order.clockSize.size}`}</th>
               <th className="table_block_name__order">{`${order.master.name}`}</th>
-              <th className="table_block_name__order">{`${new Date(
-                order.startAt.split('.')[0],
-              ).toLocaleString()}`}</th>
-              <th className="table_block_name__order">{`${new Date(
-                order.endAt.split('.')[0],
-              ).toLocaleString()} `}</th>
+              <th className="table_block_name__order">{`${format(
+                new Date(order.startAt.split('.')[0]),
+                'yyyy-MM-dd HH:mm',
+              )}`}</th>
+              <th className="table_block_name__order">{`${format(
+                new Date(order.endAt.split('.')[0]),
+                'yyyy-MM-dd HH:mm',
+              )} `}</th>
               <th className="table_block_name__order">{`${order.price}`}</th>
               <th className="table_block_name__order">{`${
                 order.feedback === null ? 'no feedback' : order.feedback

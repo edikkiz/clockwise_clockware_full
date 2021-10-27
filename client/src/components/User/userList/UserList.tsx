@@ -27,7 +27,7 @@ const UserList: FC<userListProps> = () => {
     setIsLoading(true)
     const getAllOrders = async () => {
       const { data } = await axios.get<AllOrder[]>(
-        `/user/all-user-order`, {
+        `/user/user-orders`, {
         params: {
           userId,
           offset,

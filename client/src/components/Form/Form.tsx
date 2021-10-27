@@ -7,15 +7,10 @@ import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import validator from 'email-validator'
 import { promises } from 'fs'
+import {format} from 'date-fns'
 
-const date = new Date()
-const day = date.getDate()
-const month = date.getMonth() + 1
-const year = date.getFullYear()
-const hour = date.getHours()
-const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-${
-  day < 10 ? `0${day}` : `${day}`
-}`
+const correctDate = format(new Date(), 'yyyy-MM-dd')
+const hour = new Date().getHours()
 
 const time = [
   '08:00',
@@ -97,7 +92,7 @@ const Form: FC<ControllerFormProps> = () => {
       if (
         dataForFreeMaster.every((elem) => !!elem)
       ) {
-        const { data } = await axios.get<Master[]>('/get-free-masters', {
+        const { data } = await axios.get<Master[]>('/free-masters', {
           params: {
             startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
             cityId: dataForFreeMaster[2],
@@ -222,7 +217,7 @@ const Form: FC<ControllerFormProps> = () => {
             required: true,
             minLength: 3,
             maxLength: 30,
-            pattern: /[A-Za-zА-Яа-я]/,
+            pattern: /[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/,
           })}
         />
         {errors?.name?.type === FormError.REQUIRED && (

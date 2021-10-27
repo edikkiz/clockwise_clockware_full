@@ -11,16 +11,6 @@ const createMasterShape = {
 
 export const createMasterSchema = z.object(createMasterShape)
 
-
-const updateMasterShape = {
-    id: z.number().int().nonnegative(),
-    cityId: z.number().int().nonnegative(),
-    name: z.string(),
-}
-
-export const updateMasterSchema = z.object(updateMasterShape)
-
-
 const deleteMasterShape = {
     id: z.number().int().nonnegative()
 }

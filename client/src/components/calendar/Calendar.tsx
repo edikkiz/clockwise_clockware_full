@@ -22,7 +22,7 @@ const Calendar: FC<CalendarProps> = () => {
     const getOrdersList = useCallback(() => {
         const getAllOrders = async () => {
             const { data } = await axios.get<AllOrderForOneMaster[]>(
-                `/master/all-master-order`, {
+                `/master/master-orders`, {
                 params: {
                     masterId: masterId
                 }

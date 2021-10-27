@@ -1,20 +1,10 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Line } from 'react-chartjs-2'
-import { format } from 'date-fns'
-import { City } from '../../../../../../models'
-import { MultiSelect } from 'react-multi-select-component'
-import './graph_of_cities.css'
-
-const nowDate = new Date()
-const firstDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth(), 1),
-  'yyyy-MM-dd',
-)
-const lastDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0),
-  'yyyy-MM-dd',
-)
+import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
+import './graph_of_cities_module.css'
+import CityMultiSelect from '../../../../../reusableСomponents/cityMultiSelect/CityMultiSelect'
+import Preloader from '../../../../../Preloader'
 
 type DataForCityDiagram = {
   count: number
@@ -28,8 +18,10 @@ type MultiSelectOption = {
 
 interface GraphOfCitiesProps {}
 const GraphOfCities: FC<GraphOfCitiesProps> = () => {
-  const [filterStart, setFilterStart] = useState<string>(firstDayMonth)
-  const [filterEnd, setFilterEnd] = useState<string>(lastDayMonth)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
 
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])
@@ -38,50 +30,39 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
     MultiSelectOption[]
   >([])
 
-  const [citiesOptionForSelect, setCitiesOptionForSelect] = useState<
-    MultiSelectOption[]
-  >([])
-
-  useEffect(() => {
-    const getCities = async () => {
-      const cities = await axios.get<City[]>(`/city`)
-      const citiesOptions: MultiSelectOption[] = []
-      cities.data.forEach(({ name, id }) =>
-        citiesOptions.push({ label: name, value: id }),
-      )
-      setCitiesOptionForSelect(citiesOptions)
-      setCitiesIdMultiSelect(citiesOptions)
-    }
-    getCities()
-  }, [])
-
   useEffect(() => {
     if (citiesIdMultiSelect.length) {
+      setIsLoading(true)
       const citiesId = citiesIdMultiSelect.map(({ value }) => value)
       const getDataForDiagram = async () => {
-        const { data } = await axios.post<DataForCityDiagram[]>(
-          '/admin/get-data-for-city-graph',
+        const { data } = await axios.get<DataForCityDiagram[]>(
+          '/admin/graph/city',
           {
-            start: filterStart,
-            end: filterEnd,
-            citiesId: citiesId,
+            params: {
+              start: filterStart,
+              end: filterEnd,
+              citiesIDs: citiesId,
+            },
           },
         )
         const count = data.map(day => day.count)
         const label = data.map(day => day.date)
         setCitiesLabels(label)
         setCitiesCount(count)
+        setIsLoading(false)
       }
       getDataForDiagram()
-    }
-    if (!citiesIdMultiSelect.length) {
+    } else {
+      setIsLoading(true)
       setCitiesLabels([])
       setCitiesCount([])
+      setIsLoading(false)
     }
   }, [filterStart, filterEnd, citiesIdMultiSelect])
 
   return (
     <div className="wrapper_graph">
+      <Preloader isLoading={isLoading} />
       <div className="filter">
         <label>Start:</label>
         <input
@@ -106,12 +87,9 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
         />
 
         <label>Choose Cities:</label>
-        <MultiSelect
-          className="selectFilter"
-          onChange={setCitiesIdMultiSelect}
-          options={citiesOptionForSelect}
-          value={citiesIdMultiSelect}
-          labelledBy="No city for filter"
+        <CityMultiSelect
+          multiSelectValue={citiesIdMultiSelect}
+          setMultiSelectValue={setCitiesIdMultiSelect}
         />
       </div>
       <div className="pie-diagram">

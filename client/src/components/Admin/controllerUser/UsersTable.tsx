@@ -23,7 +23,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
   const getUsersList = useCallback(() => {
     setIsLoading(true)
     const getUsers = async () => {
-      const { data } = await axios.get('/admin/user', {
+      const { data } = await axios.get('/admin/users', {
         params: {
           limit,
           offset
@@ -61,7 +61,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
 
           setIsLoading(true)
           const getUsers = async () => {
-            const { data } = await axios.get('/admin/user', {
+            const { data } = await axios.get('/admin/users', {
               params: {
                 limit,
                 offset

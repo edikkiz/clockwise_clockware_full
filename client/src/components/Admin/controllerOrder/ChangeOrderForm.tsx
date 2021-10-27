@@ -1,5 +1,5 @@
 import React, { useEffect, useState, FC, ReactElement } from 'react'
-import './all_controller_order_module.css'
+import './change_order_form_module.css'
 import axios from 'axios'
 import {
   AllOrder,
@@ -52,8 +52,8 @@ interface LocationState {
   status: string
 }
 
-interface ControllerOrderProps {}
-const AllControllerOrder: FC<ControllerOrderProps> = () => {
+interface ChangeOrderFormProps {}
+const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
   const {
     register,
     handleSubmit,
@@ -116,10 +116,8 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
 
   useEffect(() => {
     const getMaters = async () => {
-      if (
-        dataForFreeMaster.every((elem) => !!elem)
-      ) {
-        const { data } = await axios.get<Master[]>(`/admin/get-free-masters`, {
+      if (dataForFreeMaster.every(elem => !!elem)) {
+        const { data } = await axios.get<Master[]>(`/admin/free-masters`, {
           params: {
             orderId: +id,
             startAt: dataForFreeMaster[0] + ' ' + dataForFreeMaster[1],
@@ -222,7 +220,7 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
             </select>
           ) : (
             <select className="wrapper_form__select" {...register('status')}>
-              <option selected className="status" value={Status.INPROGRESS}>
+              <option selected className="status" value={Status.InProgress}>
                 In progress
               </option>
               <option selected className="status" value={Status.Completed}>
@@ -260,4 +258,4 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
   )
 }
 
-export default AllControllerOrder
+export default ChangeOrderForm

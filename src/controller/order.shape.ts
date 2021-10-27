@@ -37,14 +37,6 @@ const orderByFeedbackTokenShape = {
 
 export const orderByFeedbackTokenSchema = z.object(orderByFeedbackTokenShape)
 
-const allOrderShape = {
-    limit: z.string(),
-    offset: z.string(),
-    masterId: z.string().optional(),
-}
-
-export const allOrderSchema = z.object(allOrderShape)
-
 const allOrderFiltredShape = {
     limit: z.string(),
     offset: z.string(),
@@ -91,7 +83,7 @@ export const dataForDiagramSchema = z.object(dataForDiagramShape)
 const dataForCityGraphShape = {
     start: z.string(),
     end: z.string(),
-    citiesId: z.array(z.number().nonnegative()),
+    citiesIDs: z.array(z.string()),
 }
 
 export const dataForCityGraphSchema = z.object(dataForCityGraphShape)
@@ -99,7 +91,7 @@ export const dataForCityGraphSchema = z.object(dataForCityGraphShape)
 const dataForMasterGraphShape = {
     start: z.string(),
     end: z.string(),
-    mastersId: z.array(z.number().nonnegative()),
+    mastersIDs: z.array(z.string()),
 }
 
 export const dataForMasterGraphSchema = z.object(dataForMasterGraphShape)

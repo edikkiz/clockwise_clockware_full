@@ -1,18 +1,9 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
-import { format } from 'date-fns'
 import './diagram_of_masters_module.css'
-
-const nowDate = new Date()
-const firstDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth(), 1),
-  'yyyy-MM-dd',
-)
-const lastDayMonth = format(
-  new Date(nowDate.getFullYear(), nowDate.getMonth() + 1, 0),
-  'yyyy-MM-dd',
-)
+import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
+import Preloader from '../../../../../Preloader'
 
 type DataForMasterDiagram = {
   count: number
@@ -21,31 +12,38 @@ type DataForMasterDiagram = {
 
 interface DiagramOfMastersProps {}
 const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
-  const [filterStart, setFilterStart] = useState<string>(firstDayMonth)
-  const [filterEnd, setFilterEnd] = useState<string>(lastDayMonth)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
 
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])
 
   useEffect(() => {
     const getDataForDiagram = async () => {
-      const { data } = await axios.post<DataForMasterDiagram[]>(
-        '/admin/get-data-for-master-diagram',
+      setIsLoading(true)
+      const { data } = await axios.get<DataForMasterDiagram[]>(
+        '/admin/diagrama/master',
         {
-          start: filterStart,
-          end: filterEnd,
+          params: {
+            start: filterStart,
+            end: filterEnd,
+          },
         },
       )
       const count = data.map(dataForDiagram => dataForDiagram.count)
       const label = data.map(dataForDiagram => dataForDiagram.name)
       setMastersLabels(label)
       setMastersCount(count)
+      setIsLoading(false)
     }
     getDataForDiagram()
   }, [filterStart, filterEnd])
 
   return (
     <div className="wrapper_charts">
+      <Preloader isLoading={isLoading} />
       <div className="date_filter">
         <label>Start:</label>
         <input

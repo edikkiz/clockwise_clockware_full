@@ -26,7 +26,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
   const getMastersList = useCallback(() => {
     setIsLoading(true)
     const getMasters = async () => {
-      const { data } = await axios.get<Master[]>('/admin/master', {
+      const { data } = await axios.get<Master[]>('/admin/masters', {
         params: {
           limit,
           offset
@@ -78,7 +78,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
 
           setIsLoading(true)
           const getMasters = async () => {
-            const { data } = await axios.get<Master[]>('/admin/master', {
+            const { data } = await axios.get<Master[]>('/admin/masters', {
               params: {
                 limit,
                 offset
