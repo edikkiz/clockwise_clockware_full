@@ -90,9 +90,10 @@ model Order {
   price         Int
   startAt       DateTime
   endAt         DateTime
-  feedbackToken String
+  feedbackDate  String?
+  feedbackToken String?     
   rating        Float?
-  feedback      String?     @default("null") @db.VarChar(255)
+  feedback      String?     @db.VarChar(255)
   status        OrderStatus @default(Pending)
   active        Boolean     @default(true)
   images        String[]

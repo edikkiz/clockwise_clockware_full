@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { Component, useState, useEffect, FC, useCallback, SetStateAction } from 'react'
 import { City, ClockSize, FormError, Master, Order } from '../../models'
-import './Form_module.css'
+import './form-module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'

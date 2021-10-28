@@ -1,7 +1,7 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
-import './diagram_of_masters_module.css'
+import './diagram-of-masters-module.css'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import Preloader from '../../../../../Preloader'
 
@@ -14,8 +14,8 @@ interface DiagramOfMastersProps {}
 const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
-  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth)
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth)
 
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])

@@ -100,6 +100,10 @@ class AuthController {
                 res.set({ Authorization: `Bearer ${token}` })
                     .status(200)
                     .json(result)
+            } else {
+                res.status(400).json({
+                    massage: 'login or password is not valid',
+                })
             }
         } else if (foundPerson?.role === 'USER') {
             const userPassword = foundPerson.password

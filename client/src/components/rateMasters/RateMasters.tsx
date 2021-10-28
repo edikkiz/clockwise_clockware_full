@@ -1,9 +1,8 @@
 import axios from 'axios'
-import './rate_masters_module.css'
+import './rate-masters-module.css'
 import React, { Component, useState, useEffect, FC } from 'react'
 import { AllOrder } from '../../models'
 import { useHistory, useParams } from 'react-router-dom'
-import Preloader from '../Preloader'
 import { Redirect } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 /* @ts-ignore */
@@ -27,15 +26,13 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
 
   useEffect(() => {
     const getOrder = async () => {
-      const { data } = await axios.get<AllOrder>('/order-for-feedback', {
+      const { data } = await axios.get<AllOrder[]>('/order-for-feedback', {
         params: {
           feedbackToken: feedbackToken,
         },
       })
-
-      setOrder(data)
       if (data) {
-        setOrder(data)
+        setOrder(data[0])
       } else {
         history.push('/')
       }
@@ -50,6 +47,8 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
 
       axios
         .put('/add-feedback', {
+          feedbackDate: new Date().toISOString(),
+          feedbackToken: feedbackToken,
           feedbackText: feedbackText,
           rating: rating,
           id: +order.id,
@@ -92,11 +91,9 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
               <br />
               <b>price:</b> {order.price}
               <br />
-              <b>start work on:</b> {order.startAt.split('T')[0]}{' '}
-              {order.startAt.split('T')[1]}
+              <b>start work on:</b> {order.startAt}
               <br />
-              <b>end work on:</b> {order.endAt.split('T')[0]}{' '}
-              {order.endAt.split('T')[1]}
+              <b>end work on:</b> {order.endAt}
             </div>
           </>
         )}

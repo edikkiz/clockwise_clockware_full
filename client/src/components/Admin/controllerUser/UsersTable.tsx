@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import './user_table_module.css'
+import './user-table-module.css'
 import { City, Master, User } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
@@ -107,7 +107,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
                 <th className="table_block_id__user">{`${id}`}</th>
                 <th className="table_block_name__user">{`${name}`}</th>
                 <th className="table_block_name__user">{`${email}`}</th>
-                <Link to={`/admin/nav-user/${id}/${name}/${email}`} title="update the user" className="link_update__user"><th className="table_link__user">update</th></Link>
+                <Link to={`/admin/change-user/${id}/${name}/${email}`} title="update the user" className="link_update__user"><th className="table_link__user">update</th></Link>
                 <button type="button" onClick={() => onSubmitDelete(id)} className="link_update__user"><th className="table_link__user">delete</th></button>
               </tr>
             ))

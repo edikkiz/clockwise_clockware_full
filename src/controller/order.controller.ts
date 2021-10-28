@@ -1,5 +1,5 @@
 import { DataForCharts, OrderForFeedback } from '../models'
-import sendMail from '../services/emailNotification'
+import sendMail from '../services/SendMail'
 import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
@@ -17,12 +17,12 @@ import {
     dataForCityGraphSchema,
     dataForMasterGraphSchema,
     dataForMasterTableSchema,
+    orderFeedbackSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 import { format, startOfDay, endOfDay } from 'date-fns'
 
-const regName = new RegExp('[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]')
 const date = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
 const corDate = new Date(`${date} UTC`)
 const prisma = new PrismaClient()
@@ -34,9 +34,18 @@ class OrderController {
             return
         }
         const { feedbackToken } = req.query
-        const orderByFeedbackToken = await prisma.$queryRaw<
-            OrderForFeedback[]
-        >`SELECT users.id AS "userId", orders.id, masters.name AS "masterName", cities.name AS "cityName", "clockSizes".name AS size, users.name AS "userName", users.email AS "userEmail", orders.price, orders."startAt" AS "startAt", orders."endAt" AS "endAt" FROM orders
+        const orderByFeedbackToken =
+            await prisma.$queryRaw<OrderForFeedback>`SELECT users.id AS "userId",
+            orders.id,
+            masters.name AS "masterName",
+            cities.name AS "cityName",
+            "clockSizes".size,
+            users.name AS "userName",
+            users.email AS "userEmail",
+            orders.price,
+            (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt",
+            (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt"
+            FROM orders
                 INNER JOIN masters ON orders."masterId" = masters.id
                 INNER JOIN cities ON orders."cityId" = cities.id
                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
@@ -155,7 +164,7 @@ class OrderController {
                     users.name AS "userName", 
                     users.email AS "userEmail", 
                     orders.price, 
-                    (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt", 
+                    (orders."startAt") AS "startAt", 
                     (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt", 
                     email 
                     FROM orders
@@ -261,9 +270,6 @@ class OrderController {
             validationErrors.push(
                 `Clock size with id: ${clockSizeId} is not exsisted`,
             )
-        }
-        if (!regName.test(name)) {
-            validationErrors.push('Invalid name')
         }
         if (
             date.getMinutes() !== 0 ||
@@ -371,19 +377,28 @@ class OrderController {
     }
 
     async feedbackUpdate(req: Request, res: Response) {
-        const { feedbackText, rating, id } = req.body
-        const orderWithFeedback = await prisma.order.update({
+        const params = orderFeedbackSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { feedbackToken, feedbackText, rating, id, feedbackDate } =
+            params.data
+
+        const orderWithFeedback = await prisma.order.updateMany({
             where: {
+                feedbackToken: feedbackToken,
                 id: Number(id),
             },
             data: {
+                feedbackDate: feedbackDate,
                 feedback: feedbackText,
                 rating: Number(rating),
-                feedbackToken: '',
+                feedbackToken: null,
             },
         })
-
-        res.status(201).json(orderWithFeedback)
+        orderWithFeedback.count
+            ? res.status(201).json(orderWithFeedback)
+            : res.status(400).json({ message: 'no orders with this token' })
     }
 
     async updateOrder(req: Request, res: Response) {
@@ -646,13 +661,16 @@ class OrderController {
         const dataForMasterTable = await prisma.$queryRaw`
         SELECT masters.id, masters.name AS name, (	
             SELECT COUNT(*) FROM orders 
-            WHERE orders."clockSizeId" = 1 AND orders."masterId" = masters.id
+            INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
+            WHERE "clockSizes".size = 'small' AND orders."masterId" = masters.id
             ) AS "smallOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
-                WHERE orders."clockSizeId" = 2 AND orders."masterId" = masters.id
+                INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
+                WHERE "clockSizes".size = 'middle' AND orders."masterId" = masters.id
             ) AS "middleOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
-                WHERE orders."clockSizeId" = 3 AND orders."masterId" = masters.id
+                INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
+                WHERE "clockSizes".size = 'large' AND orders."masterId" = masters.id
             ) AS "largeOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
                 WHERE orders.status = 'Completed' AND orders."masterId" = masters.id

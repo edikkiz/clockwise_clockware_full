@@ -1,5 +1,5 @@
 import React, { useEffect, useState, FC, ReactElement } from 'react'
-import './change_user_form_module.css'
+import './change-user-form-module.css'
 import axios from 'axios'
 import { FormError, User } from '../../../models'
 import { useHistory, useParams } from 'react-router-dom'

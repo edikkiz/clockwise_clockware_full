@@ -7,13 +7,13 @@ import { useHistory, useParams } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 import './masterWorkList_module.css'
 import MasterHeader from '../masterHeader/masterHeader'
+import { format } from 'date-fns'
 
 const limit = 10
 interface masterWorkListProps { }
 const MasterWorkList: FC<masterWorkListProps> = () => {
 
-
-  const { id: masterId } = useParams<{ id: string }>()
+  const { masterId } = useParams<{ masterId: string }>()
 
   const [orders, setOrders] = useState<AllOrder[]>([])
 
@@ -80,7 +80,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   return (
     <div>
       <Preloader isLoading={isLoading} />
-      <MasterHeader />
+      <MasterHeader masterId={+masterId} />
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">
           <tr>
@@ -107,10 +107,10 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 <th className="table_block_name__master-orders">{`${cityName}`}</th>
                 <th className="table_block_name__master-orders">{`${size}`}</th>
                 <th className="table_block_name__master-orders">{`${masterName}`}</th>
-                <th className="table_block_name__master-orders">{`${new Date(startAt).toLocaleString()}`}</th>
+                <th className="table_block_name__master-orders">{`${format(new Date(startAt), 'yyyy-MM-dd HH:mm')}`}</th>
                 <th className="table_block_name__master-orders">{`${new Date(endAt).toLocaleString()} `}</th>
                 <th className="table_block_name__master-orders">{`${price}`}</th>
-                <th className="table_block_name__master-orders">{`${feedback === "null" ? 'no feedback' : feedback}`}</th>
+                <th className="table_block_name__master-orders">{`${rating === null ? 'no feedback' : feedback}`}</th>
                 <th className="table_block_name__master-orders">{`${rating === null ? 'not rated' : rating}`}</th>
                 <th className="table_block_id__order">{`${status}`}</th>
                 {status != Status.Completed ? <button type="button" onClick={() => reStatus(id, email)} className="link_update__master"><th className="table_link">Сlick here to set the status completed</th></button>

@@ -29,7 +29,7 @@ function App() {
         <Switch>
           <PrivateRoute path="/role/user/:id?" component={UserList} />
 
-          <PrivateRoute path="/role/master/:id?" component={MasterWorkList} />
+          <PrivateRoute path="/role/master/:masterId?" component={MasterWorkList} />
 
           <Route path="/master/registration">
             <Header /> <MasterRegistration />
@@ -50,7 +50,7 @@ function App() {
           </Route>
 
           <PrivateRoute
-            path="/admin/nav-city/:id?/:name?"
+            path="/admin/change-city/:id?/:name?"
             component={FormForChangeOrCreateCity}
           />
 
@@ -59,12 +59,12 @@ function App() {
           <PrivateRoute path="/admin/orders" component={OrderTable} />
 
           <PrivateRoute
-            path="/admin/nav-order/:id?/:userId?/:masterId?/:cityId?/:clockSizeId?/:startAt?/:price?/:status?"
+            path="/admin/change-order/:id?/:userId?/:masterId?/:cityId?/:clockSizeId?/:startAt?/:price?/:status?"
             component={ChangeOrderForm}
           />
 
           <PrivateRoute
-            path="/admin/nav-user/:id?/:userName?/:userEmail?"
+            path="/admin/change-user/:id?/:userName?/:userEmail?"
             component={ChangeUserForm}
           />
 

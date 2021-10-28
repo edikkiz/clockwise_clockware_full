@@ -1,6 +1,6 @@
 import React, { Component, useEffect, useState, FC, useCallback, useMemo } from 'react'
 import axios from 'axios'
-import './masters_table_module.css'
+import './masters-table-module.css'
 import { City, Master } from '../../../models'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'

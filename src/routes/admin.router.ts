@@ -87,7 +87,7 @@ router.get(
 )
 
 router.get(
-    '/tabel/masters',
+    '/masters-list',
     AuthController.checkAccessToken,
     orderController.getDataForMasterTable,
 )

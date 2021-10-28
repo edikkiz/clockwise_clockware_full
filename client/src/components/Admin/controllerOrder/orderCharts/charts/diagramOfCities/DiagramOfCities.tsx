@@ -1,26 +1,12 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
-import { format } from 'date-fns'
-import './diagram_of_cities_module.css'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
+import './diagram-of-cities-module.css'
 import Preloader from '../../../../../Preloader'
 
-export const FirstDayMonth = () => {
-  const currentDate = new Date()
-  const firstDayMonth = format(
-    new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-    'yyyy-MM-dd',
-  )
-  return firstDayMonth
-}
-export const LastDayMonth = () => {
-  const currentDate = new Date()
-  const lastDayMonth = format(
-    new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
-    'yyyy-MM-dd',
-  )
-  return lastDayMonth
-}
+export const FirstDayMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+export const LastDayMonth = format(endOfMonth(new Date()), 'yyyy-MM-dd')
 
 type DataForCityDiagram = {
   count: number
@@ -31,8 +17,8 @@ interface DiagramOfCitiesProps {}
 const DiagramOfCities: FC<DiagramOfCitiesProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
-  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth)
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth)
 
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])

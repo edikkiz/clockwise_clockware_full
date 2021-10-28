@@ -2,7 +2,7 @@ import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
-import './graph_of_cities_module.css'
+import './graph-of-cities-module.css'
 import CityMultiSelect from '../../../../../reusableСomponents/cityMultiSelect/CityMultiSelect'
 import Preloader from '../../../../../Preloader'
 
@@ -20,8 +20,8 @@ interface GraphOfCitiesProps {}
 const GraphOfCities: FC<GraphOfCitiesProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
-  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth)
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth)
 
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])

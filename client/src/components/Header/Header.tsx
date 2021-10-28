@@ -1,5 +1,5 @@
 import React, { Component, FC } from 'react'
-import './Header_module.css'
+import './header-module.css'
 import logo from './logo.png'
 import { Link } from 'react-router-dom'
 
@@ -15,7 +15,7 @@ const Header: FC<ControllerHeaderProps> = () => {
             </div>
             <div className="menu__link">
               <Link to="/" className="menu_link">
-                Order{' '}
+                Order
               </Link>
               <Link to="/login" className="menu_link" > login </Link>
             </div>

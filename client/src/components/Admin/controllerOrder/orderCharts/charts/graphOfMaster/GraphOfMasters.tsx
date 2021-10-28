@@ -2,7 +2,7 @@ import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
-import './graph_of_master_module.css'
+import './graph-of-master-module.css'
 import MasterMultiSelect from '../../../../../reusableСomponents/masterMultiSelect/MasterMultiSelect'
 import Preloader from '../../../../../Preloader'
 
@@ -20,8 +20,8 @@ interface GraphOfMastersProps {}
 const GraphOfMasters: FC<GraphOfMastersProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth())
-  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth())
+  const [filterStart, setFilterStart] = useState<string>(FirstDayMonth)
+  const [filterEnd, setFilterEnd] = useState<string>(LastDayMonth)
 
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])

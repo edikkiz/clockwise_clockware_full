@@ -1,7 +1,7 @@
 import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import { ClockSize, MasterForTable } from '../../../../../../models'
-import './table_master_module.css'
+import './table-master-module.css'
 import Preloader from '../../../../../Preloader'
 
 const limit = 10
@@ -28,7 +28,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getMasterForTable = async () => {
-      const { data } = await axios.get('/admin/tabel/masters', {
+      const { data } = await axios.get('/admin/masters-list', {
         params: { limit: limit, offset: offset },
       })
       setMasters(data)

@@ -6,7 +6,7 @@ const createOrderShape = {
     masterId: z.number().int().nonnegative(),
     clockSizeId: z.number().int().nonnegative(),
     startAt: z.string(),
-    name: z.string(),
+    name: z.string().regex(new RegExp("[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]")),
     email: z.string(),
 }
 
@@ -102,3 +102,13 @@ const dataForMasterTableShape = {
 }
 
 export const dataForMasterTableSchema = z.object(dataForMasterTableShape)
+
+const orderFeedbackShape = {
+    feedbackText: z.string().optional(), 
+    rating: z.number(), 
+    id: z.number(), 
+    feedbackToken: z.string(),
+    feedbackDate: z.string()
+}
+
+export const orderFeedbackSchema = z.object(orderFeedbackShape)

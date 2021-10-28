@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState, FC } from 'react'
-import './form_for_change_or_create_city_module.css'
+import './form-for-change-or-create-city-module.css'
 import axios from 'axios'
 import { City, FormError } from '../../../models'
 import { useHistory, useParams } from 'react-router-dom'
@@ -25,10 +25,6 @@ const FormForChangeOrCreateCity: FC<FormForChangeOrCreateCityProps> = () => {
   const history = useHistory()
 
   const { addToast } = useToasts()
-
-  const whatControllerUse: SubmitHandler<CityAdd> = data => {
-    !updateId ? addCity(data) : updateCity(data)
-  }
 
   useEffect(() => {
     if (name) {
@@ -59,6 +55,9 @@ const FormForChangeOrCreateCity: FC<FormForChangeOrCreateCityProps> = () => {
       })
   }
 
+  const whatControllerUse: SubmitHandler<CityAdd> = data => {
+    !updateId ? addCity(data) : updateCity(data)
+  }
   return (
     <>
       <AdminHeader />

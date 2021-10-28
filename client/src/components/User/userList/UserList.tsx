@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useHistory, useParams } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
-import './user_list_module.css'
+import './user-list-module.css'
 import UserHeader from '../userHeader/UserHeader'
 
 const limit = 10
@@ -86,7 +86,7 @@ const UserList: FC<userListProps> = () => {
                 <th className="table_block_name__user-orders">{`${new Date(startAt).toLocaleString()}`}</th>
                 <th className="table_block_name__user-orders">{`${new Date(endAt).toLocaleString()} `}</th>
                 <th className="table_block_name__user-orders">{`${price}`}</th>
-                <th className="table_block_name__user-orders">{`${feedback === "null" ? 'no feedback' : feedback}`}</th>
+                <th className="table_block_name__user-orders">{`${rating === null ? 'no feedback' : feedback}`}</th>
                 <th className="table_block_name__user-orders">{`${rating === null ? 'not rated' : rating}`}</th>
                 <th className="table_block_id__order">{`${status}`}</th>
                 {
