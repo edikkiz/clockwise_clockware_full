@@ -4,7 +4,7 @@
     "description": "Clockwise Clockware",
     "main": "index.ts",
     "scripts": {
-        "postinstall": "npx prisma generate && cd client && npm i && npm run build",
+        "postinstall": "cd client && npm i && npm run build",
         "prettier": "prettier",
         "start": "ts-node src/index.ts",
         "build": "tsc && node dist/index.js"
