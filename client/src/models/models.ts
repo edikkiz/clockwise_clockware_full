@@ -20,7 +20,7 @@ export type Master = {
 
 export type ClockSize = {
   id: number
-  size: string
+  name: string
   timeToDone: string
   price: number
 }

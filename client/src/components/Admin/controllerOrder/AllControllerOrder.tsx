@@ -17,7 +17,6 @@ import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import Preloader from '../../Preloader'
 import AdminHeader from '../adminHeader/AdminHeader'
 
-
 const orderTime = [
   '08:00',
   '09:00',
@@ -91,7 +90,9 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
     console.log(startAt)
     if (id) {
       const time = startAt.split('T')
-      const result = orderTime.find(elem => elem === `${time[1].split(':')[0]}:00`)
+      const result = orderTime.find(
+        elem => elem === `${time[1].split(':')[0]}:00`,
+      )
       if (result) {
         setValue('time', result)
       }
@@ -116,9 +117,7 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
 
   useEffect(() => {
     const getMaters = async () => {
-      if (
-        dataForFreeMaster.every((elem) => !!elem)
-      ) {
+      if (dataForFreeMaster.every(elem => !!elem)) {
         const { data } = await axios.get<Master[]>(`/admin/getFreeMasters`, {
           params: {
             orderId: +id,
@@ -173,13 +172,13 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
           className="wrapper_form__form"
         >
           <select className="wrapper_form__select" {...register('clockSize')}>
-            {clockSizes.map(({ id, size }) => (
+            {clockSizes.map(({ id, name }) => (
               <option
                 selected={+id === +clockSizeId}
                 className="clockSize"
                 value={+id}
               >
-                {`${size}`}
+                {`${name}`}
               </option>
             ))}
           </select>
@@ -195,7 +194,6 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
           <input
             className="wrapper_form__input"
             type="date"
-            
             {...register('day')}
           />
 

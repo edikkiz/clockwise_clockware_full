@@ -4,11 +4,21 @@ import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient } from '@prisma/client'
 import { Request, Response } from 'express'
 import validator from 'email-validator'
-import { createOrderSchema, updateOrderSchema, deleteOrderSchema, orderByFeedbackTokenSchema, allOrderSchema, allOrdersToTheMasterSchema, updateOrderStatusSchema, allOrdersToTheUserSchema, allOrderFiltredSchema } from './order.shape';
+import {
+    createOrderSchema,
+    updateOrderSchema,
+    deleteOrderSchema,
+    orderByFeedbackTokenSchema,
+    allOrderSchema,
+    allOrdersToTheMasterSchema,
+    updateOrderStatusSchema,
+    allOrdersToTheUserSchema,
+    allOrderFiltredSchema,
+} from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 
-const regName = new RegExp("[A-Za-zА-Яа-я]")
+const regName = new RegExp('[A-Za-zА-Яа-я]')
 const date = new Date()
 const hours = date.getHours()
 const minutes = date.getMinutes()
@@ -37,8 +47,9 @@ class OrderController {
             return
         }
         const { feedbackToken } = req.query
-        const orderByFeedbackToken = await prisma.$queryRaw<OrderForFeedback[]>
-            `SELECT users.id AS "userId", orders.id, masters.name AS "masterName", cities.name AS "cityName", "clockSizes".size, users.name AS "userName", users.email AS "userEmail", orders.price, (TO_CHAR(orders."startAt",'YYYY-MM-DD THH24:MI')) AS "startAt", (TO_CHAR(orders."endAt", \'YYYY-MM-DDT HH24:MI'\)) AS "endAt" FROM orders
+        const orderByFeedbackToken = await prisma.$queryRaw<
+            OrderForFeedback[]
+        >`SELECT users.id AS "userId", orders.id, masters.name AS "masterName", cities.name AS "cityName", "clockSizes".name AS size, users.name AS "userName", users.email AS "userEmail", orders.price, orders."startAt" AS "startAt", orders."endAt" AS "endAt" FROM orders
                 INNER JOIN masters ON orders."masterId" = masters.id
                 INNER JOIN cities ON orders."cityId" = cities.id
                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
@@ -120,7 +131,7 @@ class OrderController {
                 clockSize: {
                     select: {
                         id: true,
-                        size: true,
+                        name: true,
                     },
                 },
                 user: {
@@ -173,7 +184,7 @@ class OrderController {
                 clockSize: {
                     select: {
                         id: true,
-                        size: true,
+                        name: true,
                     },
                 },
                 user: {
@@ -194,13 +205,13 @@ class OrderController {
 
         res.status(200).json(orders)
     }
-    
+
     async getAllOrdersToTheMasterTable(req: Request, res: Response) {
         const params = allOrdersToTheMasterSchema.safeParse(req.query)
         if (params.success) {
             const { offset, limit, masterId } = params.data
             const orderListForOneMaster =
-                await prisma.$queryRaw`SELECT orders.id, orders.status, orders.feedback, orders.rating, "clockSizeId", orders."cityId", masters.id AS "masterId", users.id AS "userId", masters.name AS "masterName", cities.name AS "cityName", "clockSizes".size, users.name AS "userName", users.email AS "userEmail", orders.price, (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt", (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt", email FROM orders
+                await prisma.$queryRaw`SELECT orders.id, orders.status, orders.feedback, orders.rating, "clockSizeId", orders."cityId", masters.id AS "masterId", users.id AS "userId", masters.name AS "masterName", cities.name AS "cityName", "clockSizes".name AS size, users.name AS "userName", users.email AS "userEmail", orders.price, orders."startAt" AS "startAt", orders."endAt" AS "endAt", email FROM orders
                                                 INNER JOIN masters ON orders."masterId" = masters.id
                                                 INNER JOIN cities ON orders."cityId" = cities.id
                                                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
@@ -215,7 +226,7 @@ class OrderController {
         } else {
             const { masterId } = req.query
             const orderListForOneMaster =
-                await prisma.$queryRaw`SELECT (TO_CHAR(orders.id, '"Order#"99999')) AS title, orders.status, orders.feedback, orders.rating, masters.name AS "masterName", cities.name AS "cityName", "clockSizes".size, users.name AS "userName", users.email AS "userEmail", orders.price, (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "start", (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "end", email FROM orders
+                await prisma.$queryRaw`SELECT (TO_CHAR(orders.id, '"Order#"99999')) AS title, orders.status, orders.feedback, orders.rating, masters.name AS "masterName", cities.name AS "cityName", "clockSizes".name AS size, users.name AS "userName", users.email AS "userEmail", orders.price, orders."startAt" AS "start", orders."endAt" AS "end", email FROM orders
                                                 INNER JOIN masters ON orders."masterId" = masters.id
                                                 INNER JOIN cities ON orders."cityId" = cities.id
                                                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
@@ -229,21 +240,22 @@ class OrderController {
     }
 
     async getAllOrdersToTheUserTable(req: Request, res: Response) {
-
         allOrdersToTheUserSchema.parse(req.query)
         const { offset, limit, userId } = req.query
         const orderListForOneUser =
-            await prisma.$queryRaw`SELECT orders."feedbackToken" AS "feedbackToken", orders.id, orders.status, orders.feedback, orders.rating, "clockSizeId", orders."cityId", masters.id AS "masterId", users.id AS "userId", masters.name AS "masterName", cities.name AS "cityName", "clockSizes".size, users.name AS "userName", users.email AS "userEmail", orders.price, (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt", (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt", email FROM orders
+            await prisma.$queryRaw`SELECT orders."feedbackToken" AS "feedbackToken", orders.id, orders.status, orders.feedback, orders.rating, "clockSizeId", orders."cityId", masters.id AS "masterId", users.id AS "userId", masters.name AS "masterName", cities.name AS "cityName", "clockSizes".name AS size, users.name AS "userName", users.email AS "userEmail", orders.price, orders."startAt" AS "startAt", orders."endAt" AS "endAt", email FROM orders
                                                 INNER JOIN masters ON orders."masterId" = masters.id
                                                 INNER JOIN cities ON orders."cityId" = cities.id
                                                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
                                                 INNER JOIN users ON orders."userId" = users.id
-                                                WHERE orders."userId" = ${Number(userId)} AND orders.active = true
-                                                ORDER BY orders.id DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`
+                                                WHERE orders."userId" = ${Number(
+                                                    userId,
+                                                )} AND orders.active = true
+                                                ORDER BY orders.id DESC LIMIT ${Number(
+                                                    limit,
+                                                )} OFFSET ${Number(offset)}`
         res.status(200).json(orderListForOneUser)
-
     }
-
 
     async createOrder(req: Request, res: Response) {
         const params = createOrderSchema.safeParse(req.body)
@@ -291,16 +303,20 @@ class OrderController {
         }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
-        }
-        else {
+        } else {
             const fileStr = req.body.images
 
             const imagesUrls: string[] = (
                 await Promise.all<cloudinary.UploadApiResponse>(
-                    fileStr.map((image: string) => cloudinary.v2.uploader.upload(image)))
-            ).map((response) => response.url)
+                    fileStr.map((image: string) =>
+                        cloudinary.v2.uploader.upload(image),
+                    ),
+                )
+            ).map(response => response.url)
 
-            const clockInfo = await prisma.clockSize.findUnique({ where: { id: Number(clockSizeId) } })
+            const clockInfo = await prisma.clockSize.findUnique({
+                where: { id: Number(clockSizeId) },
+            })
             const feedbackToken = uuidv4()
             if (clockInfo) {
                 const price = Number(clockInfo.price)
@@ -342,17 +358,17 @@ class OrderController {
                     const hash = bcrypt.hashSync(password, salt)
                     const newUserRole = await prisma.person.create({
                         data: {
-                            login: email,
+                            email: email,
                             password: hash,
-                            role: "USER"
-                        }
+                            role: 'USER',
+                        },
                     })
                     const newUser = await prisma.user.create({
                         data: {
                             name: name,
                             email: email,
-                            personId: Number(newUserRole.id)
-                        }
+                            personId: Number(newUserRole.id),
+                        },
                     })
                     const newOrder = await prisma.order.create({
                         data: {
@@ -373,7 +389,7 @@ class OrderController {
                         to: email,
                         subject: 'confirm your order',
                         text: `confirm order`,
-                        html: `<p>your password: ${password}</p>`
+                        html: `<p>your password: ${password}</p>`,
                     })
                     res.status(201).json(newOrder)
                 }
@@ -390,8 +406,8 @@ class OrderController {
             data: {
                 feedback: feedbackText,
                 rating: Number(rating),
-                feedbackToken: ''
-            }
+                feedbackToken: '',
+            },
         })
 
         res.status(201).json(orderWithFeedback)
@@ -478,17 +494,17 @@ class OrderController {
                         price: Number(price),
                         startAt: newOrderStartAt,
                         endAt: newOrderEndAt,
-                        status: status
-                    }
+                        status: status,
+                    },
                 })
-                status === "COMPLETED" && (await transporter.sendMail({
-                    from: process.env.NOTIFICATION_EMAIL,
-                    to: user?.email,
-                    subject: 'your order now has a status completed',
-                    text: 'your order now has a status completed',
-                    html: `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`
-                }))
-
+                status === 'Completed' &&
+                    (await transporter.sendMail({
+                        from: process.env.NOTIFICATION_EMAIL,
+                        to: user?.email,
+                        subject: 'your order now has a status completed',
+                        text: 'your order now has a status completed',
+                        html: `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                    }))
 
                 res.status(201).json(upOrder)
             }
@@ -516,7 +532,7 @@ class OrderController {
                     id: Number(id),
                 },
                 data: {
-                    status: 'COMPLETED',
+                    status: 'Completed',
                 },
             })
 
@@ -525,7 +541,7 @@ class OrderController {
                 to: email,
                 subject: 'your order now has a status completed',
                 text: 'your order now has a status completed, you can rate master',
-                html: `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`
+                html: `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
             })
 
             res.status(200).json(orderWithNewStatus)

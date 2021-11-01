@@ -37,7 +37,11 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
   const [clockSizeFilter, setClockSizeFilter] = useState<number | null>(null)
 
-  const [statusesFilter, setStatusesFilter] = useState<Status[]>([Status.Completed, Status.CREATED, Status.INPROGRESS])
+  const [statusesFilter, setStatusesFilter] = useState<Status[]>([
+    Status.Completed,
+    Status.CREATED,
+    Status.INPROGRESS,
+  ])
 
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)
 
@@ -107,7 +111,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           },
         },
       )
-      if(!data.length) { addToast('no orders for this filter', {appearance: 'warning'})}
+      if (!data.length) {
+        addToast('no orders for this filter', { appearance: 'warning' })
+      }
       setOrders(data)
     }
   }
@@ -240,9 +246,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           }}
         >
           <option selected>No clock size for filter</option>
-          {clockSizes.map(({ id, size }) => (
+          {clockSizes.map(({ id, name }) => (
             <option selected={id === clockSizeFilter} value={+id}>
-              {`${size}`}
+              {`${name}`}
             </option>
           ))}
         </select>
@@ -252,9 +258,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
             const { value } = event.currentTarget
             value !== 'No status for filter'
-              ? setStatusFilter(
-                  value as Status | null,
-                )
+              ? setStatusFilter(value as Status | null)
               : setStatusFilter(null)
           }}
         >
@@ -325,7 +329,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               <th className="table_block_name__order">{`${order.clockSize.size}`}</th>
               <th className="table_block_name__order">{`${order.master.name}`}</th>
               <th className="table_block_name__order">{`${new Date(
-                order.startAt.split('.')[0]).toLocaleString()}`}</th>
+                order.startAt.split('.')[0],
+              ).toLocaleString()}`}</th>
               <th className="table_block_name__order">{`${new Date(
                 order.endAt.split('.')[0],
               ).toLocaleString()} `}</th>
@@ -346,19 +351,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               </button>
               {order.status != Status.Completed ? (
                 <Link
-                to={{
-                  pathname: `/admin/navOrder`,
-                  state: {
-                    id: order.id,
-                    userId: order.user.id,
-                    masterId: order.master.id,
-                    cityId: order.city.id,
-                    clockSizeId: order.clockSize.id,
-                    startAt: order.startAt,
-                    price: order.price
-                  }
-                }}
-                title="update the order"
+                  to={{
+                    pathname: `/admin/navOrder`,
+                    state: {
+                      id: order.id,
+                      userId: order.user.id,
+                      masterId: order.master.id,
+                      cityId: order.city.id,
+                      clockSizeId: order.clockSize.id,
+                      startAt: order.startAt,
+                      price: order.price,
+                    },
+                  }}
+                  title="update the order"
                   className="link_update__order"
                 >
                   <th className="table_link__order">update</th>
@@ -374,8 +379,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
                       cityId: order.city.id,
                       clockSizeId: order.clockSize.id,
                       startAt: order.startAt,
-                      price: order.price
-                    }
+                      price: order.price,
+                    },
                   }}
                   title="update the order"
                   className="link_update__order-disabled"

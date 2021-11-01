@@ -48,7 +48,7 @@ class AuthController {
         }
         const foundPerson = await prisma.person.findUnique({
             where: {
-                login: email,
+                email: email,
             },
         })
         if (foundPerson?.role === 'ADMIN') {

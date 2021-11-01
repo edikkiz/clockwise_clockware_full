@@ -24,7 +24,7 @@ model User {
 
 model ClockSize {
   id         Int     @id @default(autoincrement())
-  size       String  @db.VarChar(255)
+  name       String  @db.VarChar(255)
   price      Int
   timeToDone Int
   orders     Order[]
@@ -55,7 +55,7 @@ model Master {
 
 model Person {
   id       Int      @id @default(autoincrement())
-  login    String   @unique @db.VarChar(255)
+  email    String   @unique @db.VarChar(255)
   password String   @db.VarChar(255)
   role     Role
   masters  Master[]
@@ -70,9 +70,9 @@ enum Role {
 }
 
 enum OrderStatus {
-  CREATED
+  Pending
   IN_PROGRESS
-  COMPLETED
+  Completed
 }
 
 model Order {
@@ -91,7 +91,7 @@ model Order {
   feedbackToken String
   rating        Float?
   feedback      String?     @default("null") @db.VarChar(255)
-  status        OrderStatus @default(CREATED)
+  status        OrderStatus @default(Pending)
   active        Boolean     @default(true)
   images        String[]
 

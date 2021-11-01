@@ -218,7 +218,7 @@ class MasterController {
       return arg.toUpperCase() === arg
     })
     const city = await prisma.city.findUnique({ where: { id: Number(cityId) } })
-    const isUnique = await prisma.person.findUnique({ where: { login: login } })
+    const isUnique = await prisma.person.findUnique({ where: { email: login } })
     if (isUnique) {
       validationErrors.push(`Master with this email exsist`)
     }
@@ -259,7 +259,7 @@ class MasterController {
       const hash = bcrypt.hashSync(password, salt2)
       const newPersonMaste = await prisma.person.create({
         data: {
-          login: login,
+          email: login,
           password: hash,
           role: "MASTER",
           token: token

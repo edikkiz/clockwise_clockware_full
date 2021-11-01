@@ -49,7 +49,7 @@ class UserController {
         const hash = bcrypt.hashSync(password, salt)
         const newUserRole = await prisma.person.create({
             data: {
-                login: email,
+                email: email,
                 password: hash,
                 role: "USER"
             }

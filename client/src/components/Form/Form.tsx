@@ -1,5 +1,12 @@
 import axios from 'axios'
-import React, { Component, useState, useEffect, FC, useCallback, SetStateAction } from 'react'
+import React, {
+  Component,
+  useState,
+  useEffect,
+  FC,
+  useCallback,
+  SetStateAction,
+} from 'react'
 import { City, ClockSize, FormError, Master, Order } from '../../models/models'
 import './Form_module.css'
 import Preloader from '../Preloader'
@@ -94,9 +101,7 @@ const Form: FC<ControllerFormProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getMaters = async () => {
-      if (
-        dataForFreeMaster.every((elem) => !!elem)
-      ) {
+      if (dataForFreeMaster.every(elem => !!elem)) {
         const { data } = await axios.get<Master[]>('/getFreeMasters', {
           params: {
             startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
@@ -153,7 +158,7 @@ const Form: FC<ControllerFormProps> = () => {
         fileReader.onload = () => {
           const res = fileReader.result
           if (res && typeof res === 'string') {
-            setUrls((prevUrl) => [...prevUrl, res])
+            setUrls(prevUrl => [...prevUrl, res])
           }
         }
       }
@@ -178,28 +183,30 @@ const Form: FC<ControllerFormProps> = () => {
         }
       }
     }
-    await axios.post<Order[]>(`/order`, {
-      masterId: +data.master,
-      cityId: +data.city,
-      clockSizeId: +data.clockSize,
-      startAt: `${data.day} ${data.time} UTC`,
-      name: data.name,
-      email: data.email,
-      images: urls
-    }).then(() => {
-      addToast('Order created', { appearance: 'success' });
-      reset()
-      setValue("day", correctDate)
-      setValue("time", time[0])
-      setIsLoading(false)
-
-    }).catch(() => {
-      addToast('Something is wrong', { appearance: 'error' })
-      setIsLoading(false)
-    })
+    await axios
+      .post<Order[]>(`/order`, {
+        masterId: +data.master,
+        cityId: +data.city,
+        clockSizeId: +data.clockSize,
+        startAt: `${data.day} ${data.time} UTC`,
+        name: data.name,
+        email: data.email,
+        images: urls,
+      })
+      .then(() => {
+        addToast('Order created', { appearance: 'success' })
+        reset()
+        setValue('day', correctDate)
+        setValue('time', time[0])
+        setIsLoading(false)
+      })
+      .catch(() => {
+        addToast('Something is wrong', { appearance: 'error' })
+        setIsLoading(false)
+      })
 
     setIsLoading(false)
-  };
+  }
 
   const test = () => {
     setIsLoading(true)
@@ -256,13 +263,13 @@ const Form: FC<ControllerFormProps> = () => {
         )}
 
         <select className="wrapper_form__select" {...register('clockSize')}>
-          {clockSizes.map(({ id, size }) => (
+          {clockSizes.map(({ id, name }) => (
             <option
               className="clockSize"
               selected={id === clockSizes[0].id}
               value={+id}
             >
-              {`${size}`}
+              {`${name}`}
             </option>
           ))}
         </select>
@@ -294,23 +301,33 @@ const Form: FC<ControllerFormProps> = () => {
           <p>The time must be greater than the current one</p>
         )}
 
-        <select className="wrapper_form__select" {...register("master")}>
-          {
-            masters.map(({ name, id, rating }) => (
-              !rating ?
-                <option className="masters" selected={id === masters[0].id} value={+id}>
-                  {`${name} with rating: 0`}
-                </option>
-                :
-                <option className="masters" value={+id}>
-                  {`${name} with rating: ${(rating).toFixed(1)}`}
-                </option>
-            ))
-          }
+        <select className="wrapper_form__select" {...register('master')}>
+          {masters.map(({ name, id, rating }) =>
+            !rating ? (
+              <option
+                className="masters"
+                selected={id === masters[0].id}
+                value={+id}
+              >
+                {`${name} with rating: 0`}
+              </option>
+            ) : (
+              <option className="masters" value={+id}>
+                {`${name} with rating: ${rating.toFixed(1)}`}
+              </option>
+            ),
+          )}
         </select>
         <div>Maximum 5 files and no more 1 mb for one</div>
-        <input type="file" multiple={true} accept=".PNG, .JPG, .JPEG" onChange={(event) => setFiles(event.currentTarget.files)} />
-        <button className="wrapper_form__button" type="submit" >Submit</button>
+        <input
+          type="file"
+          multiple={true}
+          accept=".PNG, .JPG, .JPEG"
+          onChange={event => setFiles(event.currentTarget.files)}
+        />
+        <button className="wrapper_form__button" type="submit">
+          Submit
+        </button>
       </form>
       <button onClick={test}>pick me for fun</button>
     </div>
