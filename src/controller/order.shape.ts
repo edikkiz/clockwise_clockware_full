@@ -6,8 +6,8 @@ const createOrderShape = {
     masterId: z.number().int().nonnegative(),
     clockSizeId: z.number().int().nonnegative(),
     startAt: z.string(),
-    name: z.string().regex(new RegExp("[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]")),
-    email: z.string(),
+    name: z.string().regex(/[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/),
+    email: z.string().email(),
 }
 
 export const createOrderSchema = z.object(createOrderShape)
@@ -83,7 +83,7 @@ export const dataForDiagramSchema = z.object(dataForDiagramShape)
 const dataForCityGraphShape = {
     start: z.string(),
     end: z.string(),
-    citiesIDs: z.array(z.string()),
+    citiesIDs: z.array(z.string()).min(1),
 }
 
 export const dataForCityGraphSchema = z.object(dataForCityGraphShape)
@@ -91,7 +91,7 @@ export const dataForCityGraphSchema = z.object(dataForCityGraphShape)
 const dataForMasterGraphShape = {
     start: z.string(),
     end: z.string(),
-    mastersIDs: z.array(z.string()),
+    mastersIDs: z.array(z.string()).min(1),
 }
 
 export const dataForMasterGraphSchema = z.object(dataForMasterGraphShape)
@@ -104,11 +104,11 @@ const dataForMasterTableShape = {
 export const dataForMasterTableSchema = z.object(dataForMasterTableShape)
 
 const orderFeedbackShape = {
-    feedbackText: z.string().optional(), 
-    rating: z.number(), 
-    id: z.number(), 
+    feedbackText: z.string().optional(),
+    rating: z.number(),
+    id: z.number(),
     feedbackToken: z.string(),
-    feedbackDate: z.string()
+    feedbackDate: z.string(),
 }
 
 export const orderFeedbackSchema = z.object(orderFeedbackShape)

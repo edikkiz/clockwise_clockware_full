@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios'
 import { useState, useEffect, FC } from 'react'
-import Preloader from '../../Preloader'
+import Preloader from 'components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import validator from 'email-validator';
-import { City, FormError, Master } from '../../../models'
+import { City, FormError, Master } from 'models'
 import './masterRegistration_module.css'
 import { useHistory } from 'react-router-dom'
 
@@ -82,9 +82,6 @@ const MasterRegistration: FC<MasterRegistrationProps> = () => {
             })
         }
     }
-
-
-
 
     return (
         <div className="wrapper_form">

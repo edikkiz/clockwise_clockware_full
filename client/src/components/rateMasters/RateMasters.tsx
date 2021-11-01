@@ -1,11 +1,11 @@
 import axios from 'axios'
 import './rate-masters-module.css'
 import React, { Component, useState, useEffect, FC } from 'react'
-import { AllOrder } from '../../models'
+import { AllOrder } from 'models'
 import { useHistory, useParams } from 'react-router-dom'
 import { Redirect } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
-/* @ts-ignore */
+import { format } from 'date-fns'
 import ReactStars from 'react-rating-stars-component'
 
 interface ControllerRateMasterProps {}
@@ -31,9 +31,10 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
           feedbackToken: feedbackToken,
         },
       })
-      if (data) {
+      if (data.length) {
         setOrder(data[0])
       } else {
+        addToast('this order is appreciated', { appearance: 'info' })
         history.push('/')
       }
     }
@@ -91,9 +92,11 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
               <br />
               <b>price:</b> {order.price}
               <br />
-              <b>start work on:</b> {order.startAt}
+              <b>start work on:</b>{' '}
+              {format(new Date(order.startAt), 'yyyy-MM-dd HH:mm')}
               <br />
-              <b>end work on:</b> {order.endAt}
+              <b>end work on:</b>{' '}
+              {format(new Date(order.endAt), 'yyyy-MM-dd HH:mm')}
             </div>
           </>
         )}
@@ -107,12 +110,13 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
         />
 
         <ReactStars
+          onChange={setRating}
           count={5}
           size={60}
           activeColor="#ffd700"
           isHalf={true}
           value={rating}
-          onChange={(newRating: number) => setRating(newRating)}
+          index={5}
         />
 
         <p></p>

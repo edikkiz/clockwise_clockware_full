@@ -9,86 +9,96 @@ import userController from '../controller/user.controller'
 
 router.put(
     '/order',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.updateOrder,
-)
-
-router.get(
-    '/free-masters',
-    AuthController.checkAccessToken,
-    masterController.getFreeMastersForPutOrder,
 )
 
 router.delete(
     '/delete-order',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.deleteOrder,
 )
 
 router.get(
     '/orders-filtered',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getAllOrders,
 )
 
 router.delete(
     '/master',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     masterController.deleteMaster,
 )
 
 router.get(
     '/masters',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     masterController.getMasters,
 )
 
-router.post('/city', AuthController.checkAccessToken, cityController.createCity)
+router.post(
+    '/city',
+    AuthController.checkAccessToken('admin'),
+    cityController.createCity,
+)
 
-router.put('/city', AuthController.checkAccessToken, cityController.updateCity)
+router.put(
+    '/city',
+    AuthController.checkAccessToken('admin'),
+    cityController.updateCity,
+)
 router.delete(
     '/city',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     cityController.deleteCity,
 )
 
-router.get('/users', AuthController.checkAccessToken, userController.getUsers)
+router.get(
+    '/users',
+    AuthController.checkAccessToken('admin'),
+    userController.getUsers,
+)
 
-router.put('/user', AuthController.checkAccessToken, userController.updateUser)
+router.put(
+    '/user',
+    AuthController.checkAccessToken('admin'),
+    userController.updateUser,
+)
 
 router.delete(
     '/user',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     userController.deleteUser,
 )
 
 router.get(
     '/diagrama/master',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getDataForMasterDiagram,
 )
 
 router.get(
     '/diagrama/city',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getDataForCityDiagram,
 )
 
 router.get(
     '/graph/city',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getDataForCityGraph,
 )
 
 router.get(
     '/graph/master',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getDataForMasterGraph,
 )
 
 router.get(
     '/masters-list',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('admin'),
     orderController.getDataForMasterTable,
 )
 export default router

@@ -1,8 +1,8 @@
 import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { ClockSize, MasterForTable } from '../../../../../../models'
+import { ClockSize, MasterForTable } from 'models'
 import './table-master-module.css'
-import Preloader from '../../../../../Preloader'
+import Preloader from 'components/Preloader'
 
 const limit = 10
 interface MasterTableChartsProps {}
@@ -59,7 +59,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
             <th className="table_block_id__master__charts">id</th>
             <th className="table_block_name__master__charts">Name</th>
             {clockSizes.map(ClockSize => (
-              <th className="table_block_name__master__charts">{`${ClockSize.size}`}</th>
+              <th className="table_block_name__master__charts">{`${ClockSize.name}`}</th>
             ))}
             <th className="table_block_name__master__charts">Rating</th>
             <th className="table_block_name__master__charts">Profit</th>

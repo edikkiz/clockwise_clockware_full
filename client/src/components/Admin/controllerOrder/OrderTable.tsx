@@ -17,17 +17,18 @@ import {
   Order,
   Status,
   User,
-} from '../../../models'
+} from 'models'
 import { Link } from 'react-router-dom'
-import Preloader from '../../Preloader'
+import Preloader from 'components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 import { format } from 'date-fns'
-import CitySelect from '../../reusableСomponents/citySelect/CitySelect'
-import MasterSelect from '../../reusableСomponents/masterSelect/MasterSelect'
-import ClockSizeSelect from '../../reusableСomponents/clockSizeSelect/ClockSizeSelect'
-import StatusSelect from '../../reusableСomponents/statusSelect/StatusSelect'
-import DateRange from '../../reusableСomponents/dateRange/DateRange'
+// import CitySelect from 'components/reusableСomponents/citySelect/CitySelect'
+import MasterSelect from 'components/reusableСomponents/masterSelect/MasterSelect'
+import ClockSizeSelect from 'components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
+import StatusSelect from 'components/reusableСomponents/statusSelect/StatusSelect'
+import DateRange from 'components/reusableСomponents/dateRange/DateRange'
+import Select from 'components/reusableСomponents/select/Select'
 
 const limit = 10
 interface ControllerOrderTableProps {}
@@ -47,6 +48,44 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const { addToast } = useToasts()
+
+  const [cities, setCities] = useState<City[]>([])
+
+  const [masters, setMasters] = useState<Master[]>([])
+
+  const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
+
+  const [statusesFilter, setStatusesFilter] = useState<Status[]>([
+    Status.Completed,
+    Status.Active,
+    Status.InProgress,
+    Status.InActive,
+    Status.Pending,
+  ])
+
+  useEffect(() => {
+    const clockSize = async () => {
+      const { data } = await axios.get<ClockSize[]>(`/clock-sizes`)
+      setClockSizes(data)
+    }
+    clockSize()
+  }, [])
+
+  useEffect(() => {
+    const masters = async () => {
+      const { data } = await axios.get<Master[]>(`/admin/masters`)
+      setMasters(data)
+    }
+    masters()
+  }, [])
+
+  useEffect(() => {
+    const getCities = async () => {
+      const { data } = await axios.get<City[]>(`/city`)
+      setCities(data)
+    }
+    getCities()
+  }, [])
 
   const filtered = async () => {
     setIsLoading(true)
@@ -135,9 +174,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       <Preloader isLoading={isLoading} />
       <AdminHeader />
       <div className="wrapperFilter">
-        <CitySelect setSelectValue={setCityFilter} />
-        <MasterSelect setSelectValue={setMasterFilter} />
-        <ClockSizeSelect setSelectValue={setClockSizeFilter} />
+        <Select setSelectValue={setCityFilter} Options={cities} />
+        <Select setSelectValue={setMasterFilter} Options={masters} />
+        <Select setSelectValue={setClockSizeFilter} Options={clockSizes} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <button className="buttonFilter" onClick={filtered}>
           filter
@@ -168,14 +207,14 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               <th className="table_block_name__order">{`${order.user.name}`}</th>
               <th className="table_block_name__order">{`${order.user.email}`}</th>
               <th className="table_block_name__order">{`${order.city.name}`}</th>
-              <th className="table_block_name__order">{`${order.clockSize.size}`}</th>
+              <th className="table_block_name__order">{`${order.clockSize.name}`}</th>
               <th className="table_block_name__order">{`${order.master.name}`}</th>
               <th className="table_block_name__order">{`${format(
-                new Date(order.startAt.split('.')[0]),
+                new Date(order.startAt),
                 'yyyy-MM-dd HH:mm',
               )}`}</th>
               <th className="table_block_name__order">{`${format(
-                new Date(order.endAt.split('.')[0]),
+                new Date(order.endAt),
                 'yyyy-MM-dd HH:mm',
               )} `}</th>
               <th className="table_block_name__order">{`${order.price}`}</th>

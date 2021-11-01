@@ -59,7 +59,7 @@ function App() {
           <PrivateRoute path="/admin/orders" component={OrderTable} />
 
           <PrivateRoute
-            path="/admin/change-order/:id?/:userId?/:masterId?/:cityId?/:clockSizeId?/:startAt?/:price?/:status?"
+            path="/admin/change-order"
             component={ChangeOrderForm}
           />
 

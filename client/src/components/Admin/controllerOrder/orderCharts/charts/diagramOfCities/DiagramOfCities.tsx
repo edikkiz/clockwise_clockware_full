@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import { format, startOfMonth, endOfMonth } from 'date-fns'
 import './diagram-of-cities-module.css'
-import Preloader from '../../../../../Preloader'
+import Preloader from 'components/Preloader'
 
 export const FirstDayMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
 export const LastDayMonth = format(endOfMonth(new Date()), 'yyyy-MM-dd')

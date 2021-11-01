@@ -1,21 +1,10 @@
-import { useEffect, useState, FC } from 'react'
-import axios from 'axios'
-import { Master } from 'models'
+import { FC } from 'react'
 
-interface MasterSelectProps {
+interface SelectProps {
   setSelectValue: React.Dispatch<React.SetStateAction<number | null>>
+  Options: { id: number; name: string }[]
 }
-const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue }) => {
-  const [masters, setMasters] = useState<Master[]>([])
-
-  useEffect(() => {
-    const masters = async () => {
-      const { data } = await axios.get<Master[]>(`/admin/masters`)
-      setMasters(data)
-    }
-    masters()
-  }, [])
-
+const Select: FC<SelectProps> = ({ setSelectValue, Options }) => {
   return (
     <div>
       <select
@@ -29,7 +18,7 @@ const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue }) => {
         <option value="null" selected>
           Select master filter
         </option>
-        {masters.map(({ id, name }) => (
+        {Options.map(({ id, name }) => (
           <option value={+id}>{`${name}`}</option>
         ))}
       </select>
@@ -37,4 +26,4 @@ const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue }) => {
   )
 }
 
-export default MasterSelect
+export default Select

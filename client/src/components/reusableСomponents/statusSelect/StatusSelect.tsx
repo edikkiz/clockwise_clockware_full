@@ -1,5 +1,5 @@
 import { useState, FC } from 'react'
-import { Status } from '../../../models'
+import { Status } from 'models'
 
 interface StatusSelectProps {
   setSelectValue: React.Dispatch<React.SetStateAction<Status | null>>

@@ -8,38 +8,40 @@ const prisma = new PrismaClient()
 const exp = { expiresIn: '2h' }
 
 class AuthController {
-    async checkAccessToken(req: Request, res: Response, next: NextFunction) {
-        if (!process.env.SECRET_KEY) {
-            throw new Error('Secret jwt key is not provided')
-        }
-        if (req.headers.authorization) {
-            const token = req.headers.authorization.split(' ')[1]
-            if (!token) {
-                res.status(401).send()
-            } else if (jwt.verify(token, process.env.SECRET_KEY)) {
-                const role = await prisma.person.findMany({
-                    where: {
-                        token: token,
-                    },
-                })
-                if (!role) {
-                    res.status(401).send()
-                }
-                if (
-                    (req.originalUrl.split('/')[2] === 'admin' &&
-                        role[0].role === 'ADMIN') ||
-                    (req.originalUrl.split('/')[2] === 'master' &&
-                        role[0].role === 'MASTER') ||
-                    (req.originalUrl.split('/')[2] === 'user' &&
-                        role[0].role === 'USER')
-                ) {
-                    next()
-                }
+    checkAccessToken =
+        (tokenType: 'admin' | 'master' | 'user') =>
+        async (req: Request, res: Response, next: NextFunction) => {
+            if (!process.env.SECRET_KEY) {
+                throw new Error('Secret jwt key is not provided')
             }
-        } else {
-            res.status(401).send()
+            if (req.headers.authorization) {
+                const token = req.headers.authorization.split(' ')[1]
+                if (!token) {
+                    res.status(401).send()
+                } else if (jwt.verify(token, process.env.SECRET_KEY)) {
+                    const role = await prisma.person.findMany({
+                        where: {
+                            token: token,
+                        },
+                    })
+                    if (!role) {
+                        res.status(401).send()
+                    }
+                    if (
+                        (tokenType === 'admin' &&
+                            role[0].role === 'ADMIN') ||
+                        (tokenType === 'master' &&
+                            role[0].role === 'MASTER') ||
+                        (tokenType === 'user' &&
+                            role[0].role === 'USER')
+                    ) {
+                        next()
+                    }
+                }
+            } else {
+                res.status(401).send()
+            }
         }
-    }
 
     async login(req: Request, res: Response) {
         const { email, password } = req.body

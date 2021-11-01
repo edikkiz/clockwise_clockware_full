@@ -1,9 +1,8 @@
 import React, { Component, useEffect, useState, FC, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import './masters-table-module.css'
-import { City, Master } from '../../../models'
-import { Link } from 'react-router-dom'
-import Preloader from '../../Preloader'
+import { City, Master } from 'models'
+import Preloader from 'components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 const limit = 10

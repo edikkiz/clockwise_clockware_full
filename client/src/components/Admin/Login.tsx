@@ -4,11 +4,11 @@ import axios from 'axios'
 import { useHistory, useLocation } from 'react-router-dom'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
-import visible from '../../visible.svg'
+import visible from 'visible.svg'
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
-import visibleOff from '../../visibleOff.svg'
+import visibleOff from 'visibleOff.svg'
 import { Link } from 'react-router-dom'
-import { Role } from '../../models'
+import { Role } from 'models'
 
 
 interface Login {

@@ -1,6 +1,6 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
-import { ClockSize } from '../../../models'
+import { ClockSize } from 'models'
 
 interface ClockSizeSelectProps {
   setSelectValue: React.Dispatch<React.SetStateAction<number | null>>
@@ -25,8 +25,8 @@ const ClockSizeSelect: FC<ClockSizeSelectProps> = ({ setSelectValue }) => {
         <option value="null" selected>
           Select clock size filter
         </option>
-        {clockSizes.map(({ id, size }) => (
-          <option value={+id}>{`${size}`}</option>
+        {clockSizes.map(({ id, name }) => (
+          <option value={+id}>{`${name}`}</option>
         ))}
       </select>
     </div>

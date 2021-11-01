@@ -10,11 +10,11 @@ import {
   Order,
   Status,
   User,
-} from '../../../models'
+} from 'models'
 import { useHistory, useParams, useLocation } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
-import Preloader from '../../Preloader'
+import Preloader from 'components/Preloader'
 import AdminHeader from '../adminHeader/AdminHeader'
 
 const orderTime = [
@@ -116,13 +116,16 @@ const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
 
   useEffect(() => {
     const getMaters = async () => {
-      if (dataForFreeMaster.every(elem => !!elem)) {
-        const { data } = await axios.get<Master[]>(`/admin/free-masters`, {
+      if (dataForFreeMaster.every(elem => !!elem) && clockSizes.length) {
+        const timeToDone = clockSizes.find(
+          ({ id }) => id === dataForFreeMaster[3],
+        )?.timeToDone
+        const { data } = await axios.get<Master[]>(`/free-masters`, {
           params: {
             orderId: +id,
             startAt: dataForFreeMaster[0] + ' ' + dataForFreeMaster[1],
-            cityId: Number(dataForFreeMaster[2]),
-            clockSizeId: Number(dataForFreeMaster[3]),
+            cityId: dataForFreeMaster[2],
+            timeToDone: timeToDone,
           },
         })
         setPutMasters(data)
@@ -130,7 +133,7 @@ const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
     }
 
     getMaters()
-  }, [dataForFreeMaster])
+  }, [dataForFreeMaster, clockSizes])
 
   useEffect(() => {
     const getCities = async () => {

@@ -1,6 +1,6 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
-import { City } from '../../../models'
+import { City } from 'models'
 
 interface CitySelectProps {
   setSelectValue: React.Dispatch<React.SetStateAction<number | null>>

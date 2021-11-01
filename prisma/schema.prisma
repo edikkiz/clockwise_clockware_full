@@ -91,7 +91,7 @@ model Order {
   startAt       DateTime
   endAt         DateTime
   feedbackDate  String?
-  feedbackToken String?     
+  feedbackToken String?
   rating        Float?
   feedback      String?     @db.VarChar(255)
   status        OrderStatus @default(Pending)

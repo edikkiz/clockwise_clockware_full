@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client'
 import { Request, Response} from 'express';
 import { createCitySchema, deleteCitySchema, updateCitySchema, getCitiesSchema } from './city.shape';
 
-const regName = new RegExp("[A-Za-zА-Яа-я]")
 const prisma = new PrismaClient()
 
 class CityController {
@@ -29,16 +28,9 @@ class CityController {
       return
     }
     const { name } = params.data
-    const validationErrors = []
     const city = await prisma.city.findUnique({ where: { name: name } })
     if (city) {
-      validationErrors.push(`city with name: ${name} exsist`)
-    }
-    if (!regName.test(name)) {
-      validationErrors.push('Invalid city name')
-    }
-    if (validationErrors.length) {
-      res.status(400).json(validationErrors)
+      res.status(400).json({message: `city with name: ${name} exsist`})
     }
     else {
       const newCity = await prisma.city.create({
@@ -56,16 +48,9 @@ class CityController {
       return
     }
     const { id, name } = params.data
-    const validationErrors = []
     const city = await prisma.city.findUnique({ where: { id: Number(id) } })
     if (!city) {
-      validationErrors.push(`City with id: ${id} is not exsisted`)
-    }
-    if (!regName.test(name)) {
-      validationErrors.push('Invalid city name')
-    }
-    if (validationErrors.length) {
-      res.status(400).json(validationErrors)
+      res.status(400).json({message: `City with id: ${id} is not exsisted`})
     }
     else {
       const updatedCity = await prisma.city.update({
@@ -86,13 +71,9 @@ class CityController {
       return
     }
     const { id } = params.data
-    const validationErrors = []
     const city = await prisma.city.findUnique({ where: { id: Number(id) } })
     if (!city) {
-      validationErrors.push(`City with id: ${id} is not exsisted`)
-    }
-    if (validationErrors.length) {
-      res.status(400).json(validationErrors)
+      res.status(400).json({message: `City with id: ${id} is not exsisted`})
     }
     else {
       const deletedCity = await prisma.city.delete({

@@ -6,13 +6,13 @@ import orderController from '../controller/order.controller'
 
 router.put(
     '/change-status',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('master'),
     orderController.updateOrderStatus,
 )
 
 router.get(
     '/master-orders',
-    AuthController.checkAccessToken,
+    AuthController.checkAccessToken('master'),
     orderController.getAllOrdersToTheMasterTable,
 )
 

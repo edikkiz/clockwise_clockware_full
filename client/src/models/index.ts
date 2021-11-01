@@ -106,7 +106,7 @@ export type AllOrderForOneMaster = {
 export type OrderForTable = {
   city: { id: number; name: string }
   cityId: number
-  clockSize: { id: number; size: string }
+  clockSize: { id: number; name: string }
   endAt: string
   feedback: string | null
   id: number

@@ -9,7 +9,7 @@ interface User {
 
 interface ClockSize {
     id: number
-    size: string
+    name: string
     price: number
     timeToDone: number
     orders: Order[]

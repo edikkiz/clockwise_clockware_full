@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState, FC } from 'react'
 import './form-for-change-or-create-city-module.css'
 import axios from 'axios'
-import { City, FormError } from '../../../models'
+import { City, FormError } from 'models'
 import { useHistory, useParams } from 'react-router-dom'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import { useToasts } from 'react-toast-notifications'

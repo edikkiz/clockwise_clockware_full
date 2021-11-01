@@ -1,13 +1,19 @@
 import axios from 'axios'
-import React, { Component, useState, useEffect, FC, useCallback, SetStateAction } from 'react'
-import { City, ClockSize, FormError, Master, Order } from '../../models'
+import React, {
+  Component,
+  useState,
+  useEffect,
+  FC,
+  useCallback,
+  SetStateAction,
+} from 'react'
+import { City, ClockSize, FormError, Master, Order } from 'models'
 import './form-module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import validator from 'email-validator'
-import { promises } from 'fs'
-import {format} from 'date-fns'
+import { format } from 'date-fns'
 
 const correctDate = format(new Date(), 'yyyy-MM-dd')
 const hour = new Date().getHours()
@@ -89,14 +95,15 @@ const Form: FC<ControllerFormProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getMaters = async () => {
-      if (
-        dataForFreeMaster.every((elem) => !!elem)
-      ) {
+      if (dataForFreeMaster.every(elem => !!elem)) {
+        const time = clockSizes.find(
+          ({ id }) => id === Number(dataForFreeMaster[3]),
+        )?.timeToDone
         const { data } = await axios.get<Master[]>('/free-masters', {
           params: {
             startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
             cityId: dataForFreeMaster[2],
-            clockSizeId: dataForFreeMaster[3],
+            timeToDone: time,
           },
         })
 
@@ -178,7 +185,7 @@ const Form: FC<ControllerFormProps> = () => {
         masterId: +data.master,
         cityId: +data.city,
         clockSizeId: +data.clockSize,
-        startAt: `${data.day} ${data.time} UTC`,
+        startAt: `${data.day} ${data.time}`,
         name: data.name,
         email: data.email,
         images: urls,

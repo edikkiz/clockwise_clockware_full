@@ -1,6 +1,6 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
-import { City } from '../../../models'
+import { City } from 'models'
 import { MultiSelect } from 'react-multi-select-component'
 
 type MultiSelectOption = {
@@ -23,10 +23,13 @@ const CityMultiSelect: FC<CityMultiSelectProps> = ({
   useEffect(() => {
     const getCities = async () => {
       const cities = await axios.get<City[]>(`/city`)
-      const citiesOptions: MultiSelectOption[] = []
-      cities.data.forEach(({ name, id }) =>
-        citiesOptions.push({ label: name, value: id }),
+      const citiesOptions = cities.data.map(
+        ({ name, id }): MultiSelectOption => {
+          return { label: name, value: id }
+        },
       )
+
+      console.log(citiesOptions)
       setCitiesOptionForSelect(citiesOptions)
       setMultiSelectValue(citiesOptions)
     }

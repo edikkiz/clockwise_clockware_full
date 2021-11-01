@@ -1,9 +1,9 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import './cities-table-module.css'
-import { City } from '../../../models'
+import { City } from 'models'
 import { Link } from 'react-router-dom'
-import Preloader from '../../Preloader'
+import Preloader from 'components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 const limit = 10
@@ -46,6 +46,9 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
           data: {
             id: +deleteId
           },
+          params: {
+            role: 'admin'
+          }
         })
         .then(() => {
           const localCopy = [...cities]

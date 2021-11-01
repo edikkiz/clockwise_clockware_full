@@ -3,7 +3,6 @@ import sendMail from '../services/SendMail'
 import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
-import validator from 'email-validator'
 import {
     createOrderSchema,
     updateOrderSchema,
@@ -24,7 +23,7 @@ import bcrypt from 'bcrypt'
 import { format, startOfDay, endOfDay } from 'date-fns'
 
 const date = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
-const corDate = new Date(`${date} UTC`)
+const corDate = new Date(`${date}`)
 const prisma = new PrismaClient()
 
 class OrderController {
@@ -39,12 +38,12 @@ class OrderController {
             orders.id,
             masters.name AS "masterName",
             cities.name AS "cityName",
-            "clockSizes".size,
+            "clockSizes".name,
             users.name AS "userName",
             users.email AS "userEmail",
             orders.price,
-            (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt",
-            (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt"
+            orders."startAt" AS "startAt",
+            orders."endAt" AS "endAt"
             FROM orders
                 INNER JOIN masters ON orders."masterId" = masters.id
                 INNER JOIN cities ON orders."cityId" = cities.id
@@ -75,7 +74,7 @@ class OrderController {
             start,
             end,
         } = params.data
-        const filterStartAt = new Date(`${start} UTC`)
+        const filterStartAt = new Date(`${start}`)
         const filterEndAt = new Date(`${end} 23:59:59`)
         const Orders = await prisma.order.findMany({
             where: {
@@ -160,12 +159,12 @@ class OrderController {
                     users.id AS "userId", 
                     masters.name AS "masterName", 
                     cities.name AS "cityName", 
-                    "clockSizes".size, 
+                    "clockSizes".name AS size, 
                     users.name AS "userName", 
                     users.email AS "userEmail", 
                     orders.price, 
-                    (orders."startAt") AS "startAt", 
-                    (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt", 
+                    orders."startAt" AS "startAt", 
+                    orders."endAt" AS "endAt", 
                     email 
                     FROM orders
                     INNER JOIN masters ON orders."masterId" = masters.id
@@ -187,12 +186,12 @@ class OrderController {
                     orders.rating, 
                     masters.name AS "masterName", 
                     cities.name AS "cityName", 
-                    "clockSizes".size, 
+                    "clockSizes".name, 
                     users.name AS "userName", 
                     users.email AS "userEmail", 
                     orders.price, 
-                    (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "start", 
-                    (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "end", 
+                    orders."startAt" AS "start", 
+                    orders."endAt" AS "end", 
                     email 
                     FROM orders
                     INNER JOIN masters ON orders."masterId" = masters.id
@@ -221,12 +220,12 @@ class OrderController {
                 users.id AS "userId", 
                 masters.name AS "masterName", 
                 cities.name AS "cityName", 
-                "clockSizes".size, 
+                "clockSizes".name AS size, 
                 users.name AS "userName", 
                 users.email AS "userEmail", 
                 orders.price, 
-                (TO_CHAR(orders."startAt",'YYYY-MM-DD HH24:MI')) AS "startAt", 
-                (TO_CHAR(orders."endAt", \'YYYY-MM-DD HH24:MI'\)) AS "endAt", 
+                orders."startAt" AS "startAt", 
+                orders."endAt" AS "endAt", 
                 email 
                 FROM orders
                 INNER JOIN masters ON orders."masterId" = masters.id
@@ -249,7 +248,7 @@ class OrderController {
         const { masterId, cityId, clockSizeId, startAt, name, email } =
             params.data
         const validationErrors = []
-        const date = new Date(`${startAt} UTC`)
+        const date = new Date(`${startAt}`)
         const master = await prisma.master.findUnique({
             where: { id: Number(masterId) },
         })
@@ -279,9 +278,6 @@ class OrderController {
         ) {
             validationErrors.push('Invalid date or time')
         }
-        if (!validator.validate(email)) {
-            validationErrors.push('Invalid email')
-        }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
         } else {
@@ -299,11 +295,14 @@ class OrderController {
                 where: { id: Number(clockSizeId) },
             })
             const feedbackToken = uuidv4()
+            const password = uuidv4()
+            const salt = bcrypt.genSaltSync(10)
+            const hash = bcrypt.hashSync(password, salt)
             if (clockInfo) {
                 const price = Number(clockInfo.price)
                 const workTime = clockInfo.timeToDone
-                const d = new Date(`${startAt} UTC`)
-                const newOrderStartAt = new Date(`${startAt} UTC`)
+                const d = new Date(`${startAt}`)
+                const newOrderStartAt = new Date(`${startAt}`)
                 d.setHours(d.getHours() + workTime)
                 const endAt = d
                 const user = await prisma.user.findUnique({
@@ -333,29 +332,24 @@ class OrderController {
                 }
 
                 if (!user) {
-                    const password = uuidv4()
-                    const salt = bcrypt.genSaltSync(10)
-                    const hash = bcrypt.hashSync(password, salt)
-                    const newUserRole = await prisma.person.create({
-                        data: {
-                            email: email,
-                            password: hash,
-                            role: 'USER',
-                        },
-                    })
-                    const newUser = await prisma.user.create({
-                        data: {
-                            name: name,
-                            email: email,
-                            personId: Number(newUserRole.id),
-                        },
-                    })
                     const newOrder = await prisma.order.create({
                         data: {
-                            userId: newUser.id,
-                            masterId: Number(masterId),
-                            cityId: Number(cityId),
-                            clockSizeId: Number(clockSizeId),
+                            user: {
+                                create: {
+                                    name: name,
+                                    email: email,
+                                    person: {
+                                        create: {
+                                            email: email,
+                                            password: hash,
+                                            role: 'USER',
+                                        },
+                                    },
+                                },
+                            },
+                            master: { connect: { id: Number(masterId) } },
+                            city: { connect: { id: Number(cityId) } },
+                            clockSize: { connect: { id: Number(clockSizeId) } },
                             price: price,
                             startAt: newOrderStartAt,
                             endAt: endAt,
@@ -432,9 +426,6 @@ class OrderController {
         const clockSize = await prisma.clockSize.findUnique({
             where: { id: Number(clockSizeId) },
         })
-        if (typeof price !== 'number') {
-            validationErrors.push('Invalid price')
-        }
         if (!order) {
             validationErrors.push(`Order with id: ${id} is not exsisted`)
         }
@@ -465,10 +456,10 @@ class OrderController {
             })
             if (clockInfo) {
                 const workTime = clockInfo.timeToDone
-                const d = new Date(`${startAt} UTC`)
+                const d = new Date(`${startAt}`)
                 d.setHours(d.getHours() + workTime)
                 const newOrderEndAt = d.toISOString()
-                const newOrderStartAt = new Date(`${startAt} UTC`)
+                const newOrderStartAt = new Date(`${startAt}`)
 
                 const upOrder = await prisma.order.update({
                     where: {
@@ -505,15 +496,13 @@ class OrderController {
             return
         }
         const { id, email } = params.data
-        const validationErrors = []
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
         })
         if (!order) {
-            validationErrors.push(`Order with id: ${id} is not exsisted`)
-        }
-        if (validationErrors.length) {
-            res.status(400).json(validationErrors)
+            res.status(400).json({
+                message: `Order with id: ${id} is not exsisted`,
+            })
         } else {
             const orderWithNewStatus = await prisma.order.update({
                 where: {
@@ -559,8 +548,8 @@ class OrderController {
             return
         }
         const { start, end } = params.data
-        const firstDay = startOfDay(new Date(`${start} UTC`))
-        const lastDay = endOfDay(new Date(`${end} UTC`))
+        const firstDay = startOfDay(new Date(`${start}`))
+        const lastDay = endOfDay(new Date(`${end}`))
         const DataForMasterDiagram = await prisma.$queryRaw<DataForCharts[]>`
             (SELECT COUNT(*) AS count, masters.name FROM orders  
             INNER JOIN masters ON orders."masterId" = masters.id
@@ -585,8 +574,8 @@ class OrderController {
             return
         }
         const { start, end } = params.data
-        const firstDay = startOfDay(new Date(`${start} UTC`))
-        const lastDay = endOfDay(new Date(`${end} UTC`))
+        const firstDay = startOfDay(new Date(`${start}`))
+        const lastDay = endOfDay(new Date(`${end}`))
         const DataForMasterDiagram = await prisma.$queryRaw<DataForCharts[]>`
             (SELECT COUNT(*) AS count, cities.name FROM orders  
             INNER JOIN cities ON orders."cityId" = cities.id
@@ -611,12 +600,9 @@ class OrderController {
             return
         }
         const { start, end, citiesIDs } = params.data
-        if (!citiesIDs.length) {
-            return
-        }
         const citiesIDsNumber = citiesIDs.map(cityId => Number(cityId))
-        const startDate = startOfDay(new Date(`${start} UTC`))
-        const endDate = endOfDay(new Date(`${end} UTC`))
+        const startDate = startOfDay(new Date(`${start}`))
+        const endDate = endOfDay(new Date(`${end}`))
 
         const dataForCityGraph = await prisma.$queryRaw<DataForCharts[]>`
         select date::date, (SELECT COUNT(*)
@@ -635,12 +621,9 @@ class OrderController {
             return
         }
         const { start, end, mastersIDs } = params.data
-        if (!mastersIDs.length) {
-            return
-        }
         const mastersIDsNumber = mastersIDs.map(masterId => Number(masterId))
-        const startDate = startOfDay(new Date(`${start} UTC`))
-        const endDate = endOfDay(new Date(`${end} UTC`))
+        const startDate = startOfDay(new Date(`${start}`))
+        const endDate = endOfDay(new Date(`${end}`))
         const dataForMasterGraph = await prisma.$queryRaw<DataForCharts[]>`
         SELECT date::date, (SELECT COUNT(*)
             FROM orders
@@ -662,15 +645,15 @@ class OrderController {
         SELECT masters.id, masters.name AS name, (	
             SELECT COUNT(*) FROM orders 
             INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-            WHERE "clockSizes".size = 'small' AND orders."masterId" = masters.id
+            WHERE "clockSizes".name = 'small' AND orders."masterId" = masters.id
             ) AS "smallOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-                WHERE "clockSizes".size = 'middle' AND orders."masterId" = masters.id
+                WHERE "clockSizes".name = 'middle' AND orders."masterId" = masters.id
             ) AS "middleOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
                 INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-                WHERE "clockSizes".size = 'large' AND orders."masterId" = masters.id
+                WHERE "clockSizes".name = 'large' AND orders."masterId" = masters.id
             ) AS "largeOrdersCount", (	
                 SELECT COUNT(*) FROM orders 
                 WHERE orders.status = 'Completed' AND orders."masterId" = masters.id

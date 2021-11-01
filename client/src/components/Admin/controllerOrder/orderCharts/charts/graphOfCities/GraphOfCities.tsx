@@ -3,8 +3,8 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-cities-module.css'
-import CityMultiSelect from '../../../../../reusableСomponents/cityMultiSelect/CityMultiSelect'
-import Preloader from '../../../../../Preloader'
+import CityMultiSelect from 'components/reusableСomponents/cityMultiSelect/CityMultiSelect'
+import Preloader from 'components/Preloader'
 
 type DataForCityDiagram = {
   count: number

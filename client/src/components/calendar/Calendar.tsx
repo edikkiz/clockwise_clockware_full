@@ -4,7 +4,7 @@ import interactionPlugin from '@fullcalendar/interaction' // needed for dayClick
 import { EventClickArg } from '@fullcalendar/common'
 import React, { Component, useState, useEffect, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrderForOneMaster, Order } from '../../models'
+import { AllOrderForOneMaster, Order } from 'models'
 import { useParams } from 'react-router-dom'
 import Modal from './modal'
 import MasterHeader from '../Master/masterHeader/masterHeader'
@@ -56,7 +56,7 @@ const Calendar: FC<CalendarProps> = () => {
             {`User name: ${event && event.event._def.extendedProps.userName}`}
           </div>
           <div>
-            {`Clock size: ${event && event.event._def.extendedProps.size}`}
+            {`Clock size: ${event && event.event._def.extendedProps.name}`}
           </div>
         </>
       </Modal>

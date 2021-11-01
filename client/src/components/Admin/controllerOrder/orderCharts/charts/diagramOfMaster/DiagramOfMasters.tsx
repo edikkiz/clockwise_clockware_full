@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import './diagram-of-masters-module.css'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
-import Preloader from '../../../../../Preloader'
+import Preloader from 'components/Preloader'
 
 type DataForMasterDiagram = {
   count: number
