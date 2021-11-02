@@ -44,12 +44,14 @@ const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
   return (
     <div className="wrapper_charts">
       <Preloader isLoading={isLoading} />
-      <DateRangeSelect
-        setPropsStart={setFilterStart}
-        setPropsEnd={setFilterEnd}
-        propsStart={filterStart}
-        propsEnd={filterEnd}
-      />
+      <div className="date_filter">
+        <DateRangeSelect
+          setPropsStart={setFilterStart}
+          setPropsEnd={setFilterEnd}
+          propsStart={filterStart}
+          propsEnd={filterEnd}
+        />
+      </div>
       <div className="pie-diagram">
         <Pie
           data={{

@@ -3,10 +3,9 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-cities-module.css'
-import MultiSelect from 'components/reusableСomponents/multiSelect/MultiSelect'
 import Preloader from 'components/Preloader'
 import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import { City } from 'models'
+import CityMultiSelect from 'components/reusableСomponents/cityMultiSelect/CityMultiSelect'
 
 type DataForCityDiagram = {
   count: number
@@ -28,29 +27,7 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])
 
-  const [IDsMultiSelect, setIDsMultiSelect] = useState<
-    MultiSelectOption[]
-  >([])
-  
-  const [optionForSelect, setOptionForSelect] = useState<
-    MultiSelectOption[]
-  >([])
-
-  useEffect(() => {
-    const getCities = async () => {
-      const cities = await axios.get<City[]>(`/city`)
-      const citiesOptions = cities.data.map(
-        ({ name, id }): MultiSelectOption => {
-          return { label: name, value: id }
-        },
-      )
-
-      console.log(citiesOptions)
-      setOptionForSelect(citiesOptions)
-      setIDsMultiSelect(citiesOptions)
-    }
-    getCities()
-  }, [])
+  const [IDsMultiSelect, setIDsMultiSelect] = useState<MultiSelectOption[]>([])
 
   useEffect(() => {
     if (IDsMultiSelect.length) {
@@ -86,14 +63,13 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
     <div className="wrapper_graph">
       <Preloader isLoading={isLoading} />
       <div className="filter">
-      <DateRangeSelect 
-        setPropsStart={setFilterStart}
-        setPropsEnd={setFilterEnd}
-        propsStart={filterStart}
-        propsEnd={filterEnd}/>
-        <label>Choose Cities:</label>
-        <MultiSelect
-          optionForSelect={optionForSelect}
+        <DateRangeSelect
+          setPropsStart={setFilterStart}
+          setPropsEnd={setFilterEnd}
+          propsStart={filterStart}
+          propsEnd={filterEnd}
+        />
+        <CityMultiSelect
           setMultiSelectValue={setIDsMultiSelect}
           multiSelectValue={IDsMultiSelect}
         />

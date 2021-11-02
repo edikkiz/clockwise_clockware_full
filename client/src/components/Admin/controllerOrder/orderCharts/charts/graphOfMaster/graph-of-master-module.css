@@ -10,4 +10,9 @@
   width: 50%;
   display: flex;
   justify-content: space-around;
+  height: 38px;
+}
+
+.filter input {
+  font-size: 15px;
 }

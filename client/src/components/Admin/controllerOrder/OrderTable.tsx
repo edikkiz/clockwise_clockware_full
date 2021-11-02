@@ -1,22 +1,15 @@
-import React, {
-  Component,
+import {
   useEffect,
   useState,
   FC,
   useCallback,
-  useRef,
-  SetStateAction,
 } from 'react'
 import axios from 'axios'
 import './order-table-module.css'
 import {
   OrderForTable,
-  City,
-  ClockSize,
-  Master,
   Order,
   Status,
-  User,
 } from 'models'
 import { Link } from 'react-router-dom'
 import Preloader from 'components/Preloader'
@@ -25,7 +18,9 @@ import AdminHeader from '../adminHeader/AdminHeader'
 import { format } from 'date-fns'
 import StatusSelect from 'components/reusableСomponents/statusSelect/StatusSelect'
 import DateRange from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import Select from 'components/reusableСomponents/select/Select'
+import ClockSizeSelect from 'components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
+import MasterSelect from 'components/reusableСomponents/masterSelect/MasterSelect'
+import CitySelect from 'components/reusableСomponents/citySelect/CitySelect'
 
 const limit = 10
 interface ControllerOrderTableProps {}
@@ -45,44 +40,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const { addToast } = useToasts()
-
-  const [cities, setCities] = useState<City[]>([])
-
-  const [masters, setMasters] = useState<Master[]>([])
-
-  const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
-
-  const [statusesFilter, setStatusesFilter] = useState<Status[]>([
-    Status.Completed,
-    Status.Active,
-    Status.InProgress,
-    Status.InActive,
-    Status.Pending,
-  ])
-
-  useEffect(() => {
-    const clockSize = async () => {
-      const { data } = await axios.get<ClockSize[]>(`/clock-sizes`)
-      setClockSizes(data)
-    }
-    clockSize()
-  }, [])
-
-  useEffect(() => {
-    const masters = async () => {
-      const { data } = await axios.get<Master[]>(`/admin/masters`)
-      setMasters(data)
-    }
-    masters()
-  }, [])
-
-  useEffect(() => {
-    const getCities = async () => {
-      const { data } = await axios.get<City[]>(`/city`)
-      setCities(data)
-    }
-    getCities()
-  }, [])
 
   const filtered = async () => {
     setIsLoading(true)
@@ -171,9 +128,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       <Preloader isLoading={isLoading} />
       <AdminHeader />
       <div className="wrapperFilter">
-        <Select setSelectValue={setCityFilter} Options={cities} />
-        <Select setSelectValue={setMasterFilter} Options={masters} />
-        <Select setSelectValue={setClockSizeFilter} Options={clockSizes} />
+        <CitySelect setSelectValue={setCityFilter} />
+        <MasterSelect setSelectValue={setMasterFilter} />
+        <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <button className="buttonFilter" onClick={filtered}>
           filter

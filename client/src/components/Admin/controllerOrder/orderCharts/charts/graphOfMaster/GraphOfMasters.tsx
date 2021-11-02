@@ -3,10 +3,9 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-master-module.css'
-import MasterMultiSelect from 'components/reusableСomponents/multiSelect/MultiSelect'
 import Preloader from 'components/Preloader'
 import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import { Master } from 'models'
+import MasterMultiSelect from 'components/reusableСomponents/masterMultiSelect/MasterMultiSelect'
 
 type DataForMasterDiagram = {
   count: number
@@ -28,33 +27,14 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])
 
-  const [idMultiSelect, setIdMultiSelect] = useState<
-    MultiSelectOption[]
-  >([])
-
-  
-  const [optionForSelect, setOptionForSelect] = useState<
+  const [IDsMultiSelect, setIDsMultiSelect] = useState<
     MultiSelectOption[]
   >([])
 
   useEffect(() => {
-    const getMasters = async () => {
-      const masters = await axios.get<Master[]>(`/admin/masters`)
-      const mastersOptions: MultiSelectOption[] = []
-      masters.data.forEach(({ name, id }) =>
-        mastersOptions.push({ label: name, value: id }),
-      )
-      setOptionForSelect(mastersOptions)
-      setIdMultiSelect(mastersOptions)
-    }
-    getMasters()
-  }, [])
-
-
-  useEffect(() => {
-    if (idMultiSelect.length) {
+    if (IDsMultiSelect.length) {
       setIsLoading(true)
-      const mastersId = idMultiSelect.map(({ value }) => value)
+      const mastersId = IDsMultiSelect.map(({ value }) => value)
       const getDataForDiagram = async () => {
         const { data } = await axios.get<DataForMasterDiagram[]>(
           '/admin/graph/master',
@@ -78,7 +58,7 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
       setMastersCount([])
       setIsLoading(false)
     }
-  }, [filterStart, filterEnd, idMultiSelect])
+  }, [filterStart, filterEnd, IDsMultiSelect])
 
   return (
     <div className="wrapper_graph">
@@ -89,11 +69,9 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
         setPropsEnd={setFilterEnd}
         propsStart={filterStart}
         propsEnd={filterEnd}/>
-        <label>Choose masters:</label>
         <MasterMultiSelect
-        optionForSelect={optionForSelect}
-          setMultiSelectValue={setIdMultiSelect}
-          multiSelectValue={idMultiSelect}
+          setMultiSelectValue={setIDsMultiSelect}
+          multiSelectValue={IDsMultiSelect}
         />
       </div>
       <div className="pie-diagram">

@@ -1,0 +1,9 @@
+.city-multi-select {
+  display: flex;
+  flex-direction: row;
+}
+
+.label-city-multi-select {
+  margin: auto;
+  padding: 5px;
+}
