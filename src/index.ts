@@ -18,24 +18,6 @@ const stripe = require('stripe')(
     'sk_test_51JoRKQAsmDgU6NBKaoFerhzascwnn6ok47hRAB094jdKvaco58UV9mUWe9MX44AYf4WvmfVXcGu4pLlZ2eMJBW6B00Hx4npo9E',
 )
 
-app.post('/api/create-checkout-session', async (req, res) => {
-    const session = await stripe.checkout.sessions.create({
-        line_items: [
-            {
-                // TODO: replace this with the `price` of the product you want to sell
-                price: '{{PRICE_ID}}',
-                unit_amount: 1000,
-                quantity: 1,
-            },
-        ],
-        payment_method_types: ['card'],
-        mode: 'payment',
-        success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
-        cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
-    })
-    res.redirect(303, session.url)
-})
-
 app.use(
     cors({
         exposedHeaders: 'Authorization',
@@ -66,9 +48,40 @@ app.use(
 
 app.use('/api/user', authController.checkAccessToken('USER'), userRoleRouter)
 
+app.post('/api/create-checkout-session', async (req, res) => {
+    const product = {
+        name: 'iPhone 12',
+        image: 'https://i.imgur.com/EHyR2nP.png',
+        amount: 10000,
+        quantity: 1,
+    }
+    const session = await stripe.checkout.sessions.create({
+        line_items: [
+            {
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: product.name,
+                        images: [product.image],
+                    },
+                    unit_amount: product.amount,
+                },
+                quantity: product.quantity,
+            },
+        ],
+        payment_method_types: ['card'],
+        mode: 'payment',
+        success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
+        cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
+    })
+    console.log(session)
+    res.status(200).json({ url: session.url })
+})
+
 app.get('/*', (req: express.Request, res: express.Response) => {
     res.sendFile(path.resolve(__dirname, '..', 'client', 'build', 'index.html'))
 })
+
 app.listen(PORT, () => {
     console.log(`server started on port ${PORT}`)
 })
