@@ -4,6 +4,7 @@ import { Pie } from 'react-chartjs-2'
 import { format, startOfMonth, endOfMonth } from 'date-fns'
 import './diagram-of-cities-module.css'
 import Preloader from 'components/Preloader'
+import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
 
 export const FirstDayMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
 export const LastDayMonth = format(endOfMonth(new Date()), 'yyyy-MM-dd')
@@ -47,29 +48,12 @@ const DiagramOfCities: FC<DiagramOfCitiesProps> = () => {
   return (
     <div className="wrapper_charts">
       <Preloader isLoading={isLoading} />
-      <div className="date_filter">
-        <label>Start:</label>
-        <input
-          type="date"
-          title="select start filter date"
-          value={filterStart}
-          max={filterEnd !== null ? filterEnd : ''}
-          onChange={event => {
-            setFilterStart(event.currentTarget.value)
-          }}
-        />
-
-        <label>End:</label>
-        <input
-          type="date"
-          title="select end filter date"
-          value={filterEnd}
-          min={filterStart !== null ? filterStart : ''}
-          onChange={event => {
-            setFilterEnd(event.currentTarget.value)
-          }}
-        />
-      </div>
+      <DateRangeSelect
+        setPropsStart={setFilterStart}
+        setPropsEnd={setFilterEnd}
+        propsStart={filterStart}
+        propsEnd={filterEnd}
+      />
       <div className="pie-diagram">
         <Pie
           data={{

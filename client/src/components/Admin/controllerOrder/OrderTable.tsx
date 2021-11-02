@@ -23,11 +23,8 @@ import Preloader from 'components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 import { format } from 'date-fns'
-// import CitySelect from 'components/reusableСomponents/citySelect/CitySelect'
-import MasterSelect from 'components/reusableСomponents/masterSelect/MasterSelect'
-import ClockSizeSelect from 'components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
 import StatusSelect from 'components/reusableСomponents/statusSelect/StatusSelect'
-import DateRange from 'components/reusableСomponents/dateRange/DateRange'
+import DateRange from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
 import Select from 'components/reusableСomponents/select/Select'
 
 const limit = 10
@@ -40,8 +37,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [clockSizeFilter, setClockSizeFilter] = useState<number | null>(null)
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)
 
-  const [filterStart, setFilterStart] = useState<string | null>(null)
-  const [filterEnd, setFilterEnd] = useState<string | null>(null)
+  const [filterStart, setFilterStart] = useState<string>('')
+  const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
 

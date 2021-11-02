@@ -1,23 +1,16 @@
-import React from 'react'
-
-export interface ReactStarsProps {
-  count: number
-  size: number
-  activeColor: string
-  isHalf: boolean
-  value: number
-  onChange: MouseEventHandler<HTMLSpanElement>
-  index: any
-  active: any
-  config: any
-  onMouseOver: any
-  onMouseLeave: any
-  halfStarHidden: any
-  halfStarAt: any
-  isUsingIcons: any
-  uniqueness: any
-}
-
 declare module 'react-rating-stars-component' {
-  export function ReactStars(props: ReactStarsProps): ReactElement
+  import React, { MouseEventHandler, ReactElement, SetStateAction } from 'react'
+
+  interface ReactStarsProps {
+    count: number
+    size: number
+    activeColor: string
+    isHalf: boolean
+    value: number
+    onChange: SetStateAction
+    index: any
+  }
+  export default function ReactStars(
+    props: ReactStarsProps,
+  ): ReactElement<any, any>
 }

@@ -1,0 +1,7 @@
+.date-range {
+  display: flex;
+  justify-content: space-around;
+}
+.date-range-label {
+  padding: 3px 10px;
+}

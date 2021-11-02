@@ -4,7 +4,7 @@ import { Pie } from 'react-chartjs-2'
 import './diagram-of-masters-module.css'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import Preloader from 'components/Preloader'
-
+import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
 type DataForMasterDiagram = {
   count: number
   name: string
@@ -44,29 +44,12 @@ const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
   return (
     <div className="wrapper_charts">
       <Preloader isLoading={isLoading} />
-      <div className="date_filter">
-        <label>Start:</label>
-        <input
-          type="date"
-          title="select start filter date"
-          value={filterStart}
-          max={filterEnd !== null ? filterEnd : ''}
-          onChange={event => {
-            setFilterStart(event.currentTarget.value)
-          }}
-        />
-
-        <label>End:</label>
-        <input
-          type="date"
-          title="select end filter date"
-          value={filterEnd}
-          min={filterStart !== null ? filterStart : ''}
-          onChange={event => {
-            setFilterEnd(event.currentTarget.value)
-          }}
-        />
-      </div>
+      <DateRangeSelect
+        setPropsStart={setFilterStart}
+        setPropsEnd={setFilterEnd}
+        propsStart={filterStart}
+        propsEnd={filterEnd}
+      />
       <div className="pie-diagram">
         <Pie
           data={{

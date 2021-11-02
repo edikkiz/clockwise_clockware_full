@@ -3,8 +3,10 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-cities-module.css'
-import CityMultiSelect from 'components/reusableСomponents/cityMultiSelect/CityMultiSelect'
+import MultiSelect from 'components/reusableСomponents/multiSelect/MultiSelect'
 import Preloader from 'components/Preloader'
+import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import { City } from 'models'
 
 type DataForCityDiagram = {
   count: number
@@ -26,14 +28,34 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])
 
-  const [citiesIdMultiSelect, setCitiesIdMultiSelect] = useState<
+  const [IDsMultiSelect, setIDsMultiSelect] = useState<
+    MultiSelectOption[]
+  >([])
+  
+  const [optionForSelect, setOptionForSelect] = useState<
     MultiSelectOption[]
   >([])
 
   useEffect(() => {
-    if (citiesIdMultiSelect.length) {
+    const getCities = async () => {
+      const cities = await axios.get<City[]>(`/city`)
+      const citiesOptions = cities.data.map(
+        ({ name, id }): MultiSelectOption => {
+          return { label: name, value: id }
+        },
+      )
+
+      console.log(citiesOptions)
+      setOptionForSelect(citiesOptions)
+      setIDsMultiSelect(citiesOptions)
+    }
+    getCities()
+  }, [])
+
+  useEffect(() => {
+    if (IDsMultiSelect.length) {
       setIsLoading(true)
-      const citiesId = citiesIdMultiSelect.map(({ value }) => value)
+      const citiesId = IDsMultiSelect.map(({ value }) => value)
       const getDataForDiagram = async () => {
         const { data } = await axios.get<DataForCityDiagram[]>(
           '/admin/graph/city',
@@ -58,38 +80,22 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
       setCitiesCount([])
       setIsLoading(false)
     }
-  }, [filterStart, filterEnd, citiesIdMultiSelect])
+  }, [filterStart, filterEnd, IDsMultiSelect])
 
   return (
     <div className="wrapper_graph">
       <Preloader isLoading={isLoading} />
       <div className="filter">
-        <label>Start:</label>
-        <input
-          type="date"
-          title="select start filter date"
-          value={filterStart}
-          max={filterEnd !== null ? filterEnd : ''}
-          onChange={event => {
-            setFilterStart(event.currentTarget.value)
-          }}
-        />
-
-        <label>End:</label>
-        <input
-          type="date"
-          title="select end filter date"
-          value={filterEnd}
-          min={filterStart !== null ? filterStart : ''}
-          onChange={event => {
-            setFilterEnd(event.currentTarget.value)
-          }}
-        />
-
+      <DateRangeSelect 
+        setPropsStart={setFilterStart}
+        setPropsEnd={setFilterEnd}
+        propsStart={filterStart}
+        propsEnd={filterEnd}/>
         <label>Choose Cities:</label>
-        <CityMultiSelect
-          multiSelectValue={citiesIdMultiSelect}
-          setMultiSelectValue={setCitiesIdMultiSelect}
+        <MultiSelect
+          optionForSelect={optionForSelect}
+          setMultiSelectValue={setIDsMultiSelect}
+          multiSelectValue={IDsMultiSelect}
         />
       </div>
       <div className="pie-diagram">
