@@ -74,6 +74,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
         success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
         cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
     })
+    const test = await stripe.checkout.sessions.retrieve(
+        session.id
+      );
+    console.log("test")
+    console.log(test)
+    console.log("session")
     console.log(session)
     res.status(200).json({ url: session.url })
 })
