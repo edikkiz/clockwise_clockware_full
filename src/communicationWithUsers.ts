@@ -1,5 +1,5 @@
 import { CronJob } from "cron"
-import transporter from './services/SendMail'
+import transporter from './services/sendMail'
 
 import { PrismaClient } from '@prisma/client'
 

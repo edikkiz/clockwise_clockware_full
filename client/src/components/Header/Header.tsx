@@ -1,4 +1,4 @@
-import React, { Component, FC } from 'react'
+import { FC } from 'react'
 import './header-module.css'
 import logo from './logo.png'
 import { Link } from 'react-router-dom'

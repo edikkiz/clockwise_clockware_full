@@ -3,9 +3,9 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-cities-module.css'
-import Preloader from 'components/Preloader'
-import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import CityMultiSelect from 'components/reusableСomponents/cityMultiSelect/CityMultiSelect'
+import Preloader from 'src/components/Preloader'
+import DateRangeSelect from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import CityMultiSelect from 'src/components/reusableСomponents/cityMultiSelect/CityMultiSelect'
 
 type DataForCityDiagram = {
   count: number
@@ -27,12 +27,12 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
   const [citiesLabels, setCitiesLabels] = useState<string[]>([])
   const [citiesCount, setCitiesCount] = useState<number[]>([])
 
-  const [IDsMultiSelect, setIDsMultiSelect] = useState<MultiSelectOption[]>([])
+  const [citiesFilter, setCitiesFilter] = useState<MultiSelectOption[]>([])
 
   useEffect(() => {
-    if (IDsMultiSelect.length) {
+    if (citiesFilter.length) {
       setIsLoading(true)
-      const citiesId = IDsMultiSelect.map(({ value }) => value)
+      const citiesId = citiesFilter.map(({ value }) => value)
       const getDataForDiagram = async () => {
         const { data } = await axios.get<DataForCityDiagram[]>(
           '/admin/graph/city',
@@ -52,45 +52,47 @@ const GraphOfCities: FC<GraphOfCitiesProps> = () => {
       }
       getDataForDiagram()
     } else {
-      setIsLoading(true)
       setCitiesLabels([])
       setCitiesCount([])
-      setIsLoading(false)
     }
-  }, [filterStart, filterEnd, IDsMultiSelect])
+  }, [filterStart, filterEnd, citiesFilter])
 
   return (
     <div className="wrapper_graph">
       <Preloader isLoading={isLoading} />
       <div className="filter">
         <DateRangeSelect
-          setPropsStart={setFilterStart}
-          setPropsEnd={setFilterEnd}
-          propsStart={filterStart}
-          propsEnd={filterEnd}
+          setStart={setFilterStart}
+          setEnd={setFilterEnd}
+          start={filterStart}
+          end={filterEnd}
         />
         <CityMultiSelect
-          setMultiSelectValue={setIDsMultiSelect}
-          multiSelectValue={IDsMultiSelect}
+          setMultiSelectValue={setCitiesFilter}
+          multiSelectValue={citiesFilter}
         />
       </div>
-      <div className="pie-diagram">
-        <Line
-          data={{
-            labels: citiesLabels,
-            datasets: [
-              {
-                label: 'orders for this city',
-                data: citiesCount,
-                borderWidth: 4,
-              },
-            ],
-          }}
-          options={{
-            responsive: true,
-          }}
-        />
-      </div>
+      {citiesFilter.length ? (
+        <div className="pie-diagram">
+          <Line
+            data={{
+              labels: citiesLabels,
+              datasets: [
+                {
+                  label: 'orders for this city',
+                  data: citiesCount,
+                  borderWidth: 4,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+            }}
+          />
+        </div>
+      ) : (
+        <div className="no-city">Please, select at least one city</div>
+      )}
     </div>
   )
 }

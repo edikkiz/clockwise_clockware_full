@@ -1,6 +1,7 @@
 import { Router } from 'express'
-const router = Router()
 import masterController from '../controller/master.controller'
+
+const router = Router()
 
 router.get('/free-masters', masterController.getFreeMasters)
 

@@ -1,5 +1,5 @@
-import { DataForCharts, OrderForFeedback } from '../models'
-import sendMail from '../services/SendMail'
+import { DataForCharts } from '../models'
+import sendMail from '../services/sendMail'
 import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
@@ -32,25 +32,22 @@ class OrderController {
         if (!params.success) {
             return
         }
-        const { feedbackToken } = req.query
-        const orderByFeedbackToken =
-            await prisma.$queryRaw<OrderForFeedback>`SELECT users.id AS "userId",
-            orders.id,
-            masters.name AS "masterName",
-            cities.name AS "cityName",
-            "clockSizes".name,
-            users.name AS "userName",
-            users.email AS "userEmail",
-            orders.price,
-            orders."startAt" AS "startAt",
-            orders."endAt" AS "endAt"
-            FROM orders
-                INNER JOIN masters ON orders."masterId" = masters.id
-                INNER JOIN cities ON orders."cityId" = cities.id
-                INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-                INNER JOIN users ON orders."userId" = users.id
-                WHERE orders."feedbackToken" = ${feedbackToken}`
-
+        const { feedbackToken } = params.data
+        const orderByFeedbackToken = await prisma.order.findUnique({
+            where: {
+                feedbackToken: feedbackToken,
+            },
+            select: {
+                id: true,
+                price: true,
+                startAt: true,
+                endAt: true,
+                master: { select: { name: true } },
+                city: { select: { name: true } },
+                clockSize: { select: { name: true } },
+                user: { select: { name: true, email: true, id: true } },
+            },
+        })
         res.status(200).json(orderByFeedbackToken)
     }
 

@@ -1,27 +1,19 @@
 import { z } from 'zod'
 
-const createCityShape = {
-    name: z.string().regex(/[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/),
-}
+export const createCitySchema = z.object({
+    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
+})
 
-export const createCitySchema = z.object(createCityShape)
-
-const updateCityShape = {
+export const updateCitySchema = z.object({
     id: z.number().int().nonnegative(),
-    name: z.string().regex(/[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/),
-}
+    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
+})
 
-export const updateCitySchema = z.object(updateCityShape)
-
-const deleteCityShape = {
+export const deleteCitySchema = z.object({
     id: z.number().int().nonnegative(),
-}
+})
 
-export const deleteCitySchema = z.object(deleteCityShape)
-
-const getCitiesShape = {
+export const getCitiesSchema = z.object({
     limit: z.string(),
     offset: z.string(),
-}
-
-export const getCitiesSchema = z.object(getCitiesShape)
+})

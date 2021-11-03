@@ -1,6 +1,7 @@
 import { Router } from 'express'
-const router = Router()
 import orderController from '../controller/order.controller'
+
+const router = Router()
 
 router.get('/clock-sizes', orderController.getClockSizes)
 router.get('/order-for-feedback', orderController.getOrderByFeedbackToken)

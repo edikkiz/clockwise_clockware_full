@@ -1,9 +1,7 @@
-import React from 'react'
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom'
 import './App.css'
 import CitiesTable from './components/Admin/controllerCity/CitiesTable'
 import Header from './components/Header/Header'
-
 import FormForChangeOrCreateCity from './components/Admin/controllerCity/FormForChangeOrCreateCity'
 import ChangeOrderForm from './components/Admin/controllerOrder/ChangeOrderForm'
 import ChangeUserForm from './components/Admin/controllerUser/ChangeUserForm'
@@ -14,7 +12,6 @@ import MastersTable from './components/Admin/controllerMaster/MastersTable'
 import OrderTable from './components/Admin/controllerOrder/OrderTable'
 import UsersTable from './components/Admin/controllerUser/UsersTable'
 import RateMaster from './components/rateMasters/RateMasters'
-
 import { ToastProvider } from 'react-toast-notifications'
 import MasterRegistration from './components/Master/masterRegistration/masterRegistration'
 import MasterWorkList from './components/Master/masterWorkList/masterWorkList'

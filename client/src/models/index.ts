@@ -112,7 +112,7 @@ export type OrderForTable = {
   id: number
   images: string[]
   master: { id: number; name: string }
-  price: 300
+  price: number
   rating: null
   startAt: string
   status: Status
@@ -138,4 +138,19 @@ export type MasterForTable = {
   id: number
   name: string
   profit: number | null
+}
+
+export type OrderForFeedback = {
+  id: number
+  price: number
+  startAt: string
+  endAt: string
+  master: { name: string }
+  city: { name: string }
+  clockSize: { name: string }
+  user: {
+    name: string
+    email: string
+    id: number
+  }
 }

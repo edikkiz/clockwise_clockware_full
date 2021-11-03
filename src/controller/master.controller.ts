@@ -33,10 +33,8 @@ class MasterController {
         if (!params.success) {
             return
         }
-        const { cityId, startAt, timeToDone, orderId } = params.data
-        const d = new Date(`${startAt}`)
-        d.setHours(d.getHours() + Number(timeToDone))
-        const newOrderEndAt = d
+        const { cityId, startAt, endAt, orderId } = params.data
+        const newOrderEndAt =  new Date(`${endAt}`)
         const newOrderStartAt = new Date(`${startAt}`)
         let busyMastersId: number[] = []
         if (orderId) {

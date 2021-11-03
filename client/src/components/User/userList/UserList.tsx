@@ -1,10 +1,9 @@
-import React, { useEffect, useState, FC, useCallback } from 'react'
+import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrder, Status } from 'models'
+import { AllOrder, Status } from 'src/models'
 import { Link } from 'react-router-dom'
-import Preloader from 'components/Preloader'
+import Preloader from 'src/components/Preloader'
 import { useParams } from 'react-router-dom'
-import { useToasts } from 'react-toast-notifications'
 import './user-list-module.css'
 import UserHeader from '../userHeader/UserHeader'
 import { format } from 'date-fns'
@@ -19,8 +18,6 @@ const UserList: FC<userListProps> = () => {
   const [offset, setOffset] = useState<number>(0)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  const { addToast } = useToasts()
 
   useEffect(() => {
     setIsLoading(true)

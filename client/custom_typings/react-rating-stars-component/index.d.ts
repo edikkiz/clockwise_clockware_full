@@ -1,5 +1,5 @@
 declare module 'react-rating-stars-component' {
-  import React, { MouseEventHandler, ReactElement, SetStateAction } from 'react'
+  import React, { ReactElement } from 'react'
 
   interface ReactStarsProps {
     count: number
@@ -7,8 +7,7 @@ declare module 'react-rating-stars-component' {
     activeColor: string
     isHalf: boolean
     value: number
-    onChange: SetStateAction
-    index: any
+    onChange: React.Dispatch<React.SetStateAction<number>>
   }
   export default function ReactStars(
     props: ReactStarsProps,

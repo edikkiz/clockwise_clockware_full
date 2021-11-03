@@ -1,13 +1,6 @@
 import axios from 'axios'
-import React, {
-  Component,
-  useState,
-  useEffect,
-  FC,
-  useCallback,
-  SetStateAction,
-} from 'react'
-import { City, ClockSize, FormError, Master, Order } from 'models'
+import { useState, useEffect, FC, useCallback } from 'react'
+import { City, ClockSize, FormError, Master, Order } from 'src/models'
 import './form-module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -96,14 +89,20 @@ const Form: FC<ControllerFormProps> = () => {
     setIsLoading(true)
     const getMaters = async () => {
       if (dataForFreeMaster.every(elem => !!elem)) {
-        const time = clockSizes.find(
+        const timeToDone = clockSizes.find(
           ({ id }) => id === Number(dataForFreeMaster[3]),
         )?.timeToDone
+        const endAt = new Date(
+          `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+        )
+        endAt.setHours(endAt.getHours() + Number(timeToDone))
         const { data } = await axios.get<Master[]>('/free-masters', {
           params: {
-            startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+            startAt: new Date(
+              `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+            ),
             cityId: dataForFreeMaster[2],
-            timeToDone: time,
+            endAt: endAt,
           },
         })
 

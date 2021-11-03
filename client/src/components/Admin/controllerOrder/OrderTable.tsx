@@ -1,26 +1,17 @@
-import {
-  useEffect,
-  useState,
-  FC,
-  useCallback,
-} from 'react'
+import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import './order-table-module.css'
-import {
-  OrderForTable,
-  Order,
-  Status,
-} from 'models'
+import { OrderForTable, Order, Status } from 'src/models/'
 import { Link } from 'react-router-dom'
-import Preloader from 'components/Preloader'
+import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 import { format } from 'date-fns'
-import StatusSelect from 'components/reusableСomponents/statusSelect/StatusSelect'
-import DateRange from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import ClockSizeSelect from 'components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
-import MasterSelect from 'components/reusableСomponents/masterSelect/MasterSelect'
-import CitySelect from 'components/reusableСomponents/citySelect/CitySelect'
+import StatusSelect from 'src/components/reusableСomponents/statusSelect/StatusSelect'
+import DateRange from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import ClockSizeSelect from 'src/components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
+import MasterSelect from 'src/components/reusableСomponents/masterSelect/MasterSelect'
+import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect'
 
 const limit = 10
 interface ControllerOrderTableProps {}
@@ -58,9 +49,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         },
       },
     )
-    if (!data.length) {
-      addToast('no orders for this filter', { appearance: 'warning' })
-    }
     setOrders(data)
     setIsLoading(false)
   }
@@ -135,7 +123,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <button className="buttonFilter" onClick={filtered}>
           filter
         </button>
-        <DateRange setPropsStart={setFilterStart} setPropsEnd={setFilterEnd} />
+        <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
       </div>
 
       <div className="wrapper_orders">
@@ -229,6 +217,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           ))}
         </table>
       </div>
+
       {offset !== 0 ? (
         <button className="after_button" onClick={after}>
           back
@@ -247,7 +236,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           next
         </button>
       )}
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {!orders.length && <div>Dont have more orders</div>}
     </div>
   )
 }

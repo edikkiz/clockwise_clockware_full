@@ -1,7 +1,7 @@
 import axios from 'axios'
 import './rate-masters-module.css'
-import React, { Component, useState, useEffect, FC } from 'react'
-import { AllOrder } from 'models'
+import React, { useState, useEffect, FC } from 'react'
+import { OrderForFeedback } from '@src/models'
 import { useHistory, useParams } from 'react-router-dom'
 import { Redirect } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
@@ -20,19 +20,22 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
 
   const { feedbackToken } = useParams<{ feedbackToken: string }>()
 
-  const [order, setOrder] = useState<AllOrder>()
+  const [order, setOrder] = useState<OrderForFeedback>()
 
   const { addToast } = useToasts()
 
   useEffect(() => {
     const getOrder = async () => {
-      const { data } = await axios.get<AllOrder[]>('/order-for-feedback', {
-        params: {
-          feedbackToken: feedbackToken,
+      const { data } = await axios.get<OrderForFeedback>(
+        '/order-for-feedback',
+        {
+          params: {
+            feedbackToken: feedbackToken,
+          },
         },
-      })
-      if (data.length) {
-        setOrder(data[0])
+      )
+      if (data) {
+        setOrder(data)
       } else {
         addToast('this order is appreciated', { appearance: 'info' })
         history.push('/')
@@ -56,9 +59,10 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
         })
         .then(() => {
           addToast('thanks for the tip', { appearance: 'success' })
+          setIsLoading(false)
           const token = localStorage.getItem('accessToken')
           token
-            ? history.push(`/role/user/${order.userId}`)
+            ? history.push(`/role/user/${order.user.id}`)
             : history.push('/login')
         })
     }
@@ -77,25 +81,25 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
             <div className="info_rate">
               <b>Please rate work of the master:</b>
               <br />
-              {order.masterName}
+              {order.master.name}
             </div>
             <div className="info_rate">
               <b>Order #{order.id}</b>
               <br />
-              <b> user name:</b> {order.userName}
+              <b> user name:</b> {order.user.name}
               <br />
-              <b>user email:</b> {order.userEmail}
+              <b>user email:</b> {order.user.email}
               <br />
-              <b>clock size:</b> {order.size}
+              <b>clock size:</b> {order.clockSize.name}
               <br />
-              <b>city:</b> {order.cityName}
+              <b>city:</b> {order.city.name}
               <br />
               <b>price:</b> {order.price}
               <br />
-              <b>start work on:</b>{' '}
+              <b>start work on:</b>
               {format(new Date(order.startAt), 'yyyy-MM-dd HH:mm')}
               <br />
-              <b>end work on:</b>{' '}
+              <b>end work on:</b>
               {format(new Date(order.endAt), 'yyyy-MM-dd HH:mm')}
             </div>
           </>
@@ -116,7 +120,6 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
           activeColor="#ffd700"
           isHalf={true}
           value={rating}
-          index={5}
         />
 
         <p></p>

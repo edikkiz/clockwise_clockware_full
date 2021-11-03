@@ -1,29 +1,22 @@
 import { z } from "zod"
 
-const createUserShape = {
-    name: z.string().regex(/[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/),
+export const createUserSchema = z.object({
+    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
     email: z.string().email(),
-}
+})
 
-export const createUserSchema = z.object(createUserShape)
-
-const updateUserShape = {
+export const updateUserSchema = z.object({
     id: z.number().int().nonnegative(),
-    name: z.string().regex(/[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/),
+    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
     email: z.string().email(),
-}
+})
 
-export const updateUserSchema = z.object(updateUserShape)
 
-const deleteUserShape = {
+export const deleteUserSchema = z.object({
     id: z.number().int().nonnegative()
-}
+})
 
-export const deleteUserSchema = z.object(deleteUserShape)
-
-const getUsersShape = {
+export const getUsersSchema = z.object({
     limit: z.string(),
     offset: z.string(),
-}
-
-export const getUsersSchema = z.object(getUsersShape)
+})

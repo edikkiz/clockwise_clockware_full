@@ -2,15 +2,17 @@ import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 import interactionPlugin from '@fullcalendar/interaction' // needed for dayClick
 import { EventClickArg } from '@fullcalendar/common'
-import React, { Component, useState, useEffect, FC, useCallback } from 'react'
+import { useState, useEffect, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrderForOneMaster, Order } from 'models'
+import { AllOrderForOneMaster } from 'src/models'
 import { useParams } from 'react-router-dom'
 import Modal from './modal'
 import MasterHeader from '../Master/masterHeader/masterHeader'
+import Preloader from '../Preloader'
 
 interface CalendarProps {}
 const Calendar: FC<CalendarProps> = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [modalActive, setModalActive] = useState<boolean>(false)
 
@@ -21,6 +23,7 @@ const Calendar: FC<CalendarProps> = () => {
   const [orders, setOrders] = useState<AllOrderForOneMaster[]>([])
 
   const getOrdersList = useCallback(() => {
+    setIsLoading(true)
     const getAllOrders = async () => {
       const { data } = await axios.get<AllOrderForOneMaster[]>(
         `/master/master-orders`,
@@ -31,6 +34,7 @@ const Calendar: FC<CalendarProps> = () => {
         },
       )
       setOrders(data)
+      setIsLoading(false)
     }
     getAllOrders()
   }, [])
@@ -41,8 +45,9 @@ const Calendar: FC<CalendarProps> = () => {
 
   return (
     <>
+      <Preloader isLoading={isLoading} />
       <MasterHeader masterId={+masterId} />
-      <FullCalendar 
+      <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
         events={orders}
         eventClick={event => {

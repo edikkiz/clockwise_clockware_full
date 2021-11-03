@@ -5,14 +5,14 @@ type PreloaderProps = {
   isLoading: boolean
 }
 
-const TransparentPreloader: FC<PreloaderProps> = ({ isLoading }) => {
+const Preloader: FC<PreloaderProps> = ({ isLoading }) => {
   return isLoading ? (
     <div className={`transparent-preloader`}>
-      <div className='transparent-preloader__spinner' />
+      <div className="transparent-preloader__spinner" />
     </div>
   ) : (
     <></>
   )
 }
 
-export default TransparentPreloader
+export default Preloader

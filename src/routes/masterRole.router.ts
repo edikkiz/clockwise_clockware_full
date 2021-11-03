@@ -1,18 +1,15 @@
 import { Router } from 'express'
-const router = Router()
-
-import AuthController from '../controller/auth.controller'
 import orderController from '../controller/order.controller'
+
+const router = Router()
 
 router.put(
     '/change-status',
-    AuthController.checkAccessToken('master'),
     orderController.updateOrderStatus,
 )
 
 router.get(
     '/master-orders',
-    AuthController.checkAccessToken('master'),
     orderController.getAllOrdersToTheMasterTable,
 )
 

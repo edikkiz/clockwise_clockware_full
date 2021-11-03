@@ -1,9 +1,9 @@
-import React, { Component, useEffect, useState, FC } from 'react'
+import { useEffect, FC } from 'react'
 import './form-for-change-or-create-city-module.css'
 import axios from 'axios'
-import { City, FormError } from 'models'
+import { City, FormError } from 'src/models'
 import { useHistory, useParams } from 'react-router-dom'
-import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 
@@ -55,7 +55,7 @@ const FormForChangeOrCreateCity: FC<FormForChangeOrCreateCityProps> = () => {
       })
   }
 
-  const whatControllerUse: SubmitHandler<CityAdd> = data => {
+  const onSubmit: SubmitHandler<CityAdd> = data => {
     !updateId ? addCity(data) : updateCity(data)
   }
   return (
@@ -64,7 +64,7 @@ const FormForChangeOrCreateCity: FC<FormForChangeOrCreateCityProps> = () => {
       <div className="wrapper_controller-city">
         <form
           className="wrapper_controller-city__form"
-          onSubmit={handleSubmit(whatControllerUse)}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <input
             placeholder="Enter city name"
@@ -73,7 +73,7 @@ const FormForChangeOrCreateCity: FC<FormForChangeOrCreateCityProps> = () => {
               required: true,
               minLength: 3,
               maxLength: 50,
-              pattern: /[A-Za-zА-Яа-я]/,
+              pattern: /^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/,
             })}
           />
           {errors?.name?.type === FormError.REQUIRED && (

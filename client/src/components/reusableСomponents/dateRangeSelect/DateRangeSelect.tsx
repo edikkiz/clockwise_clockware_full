@@ -2,43 +2,43 @@ import { useState, FC } from 'react'
 import './date-range-module.css'
 
 interface DateRangeProps {
-  setPropsStart: React.Dispatch<React.SetStateAction<string>>
-  propsStart?: string
-  setPropsEnd: React.Dispatch<React.SetStateAction<string>>
-  propsEnd?: string
+  setStart: React.Dispatch<React.SetStateAction<string>>
+  start?: string
+  setEnd: React.Dispatch<React.SetStateAction<string>>
+  end?: string
 }
 const DateRange: FC<DateRangeProps> = ({
-  setPropsStart,
-  setPropsEnd,
-  propsStart,
-  propsEnd,
+  setStart,
+  setEnd,
+  start,
+  end,
 }) => {
-  const [start, setStart] = useState<string>('')
-  const [end, setEnd] = useState<string>('')
+  const [innerStart, setInnerStart] = useState<string>('')
+  const [innerEnd, setInnerEnd] = useState<string>('')
 
   return (
     <div className="date-range">
       <label className="date-range-label">Start: </label>
       <input
-        defaultValue={propsStart ? propsStart : start}
+        defaultValue={start ? start : innerStart}
         type="date"
         title="select start filter date"
-        max={propsEnd ? propsEnd : end}
+        max={end ? end : innerEnd}
         onChange={event => {
-          setPropsStart(event.currentTarget.value)
           setStart(event.currentTarget.value)
+          setInnerStart(event.currentTarget.value)
         }}
       />
 
       <label className="date-range-label">End: </label>
       <input
-        defaultValue={propsEnd ? propsEnd : end}
+        defaultValue={end ? end : innerEnd}
         type="date"
         title="select end filter date"
-        min={propsStart ? propsStart : start}
+        min={start ? start : innerStart}
         onChange={event => {
-          setPropsEnd(event.currentTarget.value)
           setEnd(event.currentTarget.value)
+          setInnerEnd(event.currentTarget.value)
         }}
       />
     </div>

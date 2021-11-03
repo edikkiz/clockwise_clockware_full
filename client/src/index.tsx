@@ -25,7 +25,7 @@ axios.interceptors.response.use(
     if (error.response.status === 403 || error.response.status === 401) {
       localStorage.removeItem('accessToken')
       {
-        ;<Redirect to="/login" />
+        <Redirect to="/login" />
       }
     }
     return Promise.reject(error)

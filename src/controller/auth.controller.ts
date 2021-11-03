@@ -9,7 +9,7 @@ const exp = { expiresIn: '2h' }
 
 class AuthController {
     checkAccessToken =
-        (tokenType: 'admin' | 'master' | 'user') =>
+        (tokenType: 'ADMIN' | 'MASTER' | 'USER') =>
         async (req: Request, res: Response, next: NextFunction) => {
             if (!process.env.SECRET_KEY) {
                 throw new Error('Secret jwt key is not provided')
@@ -27,14 +27,7 @@ class AuthController {
                     if (!role) {
                         res.status(401).send()
                     }
-                    if (
-                        (tokenType === 'admin' &&
-                            role[0].role === 'ADMIN') ||
-                        (tokenType === 'master' &&
-                            role[0].role === 'MASTER') ||
-                        (tokenType === 'user' &&
-                            role[0].role === 'USER')
-                    ) {
+                    if (tokenType === role[0].role) {
                         next()
                     }
                 }

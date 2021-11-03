@@ -3,8 +3,9 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import './diagram-of-masters-module.css'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
-import Preloader from 'components/Preloader'
-import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import Preloader from 'src/components/Preloader'
+import DateRangeSelect from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+
 type DataForMasterDiagram = {
   count: number
   name: string
@@ -46,10 +47,10 @@ const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
       <Preloader isLoading={isLoading} />
       <div className="date_filter">
         <DateRangeSelect
-          setPropsStart={setFilterStart}
-          setPropsEnd={setFilterEnd}
-          propsStart={filterStart}
-          propsEnd={filterEnd}
+          setStart={setFilterStart}
+          setEnd={setFilterEnd}
+          start={filterStart}
+          end={filterEnd}
         />
       </div>
       <div className="pie-diagram">

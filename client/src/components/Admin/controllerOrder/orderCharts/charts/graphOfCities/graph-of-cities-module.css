@@ -16,3 +16,8 @@
 .filter input {
   font-size: 15px;
 }
+
+.no-city {
+  margin: 50px;
+  color: red;
+}

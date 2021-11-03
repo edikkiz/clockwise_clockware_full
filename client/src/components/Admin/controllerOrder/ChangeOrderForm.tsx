@@ -1,20 +1,11 @@
-import React, { useEffect, useState, FC, ReactElement } from 'react'
+import { useEffect, useState, FC } from 'react'
 import './change-order-form-module.css'
 import axios from 'axios'
-import {
-  AllOrder,
-  City,
-  ClockSize,
-  FormError,
-  Master,
-  Order,
-  Status,
-  User,
-} from 'models'
+import { City, ClockSize, FormError, Master, Order, Status } from 'src/models'
 import { useHistory, useParams, useLocation } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
-import Preloader from 'components/Preloader'
+import Preloader from '../../Preloader'
 import AdminHeader from '../adminHeader/AdminHeader'
 
 const orderTime = [

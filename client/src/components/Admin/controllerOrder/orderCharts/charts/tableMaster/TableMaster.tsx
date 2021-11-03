@@ -1,8 +1,8 @@
 import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { ClockSize, MasterForTable } from 'models'
+import { ClockSize, MasterForTable } from 'src/models'
 import './table-master-module.css'
-import Preloader from 'components/Preloader'
+import Preloader from 'src/components/Preloader'
 
 const limit = 10
 interface MasterTableChartsProps {}

@@ -1,8 +1,8 @@
-import React, { Component, useEffect, useState, FC, useCallback } from 'react'
+import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import { AllOrder, Status } from 'models'
-import Preloader from 'components/Preloader'
-import { useHistory, useParams } from 'react-router-dom'
+import { AllOrder, Status } from 'src/models'
+import Preloader from '../../Preloader'
+import { useParams } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 import './masterWorkList_module.css'
 import MasterHeader from '../masterHeader/masterHeader'
@@ -59,8 +59,9 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     }
   }, [])
 
-  const reStatus = (id: number, email: string) => {
+  const changeStatus = (id: number, email: string) => {
     if (window.confirm(`confirm change status in order: ${id}`)) {
+      setIsLoading(true)
       axios
         .put('/master/change-status', {
           id: +id,
@@ -133,7 +134,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
               {order.status != Status.Completed ? (
                 <button
                   type="button"
-                  onClick={() => reStatus(order.id, order.email)}
+                  onClick={() => changeStatus(order.id, order.email)}
                   className="link_update__master"
                 >
                   <th className="table_link">

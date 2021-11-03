@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@src/*": ["./src/*"],
+      // "@src/models/": ["./src/models/"],
+      // "@src/components/Preloader": ["./src/components/Preloader"],
+      // "@src/components/reusableСomponents/dateRangeSelect/DateRangeSelect": ["./src/components/reusableСomponents/dateRangeSelect/DateRangeSelect"],
+      // "@src/components/reusableСomponents/cityMultiSelect/CityMultiSelect": ["./src/components/reusableСomponents/cityMultiSelect/CityMultiSelect"],
+    }
+  }
+}

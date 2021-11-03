@@ -1,5 +1,4 @@
 import * as express from 'express'
-const PORT = process.env.PORT || 3333
 import userRouter from './routes/user.routes'
 import cityRouter from './routes/city.routes'
 import orderRouter from './routes/order.routes'
@@ -9,6 +8,9 @@ import adminRouter from './routes/admin.router'
 import masterRoleRouter from './routes/masterRole.router'
 import userRoleRouter from './routes/userRole.route'
 import cors from 'cors'
+import authController from './controller/auth.controller'
+
+const PORT = process.env.PORT || 3333
 const app = express.default()
 const path = require('path')
 
@@ -37,11 +39,11 @@ app.use('/api', masterRouter)
 
 app.use('/api', authRouter)
 
-app.use('/api/admin', adminRouter)
+app.use('/api/admin', authController.checkAccessToken('ADMIN'), adminRouter)
 
-app.use('/api/master', masterRoleRouter)
+app.use('/api/master', authController.checkAccessToken('MASTER'),  masterRoleRouter)
 
-app.use('/api/user', userRoleRouter)
+app.use('/api/user', authController.checkAccessToken('USER'),  userRoleRouter)
 
 app.listen(PORT, () => {
     console.log(`server started on port ${PORT}`)

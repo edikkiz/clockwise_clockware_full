@@ -3,9 +3,9 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-master-module.css'
-import Preloader from 'components/Preloader'
-import DateRangeSelect from 'components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import MasterMultiSelect from 'components/reusableСomponents/masterMultiSelect/MasterMultiSelect'
+import Preloader from '@src/components/Preloader'
+import DateRangeSelect from '@src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import MasterMultiSelect from '@src/components/reusableСomponents/masterMultiSelect/MasterMultiSelect'
 
 type DataForMasterDiagram = {
   count: number
@@ -27,14 +27,12 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
   const [mastersLabels, setMastersLabels] = useState<string[]>([])
   const [mastersCount, setMastersCount] = useState<number[]>([])
 
-  const [IDsMultiSelect, setIDsMultiSelect] = useState<
-    MultiSelectOption[]
-  >([])
+  const [mastersFilter, setMastersFilter] = useState<MultiSelectOption[]>([])
 
   useEffect(() => {
-    if (IDsMultiSelect.length) {
+    if (mastersFilter.length) {
       setIsLoading(true)
-      const mastersId = IDsMultiSelect.map(({ value }) => value)
+      const mastersId = mastersFilter.map(({ value }) => value)
       const getDataForDiagram = async () => {
         const { data } = await axios.get<DataForMasterDiagram[]>(
           '/admin/graph/master',
@@ -56,41 +54,45 @@ const GraphOfMasters: FC<GraphOfMastersProps> = () => {
     } else {
       setMastersLabels([])
       setMastersCount([])
-      setIsLoading(false)
     }
-  }, [filterStart, filterEnd, IDsMultiSelect])
+  }, [filterStart, filterEnd, mastersFilter])
 
   return (
     <div className="wrapper_graph">
       <Preloader isLoading={isLoading} />
       <div className="filter">
-      <DateRangeSelect 
-        setPropsStart={setFilterStart}
-        setPropsEnd={setFilterEnd}
-        propsStart={filterStart}
-        propsEnd={filterEnd}/>
+        <DateRangeSelect
+          setStart={setFilterStart}
+          setEnd={setFilterEnd}
+          start={filterStart}
+          end={filterEnd}
+        />
         <MasterMultiSelect
-          setMultiSelectValue={setIDsMultiSelect}
-          multiSelectValue={IDsMultiSelect}
+          setMultiSelectValue={setMastersFilter}
+          multiSelectValue={mastersFilter}
         />
       </div>
-      <div className="pie-diagram">
-        <Line
-          data={{
-            labels: mastersLabels,
-            datasets: [
-              {
-                label: 'orders for this master',
-                data: mastersCount,
-                borderWidth: 4,
-              },
-            ],
-          }}
-          options={{
-            responsive: true,
-          }}
-        />
-      </div>
+      {mastersFilter.length ? (
+        <div className="pie-diagram">
+          <Line
+            data={{
+              labels: mastersLabels,
+              datasets: [
+                {
+                  label: 'orders for this master',
+                  data: mastersCount,
+                  borderWidth: 4,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+            }}
+          />
+        </div>
+      ) : (
+        <div className="no-master">Please, select at least one master</div>
+      )}
     </div>
   )
 }
