@@ -1,0 +1,9 @@
+.master-multi-select {
+  display: flex;
+  flex-direction: row;
+}
+
+.label-master-multi-select {
+  margin: auto;
+  padding: 5px;
+}

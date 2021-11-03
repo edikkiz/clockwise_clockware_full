@@ -1,9 +1,9 @@
-import React, { Component, useEffect, useState, FC, useCallback } from 'react'
+import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import './user_table_module.css'
-import { City, Master, User } from '../../../models/models'
+import './user-table-module.css'
+import { User } from 'src/models'
 import { Link } from 'react-router-dom'
-import Preloader from '../../Preloader'
+import Preloader from 'src/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 const limit = 10
@@ -23,7 +23,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
   const getUsersList = useCallback(() => {
     setIsLoading(true)
     const getUsers = async () => {
-      const { data } = await axios.get('/admin/user', {
+      const { data } = await axios.get('/admin/users', {
         params: {
           limit,
           offset
@@ -61,7 +61,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
 
           setIsLoading(true)
           const getUsers = async () => {
-            const { data } = await axios.get('/admin/user', {
+            const { data } = await axios.get('/admin/users', {
               params: {
                 limit,
                 offset
@@ -107,7 +107,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
                 <th className="table_block_id__user">{`${id}`}</th>
                 <th className="table_block_name__user">{`${name}`}</th>
                 <th className="table_block_name__user">{`${email}`}</th>
-                <Link to={`/admin/navUser/${id}/${name}/${email}`} title="update the user" className="link_update__user"><th className="table_link__user">update</th></Link>
+                <Link to={`/admin/change-user/${id}/${name}/${email}`} title="update the user" className="link_update__user"><th className="table_link__user">update</th></Link>
                 <button type="button" onClick={() => onSubmitDelete(id)} className="link_update__user"><th className="table_link__user">delete</th></button>
               </tr>
             ))

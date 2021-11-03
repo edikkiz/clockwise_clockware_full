@@ -1,12 +1,13 @@
-import React, { Component, FC } from 'react'
+import { FC } from 'react'
 import logo from './logo.png'
 import { Link } from 'react-router-dom'
 import { useHistory, useParams } from 'react-router-dom'
 
-interface ControllerHeaderProps { }
+interface ControllerHeaderProps {
+  masterId: number
+}
 const MasterHeader: FC<ControllerHeaderProps> = () => {
-
-  const {id: masterId} = useParams<{id: string}>()
+  const { masterId } = useParams<{ masterId: string }>()
 
   const history = useHistory()
 
@@ -20,11 +21,20 @@ const MasterHeader: FC<ControllerHeaderProps> = () => {
         <div className="header__topline">
           <div className="menu">
             <div className="menu__logo-img">
-              <Link to="/"> <img src={logo} alt={'logo'}></img> </Link>
+              <Link to="/">
+                <img src={logo} alt={'logo'}></img>
+              </Link>
             </div>
             <div className="menu__link">
-              <button className="menu_link" onClick={logOut}>Log out</button>
-              <Link className="menu_link" to={`/calendar/${masterId}`}>Calendar</Link>
+              <Link className="menu_link" to={`/calendar/${masterId}`}>
+                Calendar
+              </Link>
+              <Link className="menu_link" to={`/role/master/${masterId}`}>
+                Order list
+              </Link>
+              <button className="menu_link" onClick={logOut}>
+                Log out
+              </button>
             </div>
           </div>
         </div>

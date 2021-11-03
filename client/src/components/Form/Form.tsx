@@ -1,28 +1,15 @@
 import axios from 'axios'
-import React, {
-  Component,
-  useState,
-  useEffect,
-  FC,
-  useCallback,
-  SetStateAction,
-} from 'react'
-import { City, ClockSize, FormError, Master, Order } from '../../models/models'
-import './Form_module.css'
+import { useState, useEffect, FC, useCallback } from 'react'
+import { City, ClockSize, FormError, Master, Order } from 'src/models'
+import './form-module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import validator from 'email-validator'
-import { promises } from 'fs'
+import { format } from 'date-fns'
 
-const date = new Date()
-const day = date.getDate()
-const month = date.getMonth() + 1
-const year = date.getFullYear()
-const hour = date.getHours()
-const correctDate = `${year}-${month < 10 ? `0${month}` : `${month}`}-${
-  day < 10 ? `0${day}` : `${day}`
-}`
+const correctDate = format(new Date(), 'yyyy-MM-dd')
+const hour = new Date().getHours()
 
 const time = [
   '08:00',
@@ -87,7 +74,7 @@ const Form: FC<ControllerFormProps> = () => {
 
   useEffect(() => {
     const getClockSize = async () => {
-      const sizes = await axios.get<ClockSize[]>('/clockSizes')
+      const sizes = await axios.get<ClockSize[]>('/clock-sizes')
       setClockSizes(sizes.data)
       if (sizes.data) {
         const { id } = sizes.data[0]
@@ -102,11 +89,20 @@ const Form: FC<ControllerFormProps> = () => {
     setIsLoading(true)
     const getMaters = async () => {
       if (dataForFreeMaster.every(elem => !!elem)) {
-        const { data } = await axios.get<Master[]>('/getFreeMasters', {
+        const timeToDone = clockSizes.find(
+          ({ id }) => id === Number(dataForFreeMaster[3]),
+        )?.timeToDone
+        const endAt = new Date(
+          `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+        )
+        endAt.setHours(endAt.getHours() + Number(timeToDone))
+        const { data } = await axios.get<Master[]>('/free-masters', {
           params: {
-            startAt: `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+            startAt: new Date(
+              `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+            ),
             cityId: dataForFreeMaster[2],
-            clockSizeId: dataForFreeMaster[3],
+            endAt: endAt,
           },
         })
 
@@ -188,7 +184,7 @@ const Form: FC<ControllerFormProps> = () => {
         masterId: +data.master,
         cityId: +data.city,
         clockSizeId: +data.clockSize,
-        startAt: `${data.day} ${data.time} UTC`,
+        startAt: `${data.day} ${data.time}`,
         name: data.name,
         email: data.email,
         images: urls,
@@ -227,7 +223,7 @@ const Form: FC<ControllerFormProps> = () => {
             required: true,
             minLength: 3,
             maxLength: 30,
-            pattern: /[A-Za-zА-Яа-я]/,
+            pattern: /[A-Za-zА-Яа-яёЁЇїІіЄєҐґ]/,
           })}
         />
         {errors?.name?.type === FormError.REQUIRED && (

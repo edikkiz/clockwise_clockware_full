@@ -29,3 +29,9 @@ export type OrderForFeedback = {
   startAt: string
   endAt: string
 }
+
+export type DataForCharts = {
+  count: number
+  name: string
+}
+

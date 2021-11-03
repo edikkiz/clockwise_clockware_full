@@ -1,0 +1,46 @@
+.selectFilter {
+  position: static;
+}
+
+.doubleLine {
+  display: flex;
+  justify-content: space-between;
+}
+
+.lines {
+  width: 850px;
+  margin: auto;
+  padding: 0 0 20px 0;
+}
+
+.line {
+  width: 1750px;
+  margin: auto;
+  padding: 0 0 20px 0;
+}
+
+.line-diagram {
+  width: 850px;
+  margin: auto;
+  padding: 0 0 20px 0;
+}
+
+.wrapper_master__table__charts {
+  width: 100%;
+}
+
+.table_block_id__master__charts {
+  height: 15px;
+  border: solid;
+  width: 5%;
+}
+
+.table_block_name__master__charts {
+  height: 15px;
+  width: 250px;
+  border: solid;
+}
+
+.wrapper_masters__charts {
+  padding: 20px 0 0 0;
+}

@@ -1,19 +1,16 @@
-import { OrderStatus } from ".prisma/client"
-import { z } from "zod"
+import { OrderStatus } from '.prisma/client'
+import { z } from 'zod'
 
-const createOrderShape = {
+export const createOrderSchema = z.object({
     cityId: z.number().int().nonnegative(),
     masterId: z.number().int().nonnegative(),
     clockSizeId: z.number().int().nonnegative(),
     startAt: z.string(),
-    name: z.string(),
-    email: z.string(),
-}
+    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
+    email: z.string().email(),
+})
 
-export const createOrderSchema = z.object(createOrderShape)
-
-
-const updateOrderShape = {
+export const updateOrderSchema = z.object({
     id: z.number().int().nonnegative(),
     cityId: z.number().int().nonnegative(),
     masterId: z.number().int().nonnegative(),
@@ -22,63 +19,71 @@ const updateOrderShape = {
     startAt: z.string(),
     price: z.number(),
     status: z.nativeEnum(OrderStatus).optional(),
-}
+})
 
-export const updateOrderSchema = z.object(updateOrderShape)
+export const deleteOrderSchema = z.object({
+    id: z.number().int().nonnegative(),
+})
 
+export const orderByFeedbackTokenSchema = z.object({
+    feedbackToken: z.string(),
+})
 
-const deleteOrderShape = {
-    id: z.number().int().nonnegative()
-}
-
-export const deleteOrderSchema = z.object(deleteOrderShape)
-
-const orderByFeedbackTokenShape = {
-    feedbackToken: z.string()
-}
-
-export const orderByFeedbackTokenSchema = z.object(orderByFeedbackTokenShape)
-
-const allOrderShape = {
-    limit: z.string(),
-    offset: z.string(),
-    masterId: z.string().optional(),
-}
-
-export const allOrderSchema = z.object(allOrderShape)
-
-const allOrderFiltredShape = {
+export const allOrderFiltredSchema = z.object({
     limit: z.string(),
     offset: z.string(),
     masterId: z.string().optional(),
     cityId: z.string().optional(),
     clockSizeId: z.string().optional(),
     status: z.nativeEnum(OrderStatus).optional(),
-    filterStart: z.string().optional(),
-    filterEnd: z.string().optional()
-}
+    start: z.string().optional().nullable(),
+    end: z.string().optional().nullable(),
+})
 
-export const allOrderFiltredSchema = z.object(allOrderFiltredShape)
-
-const allOrdersToTheMasterShape = {
+export const allOrdersToTheMasterSchema = z.object({
     limit: z.string(),
     offset: z.string(),
     masterId: z.string(),
-}
+})
 
-export const allOrdersToTheMasterSchema = z.object(allOrdersToTheMasterShape)
-
-const allOrdersToTheUserShape = {
+export const allOrdersToTheUserSchema = z.object({
     limit: z.string(),
     offset: z.string(),
     userId: z.string(),
-} 
+})
 
-export const allOrdersToTheUserSchema = z.object(allOrdersToTheUserShape)
-
-const updateOrderStatusShape = {
+export const updateOrderStatusSchema = z.object({
     id: z.number().int().nonnegative(),
-    email: z.string()
-}
+    email: z.string(),
+})
 
-export const updateOrderStatusSchema = z.object(updateOrderStatusShape)
+export const dataForDiagramSchema = z.object({
+    start: z.string(),
+    end: z.string(),
+})
+
+export const dataForCityGraphSchema = z.object({
+    start: z.string(),
+    end: z.string(),
+    citiesIDs: z.array(z.string()).min(1),
+})
+
+
+export const dataForMasterGraphSchema = z.object({
+    start: z.string(),
+    end: z.string(),
+    mastersIDs: z.array(z.string()).min(1),
+})
+
+export const dataForMasterTableSchema = z.object({
+    limit: z.string(),
+    offset: z.string(),
+})
+
+export const orderFeedbackSchema = z.object({
+    feedbackText: z.string().optional(),
+    rating: z.number(),
+    id: z.number(),
+    feedbackToken: z.string(),
+    feedbackDate: z.string(),
+})

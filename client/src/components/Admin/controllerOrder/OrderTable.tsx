@@ -1,52 +1,30 @@
-import React, {
-  Component,
-  useEffect,
-  useState,
-  FC,
-  useCallback,
-  useRef,
-  SetStateAction,
-} from 'react'
+import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
-import './order_table_module.css'
-import {
-  OrderForTable,
-  City,
-  ClockSize,
-  Master,
-  Order,
-  Status,
-  User,
-} from '../../../models/models'
+import './order-table-module.css'
+import { OrderForTable, Order, Status } from 'src/models/'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
+import { format } from 'date-fns'
+import StatusSelect from 'src/components/reusableСomponents/statusSelect/StatusSelect'
+import DateRange from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import ClockSizeSelect from 'src/components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
+import MasterSelect from 'src/components/reusableСomponents/masterSelect/MasterSelect'
+import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect'
 
 const limit = 10
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [orders, setOrders] = useState<OrderForTable[]>([])
 
-  const [cities, setCities] = useState<City[]>([])
   const [cityFilter, setCityFilter] = useState<number | null>(null)
-
-  const [masters, setMasters] = useState<Master[]>([])
   const [masterFilter, setMasterFilter] = useState<number | null>(null)
-
-  const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
   const [clockSizeFilter, setClockSizeFilter] = useState<number | null>(null)
-
-  const [statusesFilter, setStatusesFilter] = useState<Status[]>([
-    Status.Completed,
-    Status.CREATED,
-    Status.INPROGRESS,
-  ])
-
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)
 
-  const [filterStart, setFilterStart] = useState<string | null>(null)
-  const [filterEnd, setFilterEnd] = useState<string | null>(null)
+  const [filterStart, setFilterStart] = useState<string>('')
+  const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
 
@@ -54,68 +32,25 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const { addToast } = useToasts()
 
-  const getMasters = useCallback(async () => {
-    setIsLoading(true)
-    const { data } = await axios.get<Master[]>(`/admin/master`)
-    setMasters(data)
-    setIsLoading(false)
-  }, [])
-
-  useEffect(() => {
-    getMasters()
-  }, [getMasters])
-
-  const getCities = useCallback(async () => {
-    setIsLoading(true)
-    const { data } = await axios.get<City[]>(`/city`)
-    setCities(data)
-    setIsLoading(false)
-  }, [])
-
-  useEffect(() => {
-    getCities()
-  }, [getCities])
-
-  const getClockSizes = useCallback(async () => {
-    setIsLoading(true)
-    const { data } = await axios.get<ClockSize[]>(`/clockSizes`)
-    setClockSizes(data)
-    setIsLoading(false)
-  }, [])
-
-  useEffect(() => {
-    getClockSizes()
-  }, [getClockSizes])
-
   const filtered = async () => {
-    if (
-      cityFilter ||
-      masterFilter ||
-      clockSizeFilter ||
-      statusFilter ||
-      filterStart ||
-      filterEnd
-    ) {
-      const { data } = await axios.get<OrderForTable[]>(
-        '/admin/allOrderFiltred',
-        {
-          params: {
-            offset: offset,
-            limit: limit,
-            cityId: cityFilter,
-            masterId: masterFilter,
-            clockSizeId: clockSizeFilter,
-            status: statusFilter,
-            filterStart: filterStart,
-            filterEnd: filterEnd,
-          },
+    setIsLoading(true)
+    const { data } = await axios.get<OrderForTable[]>(
+      '/admin/orders-filtered',
+      {
+        params: {
+          offset: offset,
+          limit: limit,
+          cityId: cityFilter,
+          masterId: masterFilter,
+          clockSizeId: clockSizeFilter,
+          status: statusFilter,
+          start: filterStart,
+          end: filterEnd,
         },
-      )
-      if (!data.length) {
-        addToast('no orders for this filter', { appearance: 'warning' })
-      }
-      setOrders(data)
-    }
+      },
+    )
+    setOrders(data)
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -127,8 +62,10 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       setIsLoading(true)
       if (window.confirm('confirm deletion of the selected order')) {
         axios
-          .put<Order[]>(`/admin/deleteOrder`, {
-            id: +id,
+          .delete<Order[]>(`/admin/delete-order`, {
+            data: {
+              id: +id,
+            },
           })
           .then(() => {
             const localCopy = [...orders]
@@ -141,7 +78,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
             const getAllOrders = async () => {
               const { data } = await axios.get<OrderForTable[]>(
-                `/admin/allOrder`,
+                `/admin/orders-filtered`,
                 {
                   params: {
                     offset,
@@ -174,133 +111,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
     }
   }, [offset])
 
-  const getOrdersList = useCallback(async () => {
-    if (
-      cityFilter ||
-      masterFilter ||
-      clockSizeFilter ||
-      statusFilter ||
-      filterStart ||
-      filterEnd
-    ) {
-      return
-    }
-    setIsLoading(true)
-    const { data } = await axios.get<OrderForTable[]>(`/admin/allOrder`, {
-      params: {
-        offset,
-        limit,
-      },
-    })
-    setOrders(data)
-    setIsLoading(false)
-  }, [offset])
-
-  useEffect(() => {
-    getOrdersList()
-  }, [getOrdersList])
-
   return (
     <div>
       <Preloader isLoading={isLoading} />
       <AdminHeader />
       <div className="wrapperFilter">
-        <select
-          className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No city for filter'
-              ? setCityFilter(null)
-              : setCityFilter(+event.currentTarget.value)
-          }}
-        >
-          <option selected>No city for filter</option>
-          {cities.map(({ id, name }) => (
-            <option selected={id === cityFilter} value={+id}>
-              {`${name}`}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No master for filter'
-              ? setMasterFilter(null)
-              : setMasterFilter(+event.currentTarget.value)
-          }}
-        >
-          <option selected>No master for filter</option>
-          {masters.map(({ id, name }) => (
-            <option selected={id === masterFilter} value={+id}>
-              {`${name}`}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="selectFilter"
-          onChange={event => {
-            event.currentTarget.value === 'No clock size for filter'
-              ? setClockSizeFilter(null)
-              : setClockSizeFilter(+event.currentTarget.value)
-          }}
-        >
-          <option selected>No clock size for filter</option>
-          {clockSizes.map(({ id, name }) => (
-            <option selected={id === clockSizeFilter} value={+id}>
-              {`${name}`}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="selectFilter"
-          onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-            const { value } = event.currentTarget
-            value !== 'No status for filter'
-              ? setStatusFilter(value as Status | null)
-              : setStatusFilter(null)
-          }}
-        >
-          <option selected>No status for filter</option>
-          {statusesFilter.map(elem => (
-            <option value={elem}>{`${elem}`}</option>
-          ))}
-        </select>
-
-        <button
-          className={
-            statusFilter ||
-            cityFilter ||
-            masterFilter ||
-            clockSizeFilter ||
-            filterEnd ||
-            filterStart
-              ? 'buttonFilter'
-              : 'buttonFilter-disabled'
-          }
-          onClick={filtered}
-        >
+        <CitySelect setSelectValue={setCityFilter} />
+        <MasterSelect setSelectValue={setMasterFilter} />
+        <ClockSizeSelect setSelectValue={setClockSizeFilter} />
+        <StatusSelect setSelectValue={setStatusFilter} />
+        <button className="buttonFilter" onClick={filtered}>
           filter
         </button>
-
-        <input
-          type="date"
-          title="select start filter date"
-          max={filterEnd !== null ? filterEnd : ''}
-          onChange={event => {
-            setFilterStart(event.currentTarget.value)
-          }}
-        />
-
-        <input
-          type="date"
-          title="select end filter date"
-          min={filterStart !== null ? filterStart : ''}
-          onChange={event => {
-            setFilterEnd(event.currentTarget.value)
-          }}
-        />
+        <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
       </div>
 
       <div className="wrapper_orders">
@@ -326,17 +149,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               <th className="table_block_name__order">{`${order.user.name}`}</th>
               <th className="table_block_name__order">{`${order.user.email}`}</th>
               <th className="table_block_name__order">{`${order.city.name}`}</th>
-              <th className="table_block_name__order">{`${order.clockSize.size}`}</th>
+              <th className="table_block_name__order">{`${order.clockSize.name}`}</th>
               <th className="table_block_name__order">{`${order.master.name}`}</th>
-              <th className="table_block_name__order">{`${new Date(
-                order.startAt.split('.')[0],
-              ).toLocaleString()}`}</th>
-              <th className="table_block_name__order">{`${new Date(
-                order.endAt.split('.')[0],
-              ).toLocaleString()} `}</th>
+              <th className="table_block_name__order">{`${format(
+                new Date(order.startAt),
+                'yyyy-MM-dd HH:mm',
+              )}`}</th>
+              <th className="table_block_name__order">{`${format(
+                new Date(order.endAt),
+                'yyyy-MM-dd HH:mm',
+              )} `}</th>
               <th className="table_block_name__order">{`${order.price}`}</th>
               <th className="table_block_name__order">{`${
-                order.feedback === null ? 'no feedback' : order.feedback
+                order.rating === null ? 'no feedback' : order.feedback
               }`}</th>
               <th className="table_block_name__order">{`${
                 order.rating === null ? 'not rated' : order.rating
@@ -352,7 +177,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               {order.status != Status.Completed ? (
                 <Link
                   to={{
-                    pathname: `/admin/navOrder`,
+                    pathname: `/admin/change-order`,
                     state: {
                       id: order.id,
                       userId: order.user.id,
@@ -371,7 +196,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
               ) : (
                 <Link
                   to={{
-                    pathname: `/admin/navOrder`,
+                    pathname: `/admin/change-order`,
                     state: {
                       id: order.id,
                       userId: order.user.id,
@@ -392,6 +217,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           ))}
         </table>
       </div>
+
       {offset !== 0 ? (
         <button className="after_button" onClick={after}>
           back
@@ -410,7 +236,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
           next
         </button>
       )}
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {!orders.length && <div>Dont have more orders</div>}
     </div>
   )
 }

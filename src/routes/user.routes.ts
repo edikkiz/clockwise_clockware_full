@@ -1,6 +1,7 @@
 import { Router } from 'express'
-const router = Router()
 import userController from '../controller/user.controller'
+
+const router = Router()
 
 router.post('/user', userController.createUser)
 

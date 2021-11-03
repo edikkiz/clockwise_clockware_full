@@ -1,24 +1,29 @@
-import React, { Component, useEffect, useState, FC, EventHandler } from 'react'
-import './Login_module.css'
+import React, { useState, FC } from 'react'
+import './login-module.css'
 import axios from 'axios'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
-import visible from '../../visible.svg'
-import { useForm, SubmitHandler, useWatch } from "react-hook-form";
-import visibleOff from '../../visibleOff.svg'
+import visible from 'src/images/visible.svg'
+import { useForm } from 'react-hook-form'
+import visibleOff from 'src/images/visibleOff.svg'
 import { Link } from 'react-router-dom'
-import { Role } from '../../models/models'
-
+import { Role } from 'src/models'
 
 interface Login {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
-interface LoginProps { }
+interface LoginProps {}
 const Login: FC<LoginProps> = () => {
-  const { register, handleSubmit, control, setValue, formState: { errors } } = useForm<Login>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = useForm<Login>()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -41,21 +46,29 @@ const Login: FC<LoginProps> = () => {
       }
       const login = await axios.post(`/login`, payload)
       if (login.data.role === Role.admin) {
-        localStorage.setItem('accessToken', login.headers.authorization.split(' ')[1])
+        localStorage.setItem(
+          'accessToken',
+          login.headers.authorization.split(' ')[1],
+        )
         addToast('you are logged in', { appearance: 'success' })
-        history.push("/admin/orders")
+        history.push('/admin/orders')
       }
       if (login.data.role === Role.master) {
-        localStorage.setItem('accessToken', login.headers.authorization.split(' ')[1])
+        localStorage.setItem(
+          'accessToken',
+          login.headers.authorization.split(' ')[1],
+        )
         addToast(`Hello master: ${login.data.name}`, { appearance: 'success' })
         history.push(`/role/master/${login.data.id}`)
       }
       if (login.data.role === Role.user) {
-        localStorage.setItem('accessToken', login.headers.authorization.split(' ')[1])
+        localStorage.setItem(
+          'accessToken',
+          login.headers.authorization.split(' ')[1],
+        )
         addToast(`Hello: ${login.data.name}`, { appearance: 'success' })
         history.push(`/role/user/${login.data.id}`)
       }
-      
     } catch (e) {
       addToast('invalid login or password', { appearance: 'error' })
       setPassword('')
@@ -66,18 +79,15 @@ const Login: FC<LoginProps> = () => {
   const turn = () => {
     if (seePass === true) {
       setSeePass(false)
-    }
-    else {
+    } else {
       setSeePass(true)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}
-      className="wrapper_login">
+    <form onSubmit={handleSubmit(onSubmit)} className="wrapper_login">
       <Preloader isLoading={isLoading} />
-      <div
-        className="wrapper_login__email">
+      <div className="wrapper_login__email">
         <input
           className="wrapper_login__email-input"
           placeholder="email"
@@ -88,35 +98,41 @@ const Login: FC<LoginProps> = () => {
           }
         />
       </div>
-      {
-        !seePass ?
-          <div className="wrapper_login__password">
-            <input className="wrapper_login__password-input"
-              placeholder="password"
-              type="text"
-              value={password}
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                setPassword(e.currentTarget.value)
-              }
-            />
-            <button type="button" className="visible" onClick={turn}><img src={visible} /></button>
-          </div>
-          :
-          <div className="wrapper_login__password">
-            <input className="wrapper_login__password-input"
-              placeholder="password"
-              type="password"
-              value={password}
-              onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                setPassword(e.currentTarget.value)
-              }
-            />
-            <button type="button" className="visible" onClick={turn}><img src={visibleOff} /></button>
-          </div>
-      }
+      {!seePass ? (
+        <div className="wrapper_login__password">
+          <input
+            className="wrapper_login__password-input"
+            placeholder="password"
+            type="text"
+            value={password}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              setPassword(e.currentTarget.value)
+            }
+          />
+          <button type="button" className="visible" onClick={turn}>
+            <img src={visible} />
+          </button>
+        </div>
+      ) : (
+        <div className="wrapper_login__password">
+          <input
+            className="wrapper_login__password-input"
+            placeholder="password"
+            type="password"
+            value={password}
+            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+              setPassword(e.currentTarget.value)
+            }
+          />
+          <button type="button" className="visible" onClick={turn}>
+            <img src={visibleOff} />
+          </button>
+        </div>
+      )}
       <div className="wrapper_login__singin">
-        <button className="wrapper_login__singin-button"
-          type='submit'>Sign in</button>
+        <button className="wrapper_login__singin-button" type="submit">
+          Sign in
+        </button>
       </div>
       <div className="wrapper_login__singin-master">
         <Link to="/master/registration" className="wrapper_login__singin-link">

@@ -1,0 +1,23 @@
+.wrapper_graph {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 20px 0 0 0;
+}
+
+.filter {
+  width: 50%;
+  display: flex;
+  justify-content: space-around;
+  height: 38px;
+}
+
+.filter input {
+  font-size: 15px;
+}
+
+.no-master {
+  margin: 50px;
+  color: red;
+}

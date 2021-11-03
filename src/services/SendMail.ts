@@ -12,8 +12,17 @@ const transporter = nodemailer.createTransport({
   logger: true,
 })
 
+const sendMail = async (to: string, subject: string, text: string, html: string) => {
+  await transporter.sendMail({
+    from: process.env.NOTIFICATION_EMAIL,
+    to: to,
+    subject: subject,
+    text: text,
+    html: html,
+  })
+}
 
 transporter.verify(function () {
     console.log("Server is ready to take our messages");
 });
-export default transporter
+export default sendMail

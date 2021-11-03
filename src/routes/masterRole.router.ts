@@ -1,20 +1,16 @@
 import { Router } from 'express'
-const router = Router()
-
-import AuthController from '../controller/auth.controller'
 import orderController from '../controller/order.controller'
 
+const router = Router()
+
 router.put(
-    '/master/reStatus', 
-    AuthController.checkAccessToken,
+    '/change-status',
     orderController.updateOrderStatus,
-  )
+)
 
-  router.get(
-    '/master/allMasterOrder',
-    AuthController.checkAccessToken,
+router.get(
+    '/master-orders',
     orderController.getAllOrdersToTheMasterTable,
-  )
-  
+)
 
-  export default router
+export default router

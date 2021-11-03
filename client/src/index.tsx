@@ -16,7 +16,7 @@ axios.interceptors.request.use(
   },
   error => {
     Promise.reject(error)
-  }
+  },
 )
 
 axios.interceptors.response.use(
@@ -24,7 +24,9 @@ axios.interceptors.response.use(
   async error => {
     if (error.response.status === 403 || error.response.status === 401) {
       localStorage.removeItem('accessToken')
-      { <Redirect to="/login" /> }
+      {
+        <Redirect to="/login" />
+      }
     }
     return Promise.reject(error)
   },

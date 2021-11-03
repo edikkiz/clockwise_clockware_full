@@ -1,6 +1,7 @@
 import { Router } from 'express'
-const router = Router()
 import CityController from '../controller/city.controller'
+
+const router = Router()
 
 router.get('/city', CityController.getCities)
 

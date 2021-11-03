@@ -1,16 +1,7 @@
-import React, { useEffect, useState, FC, ReactElement } from 'react'
-import './all_controller_order_module.css'
+import { useEffect, useState, FC } from 'react'
+import './change-order-form-module.css'
 import axios from 'axios'
-import {
-  AllOrder,
-  City,
-  ClockSize,
-  FormError,
-  Master,
-  Order,
-  Status,
-  User,
-} from '../../../models/models'
+import { City, ClockSize, FormError, Master, Order, Status } from 'src/models'
 import { useHistory, useParams, useLocation } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
@@ -52,8 +43,8 @@ interface LocationState {
   status: string
 }
 
-interface ControllerOrderProps {}
-const AllControllerOrder: FC<ControllerOrderProps> = () => {
+interface ChangeOrderFormProps {}
+const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
   const {
     register,
     handleSubmit,
@@ -87,7 +78,6 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
   const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
 
   useEffect(() => {
-    console.log(startAt)
     if (id) {
       const time = startAt.split('T')
       const result = orderTime.find(
@@ -108,7 +98,7 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
 
   useEffect(() => {
     const getClockSize = async () => {
-      const { data } = await axios.get<ClockSize[]>(`/clockSizes`)
+      const { data } = await axios.get<ClockSize[]>(`/clock-sizes`)
       setClockSizes(data)
     }
 
@@ -117,13 +107,16 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
 
   useEffect(() => {
     const getMaters = async () => {
-      if (dataForFreeMaster.every(elem => !!elem)) {
-        const { data } = await axios.get<Master[]>(`/admin/getFreeMasters`, {
+      if (dataForFreeMaster.every(elem => !!elem) && clockSizes.length) {
+        const timeToDone = clockSizes.find(
+          ({ id }) => id === dataForFreeMaster[3],
+        )?.timeToDone
+        const { data } = await axios.get<Master[]>(`/free-masters`, {
           params: {
             orderId: +id,
             startAt: dataForFreeMaster[0] + ' ' + dataForFreeMaster[1],
-            cityId: Number(dataForFreeMaster[2]),
-            clockSizeId: Number(dataForFreeMaster[3]),
+            cityId: dataForFreeMaster[2],
+            timeToDone: timeToDone,
           },
         })
         setPutMasters(data)
@@ -131,7 +124,7 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
     }
 
     getMaters()
-  }, [dataForFreeMaster])
+  }, [dataForFreeMaster, clockSizes])
 
   useEffect(() => {
     const getCities = async () => {
@@ -221,7 +214,7 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
             </select>
           ) : (
             <select className="wrapper_form__select" {...register('status')}>
-              <option selected className="status" value={Status.INPROGRESS}>
+              <option selected className="status" value={Status.InProgress}>
                 In progress
               </option>
               <option selected className="status" value={Status.Completed}>
@@ -259,4 +252,4 @@ const AllControllerOrder: FC<ControllerOrderProps> = () => {
   )
 }
 
-export default AllControllerOrder
+export default ChangeOrderForm

@@ -18,6 +18,7 @@
     width: 5%;
 }
 
+
 .table_block_id__master {
     height: 10px;
     border: solid;
@@ -30,10 +31,11 @@
 }
 
 
-.link_create__master {
+.link_delete__master {
     color: black;
-    font-size: 30px;
+    font-size: 20px;
     text-decoration: none;
+    border: solid;
 }
 
 .link_update__master {

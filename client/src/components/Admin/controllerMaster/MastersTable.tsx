@@ -1,16 +1,15 @@
-import React, { Component, useEffect, useState, FC, useCallback, useMemo } from 'react'
+import { useEffect, useState, FC, useCallback, useMemo } from 'react'
 import axios from 'axios'
-import './masters_table_module.css'
-import { City, Master } from '../../../models/models'
-import { Link } from 'react-router-dom'
-import Preloader from '../../Preloader'
+import './masters-table-module.css'
+import { City, Master } from 'src/models'
+// import Preloader from '@/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
+
 const limit = 10
 
-interface ControllerMasterTableProps { }
+interface ControllerMasterTableProps {}
 const MastersTable: FC<ControllerMasterTableProps> = () => {
-
   const [masters, setMasters] = useState<Master[]>([])
 
   const [cities, setCities] = useState<City[]>([])
@@ -26,11 +25,11 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
   const getMastersList = useCallback(() => {
     setIsLoading(true)
     const getMasters = async () => {
-      const { data } = await axios.get<Master[]>('/admin/master', {
+      const { data } = await axios.get<Master[]>('/admin/masters', {
         params: {
           limit,
-          offset
-        }
+          offset,
+        },
       })
       setMasters(data)
       setIsLoading(false)
@@ -56,8 +55,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
     getCity()
   }, [])
 
-
-  const city = (id: number) => cities.find((elem) => elem.id === id)?.name
+  const city = (id: number) => cities.find(elem => elem.id === id)?.name
 
   const onSubmitDelete = useCallback((id: number) => {
     setIsLoading(true)
@@ -78,11 +76,11 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
 
           setIsLoading(true)
           const getMasters = async () => {
-            const { data } = await axios.get<Master[]>('/admin/master', {
+            const { data } = await axios.get<Master[]>('/admin/masters', {
               params: {
                 limit,
-                offset
-              }
+                offset,
+              },
             })
             setMasters(data)
             setIsLoading(false)
@@ -106,20 +104,9 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
     }
   }, [offset])
 
-
-  // const after = useCallback(() => {
-  //   setOffset((currentOffSet: number) => {
-  //     if (currentOffSet >= 10) {
-  //       return currentOffSet - limit
-  //     }
-  //     return 0
-  //   })
-
-  // }, [])
-
   return (
     <div>
-      <Preloader isLoading={isLoading} />
+      {/* <Preloader isLoading={isLoading} /> */}
       <AdminHeader />
       <div className="wrapper_masters">
         <table className="wrapper_masters__table">
@@ -127,35 +114,46 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
             <th className="table_block_id__master">id</th>
             <th className="table_block_name__master">Name</th>
             <th className="table_block_name__master">City</th>
-            <Link className="link_create__master" to="/admin/navMaster" title="add new master"><th className="table_link">+</th></Link>
+            <th className="link_delete__master">delete</th>
           </tr>
-          {
-            masters.map(({ id, name, cityId }) => (
-              <tr>
-                <th className="table_block_id__master">{`${id}`}</th>
-                <th className="table_block_name__master">{`${name}`}</th>
-                <th className="table_block_name__master">{`${(city(cityId))}`}</th>
+          {masters.map(({ id, name, cityId }) => (
+            <tr>
+              <th className="table_block_id__master">{`${id}`}</th>
+              <th className="table_block_name__master">{`${name}`}</th>
+              <th className="table_block_name__master">{`${city(cityId)}`}</th>
 
-                <Link to={`/admin/navMaster/${id}/${cityId}/${name}`} title="update the master" className="link_update__master"><th className="table_link">update</th></Link>
-                <button type="button" onClick={() => onSubmitDelete(id)} className="link_update__master"><th className="table_link">delete</th></button>
-
-              </tr>
-            ))
-          }
+              <button
+                type="button"
+                onClick={() => onSubmitDelete(id)}
+                className="link_update__master"
+              >
+                <th className="table_link">delete</th>
+              </button>
+            </tr>
+          ))}
         </table>
       </div>
-      {
-        offset !== 0 ? <button className="after_button" onClick={after}>back</button> : <button className="after_button" disabled={true} onClick={after}>back</button>
-      }
-      {
-        masterLenght >= limit ? <button className="next_button" onClick={next}>next</button> : <button className="next_button" disabled={true} onClick={next}>next</button>
-      }
-      {
-        masterLenght === 0 && <div>Dont have more orders</div>
-      }
+      {offset !== 0 ? (
+        <button className="after_button" onClick={after}>
+          back
+        </button>
+      ) : (
+        <button className="after_button" disabled={true} onClick={after}>
+          back
+        </button>
+      )}
+      {masterLenght >= limit ? (
+        <button className="next_button" onClick={next}>
+          next
+        </button>
+      ) : (
+        <button className="next_button" disabled={true} onClick={next}>
+          next
+        </button>
+      )}
+      {masterLenght === 0 && <div>Dont have more orders</div>}
     </div>
   )
 }
-
 
 export default MastersTable

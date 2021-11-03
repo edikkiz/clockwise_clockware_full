@@ -45,9 +45,11 @@ export enum FormError {
 }
 
 export enum Status {
-  Completed = "COMPLETED",
-  INPROGRESS = 'INPROGRESS',
-  CREATED = 'CREATED',
+  Completed = 'Completed',
+  InProgress = 'InProgress',
+  Pending = 'Pending',
+  Active = 'Active',
+  InActive = 'InActive',
 }
 
 export type Order = {
@@ -104,13 +106,13 @@ export type AllOrderForOneMaster = {
 export type OrderForTable = {
   city: { id: number; name: string }
   cityId: number
-  clockSize: { id: number; size: string }
+  clockSize: { id: number; name: string }
   endAt: string
   feedback: string | null
   id: number
   images: string[]
   master: { id: number; name: string }
-  price: 300
+  price: number
   rating: null
   startAt: string
   status: Status
@@ -124,4 +126,31 @@ export type OrderForTable = {
 export type Rating = {
   id: number
   rating: number
+}
+
+export type MasterForTable = {
+  rating: number | null
+  largeOrdersCount: number
+  middleOrdersCount: number
+  smallOrdersCount: number
+  countCompletedOrders: number
+  countNotCompletedOrders: number
+  id: number
+  name: string
+  profit: number | null
+}
+
+export type OrderForFeedback = {
+  id: number
+  price: number
+  startAt: string
+  endAt: string
+  master: { name: string }
+  city: { name: string }
+  clockSize: { name: string }
+  user: {
+    name: string
+    email: string
+    id: number
+  }
 }
