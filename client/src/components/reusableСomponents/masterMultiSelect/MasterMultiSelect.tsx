@@ -1,6 +1,6 @@
 import { useEffect, useState, FC } from 'react'
 import axios from 'axios'
-import { Master } from 'models'
+import { Master } from 'src/models'
 import { MultiSelect } from 'react-multi-select-component'
 import './master-multi-select-module.css'
 

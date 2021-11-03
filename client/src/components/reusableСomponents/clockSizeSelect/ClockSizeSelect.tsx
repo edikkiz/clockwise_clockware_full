@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ClockSize } from 'models'
+import { ClockSize } from 'src/models'
 import { FC, useEffect, useState } from 'react'
 
 interface ClockSizeProps {

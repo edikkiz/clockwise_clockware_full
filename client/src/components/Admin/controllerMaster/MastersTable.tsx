@@ -2,7 +2,7 @@ import { useEffect, useState, FC, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import './masters-table-module.css'
 import { City, Master } from 'src/models'
-import Preloader from 'src/components/Preloader'
+// import Preloader from '@/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 
@@ -106,7 +106,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
 
   return (
     <div>
-      <Preloader isLoading={isLoading} />
+      {/* <Preloader isLoading={isLoading} /> */}
       <AdminHeader />
       <div className="wrapper_masters">
         <table className="wrapper_masters__table">

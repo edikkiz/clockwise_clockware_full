@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import { format, startOfMonth, endOfMonth } from 'date-fns'
 import './diagram-of-cities-module.css'
-import Preloader from 'src/components/Preloader'
+// import Preloader from '@/components/Preloader'
 import DateRangeSelect from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
 
 export const FirstDayMonth = format(startOfMonth(new Date()), 'yyyy-MM-dd')
@@ -47,7 +47,7 @@ const DiagramOfCities: FC<DiagramOfCitiesProps> = () => {
 
   return (
     <div className="wrapper_charts">
-      <Preloader isLoading={isLoading} />
+      {/* <Preloader isLoading={isLoading} /> */}
       <DateRangeSelect
         setStart={setFilterStart}
         setEnd={setFilterEnd}

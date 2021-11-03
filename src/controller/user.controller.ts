@@ -101,13 +101,11 @@ class UserController {
             return
         }
         const { id } = params.data
-        const validationErrors = []
         const user = await prisma.user.findUnique({ where: { id: Number(id) } })
         if (!user) {
-            validationErrors.push(`User is not exsisted`)
-        }
-        if (validationErrors.length) {
-            res.status(400).json(validationErrors)
+            res.status(400).json({
+                message: `User with that Id does not exist`,
+            })
         } else {
             await prisma.user.delete({
                 where: { id: Number(id) },

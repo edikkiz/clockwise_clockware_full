@@ -1,12 +1,11 @@
 import axios from 'axios'
-import { Master } from 'models'
+import { Master } from 'src/models'
 import { FC, useEffect, useState } from 'react'
 
 interface MasterSelectProps {
   setSelectValue: React.Dispatch<React.SetStateAction<number | null>>
 }
-const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue}) => {
-
+const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue }) => {
   const [masters, setMasters] = useState<Master[]>([])
 
   useEffect(() => {
@@ -16,7 +15,6 @@ const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue}) => {
     }
     masters()
   }, [])
-
 
   return (
     <div>

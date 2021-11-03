@@ -34,7 +34,7 @@ class MasterController {
             return
         }
         const { cityId, startAt, endAt, orderId } = params.data
-        const newOrderEndAt =  new Date(`${endAt}`)
+        const newOrderEndAt = new Date(`${endAt}`)
         const newOrderStartAt = new Date(`${startAt}`)
         let busyMastersId: number[] = []
         if (orderId) {
@@ -172,15 +172,13 @@ class MasterController {
             return
         }
         const { id } = params.data
-        const validationErrors = []
         const master = await prisma.master.findUnique({
             where: { id: Number(id) },
         })
         if (!master) {
-            validationErrors.push(`Master with id: ${id} is not exsisted`)
-        }
-        if (validationErrors.length) {
-            res.status(400).json(validationErrors)
+            res.status(400).json({
+                message: `Master with that Id does not exist`,
+            })
         } else {
             const delMaster = await prisma.master.delete({
                 where: { id: Number(id) },

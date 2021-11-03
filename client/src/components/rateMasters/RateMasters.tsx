@@ -1,7 +1,7 @@
 import axios from 'axios'
 import './rate-masters-module.css'
 import React, { useState, useEffect, FC } from 'react'
-import { OrderForFeedback } from '@src/models'
+import { OrderForFeedback } from 'src/models'
 import { useHistory, useParams } from 'react-router-dom'
 import { Redirect } from 'react-router-dom'
 import { useToasts } from 'react-toast-notifications'

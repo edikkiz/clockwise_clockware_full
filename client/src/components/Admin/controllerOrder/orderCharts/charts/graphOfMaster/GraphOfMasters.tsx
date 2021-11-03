@@ -3,9 +3,9 @@ import axios from 'axios'
 import { Line } from 'react-chartjs-2'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
 import './graph-of-master-module.css'
-import Preloader from '@src/components/Preloader'
-import DateRangeSelect from '@src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
-import MasterMultiSelect from '@src/components/reusableСomponents/masterMultiSelect/MasterMultiSelect'
+import Preloader from 'src/components/Preloader'
+import DateRangeSelect from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
+import MasterMultiSelect from 'src/components/reusableСomponents/masterMultiSelect/MasterMultiSelect'
 
 type DataForMasterDiagram = {
   count: number

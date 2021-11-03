@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Pie } from 'react-chartjs-2'
 import './diagram-of-masters-module.css'
 import { FirstDayMonth, LastDayMonth } from '../diagramOfCities/DiagramOfCities'
-import Preloader from 'src/components/Preloader'
+// import Preloader from '@/components/Preloader'
 import DateRangeSelect from 'src/components/reusableСomponents/dateRangeSelect/DateRangeSelect'
 
 type DataForMasterDiagram = {
@@ -44,7 +44,7 @@ const DiagramOfMasters: FC<DiagramOfMastersProps> = () => {
 
   return (
     <div className="wrapper_charts">
-      <Preloader isLoading={isLoading} />
+      {/* <Preloader isLoading={isLoading} /> */}
       <div className="date_filter">
         <DateRangeSelect
           setStart={setFilterStart}

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { City } from 'models'
+import { City } from 'src/models'
 import { FC, useEffect, useState } from 'react'
 
 interface CitySelectProps {

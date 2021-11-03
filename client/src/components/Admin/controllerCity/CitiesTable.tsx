@@ -1,9 +1,9 @@
 import React, { Component, useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import './cities-table-module.css'
-import { City } from '@src/models'
+import { City } from 'src/models'
 import { Link } from 'react-router-dom'
-import Preloader from '@src/components/Preloader'
+// import Preloader from '@/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 
@@ -92,7 +92,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
 
   return (
     <div className="wrapper_cities">
-      <Preloader isLoading={isLoading} />
+      {/* <Preloader isLoading={isLoading} /> */}
       <AdminHeader />
       <table className="wrapper_cities__table">
         <tr>
