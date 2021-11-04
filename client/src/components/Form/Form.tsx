@@ -58,6 +58,8 @@ const Form: FC<ControllerFormProps> = () => {
     name: ['day', 'time', 'city', 'clockSize'],
   })
 
+  const [filesKey, setFilesKey] = useState<number>(0)
+
   const [cities, setCities] = useState<City[]>([])
 
   const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
@@ -148,7 +150,22 @@ const Form: FC<ControllerFormProps> = () => {
 
   const fileRender = useCallback(() => {
     if (files) {
+      if (files.length > 5) {
+        addToast('max 5 files', { appearance: 'error' })
+        setIsLoading(false)
+        setFilesKey(filesKey === 0 ? 1 : 0)
+        setFiles(null)
+        return
+      }
       for (let i = 0; i < files.length; i++) {
+        if (files[i].size > 1024 * 1024) {
+          addToast('max 1 mb for one file', { appearance: 'error' })
+          setIsLoading(false)
+          setFilesKey(filesKey === 0 ? 1 : 0)
+          setFiles(null)
+          reset()
+          return
+        }
         const fileReader = new FileReader()
         fileReader.readAsDataURL(files[i])
         fileReader.onload = () => {
@@ -167,18 +184,6 @@ const Form: FC<ControllerFormProps> = () => {
 
   const onSubmit: SubmitHandler<OrderForm> = async data => {
     setIsLoading(true)
-    if (data.photos) {
-      if (data.photos.length > 5) {
-        addToast('max 5 files', { appearance: 'error' })
-        setIsLoading(false)
-      }
-      for (let i = 0; i < data.photos.length; i++) {
-        if (data.photos[i].size > 1024 * 1024) {
-          addToast('max 1 mb for one file', { appearance: 'error' })
-          setIsLoading(false)
-        }
-      }
-    }
     await axios
       .post<Order[]>(`/order`, {
         masterId: +data.master,
@@ -316,6 +321,7 @@ const Form: FC<ControllerFormProps> = () => {
         </select>
         <div>Maximum 5 files and no more 1 mb for one</div>
         <input
+          key={filesKey}
           type="file"
           multiple={true}
           accept=".PNG, .JPG, .JPEG"
