@@ -319,12 +319,6 @@ class OrderController {
                             images: imagesUrls,
                         },
                     })
-                    await sendMail(
-                        email,
-                        'confirm your order',
-                        'confirm order',
-                        `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
-                    )
                     res.status(201).json(newOrder)
                 }
 
