@@ -20,12 +20,7 @@ app.use(
     }),
 )
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(`client/build`))
-    app.get('/', (req: express.Request, res: express.Response) => {
-        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-    })
-}
+app.use(express.static(`${__dirname}/../client/build`))
 
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ limit: '5mb', extended: true }))
@@ -41,10 +36,17 @@ app.use('/api', authRouter)
 
 app.use('/api/admin', authController.checkAccessToken('ADMIN'), adminRouter)
 
-app.use('/api/master', authController.checkAccessToken('MASTER'),  masterRoleRouter)
+app.use(
+    '/api/master',
+    authController.checkAccessToken('MASTER'),
+    masterRoleRouter,
+)
 
-app.use('/api/user', authController.checkAccessToken('USER'),  userRoleRouter)
+app.use('/api/user', authController.checkAccessToken('USER'), userRoleRouter)
 
+app.get('/*', (req: express.Request, res: express.Response) => {
+    res.sendFile(path.resolve(__dirname, '..', 'client', 'build', 'index.html'))
+})
 app.listen(PORT, () => {
     console.log(`server started on port ${PORT}`)
 })
