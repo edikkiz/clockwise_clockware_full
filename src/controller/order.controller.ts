@@ -146,7 +146,9 @@ class OrderController {
         if (params.success) {
             const { offset, limit, masterId } = params.data
             const orderListForOneMaster =
-                await prisma.$queryRaw`SELECT orders.id,
+                await prisma.$queryRaw`SELECT 
+                    orders.images AS images,
+                    orders.id,
                     orders.status,
                     orders.feedback,
                     orders.rating,

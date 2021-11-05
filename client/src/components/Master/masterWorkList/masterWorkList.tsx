@@ -84,6 +84,18 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     }
   }
 
+  const download = (images: string[]) => {
+    for (let i = 0; i < images.length; i++) {
+      const el = document.createElement('a')
+      el.setAttribute('href', images[i])
+      el.setAttribute('download', 'download')
+      el.setAttribute('target', '_blank')
+      document.body.appendChild(el)
+      el.click()
+      el.remove()
+    }
+  }
+
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -103,6 +115,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
             <th className="table_block_name__master-orders">feedback</th>
             <th className="table_block_name__master-orders">rating</th>
             <th className="table_block_id__order">status</th>
+            <th className="table_block_name__master-orders">download images</th>
             <th className="table_block_name__master-orders">
               change order status
             </th>
@@ -131,26 +144,41 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
               <th className="table_block_id__order">{`${order.status}`}</th>
-              {order.status != Status.Completed ? (
-                <button
-                  type="button"
-                  onClick={() => changeStatus(order.id, order.email)}
-                  className="link_update__master"
-                >
-                  <th className="table_link">
-                    Сlick here to set the status completed
-                  </th>
-                </button>
+
+              {order.images.length ? (
+                <th className="table_link_master">
+                  <button
+                    type="button"
+                    onClick={() => download(order.images)}
+                    className="link_update__master"
+                  >
+                    Сlick here for download images
+                  </button>
+                </th>
               ) : (
-                <button
-                  type="button"
-                  disabled={true}
-                  className="link_update__master-disabled"
-                >
-                  <th className="table_link__order-disabled">
-                    This order is completed
-                  </th>
-                </button>
+                <th className="table_link__order-disabled">
+                  this order dont have images
+                </th>
+              )}
+              {order.status != Status.Completed ? (
+                <th className="table_link">
+                  <button
+                    type="button"
+                    onClick={() => changeStatus(order.id, order.email)}
+                    className="link_update__master"
+                  >
+                    Сlick here to set the status completed
+                  </button>
+                </th>
+              ) : (
+                <th className="table_link__order-disabled">
+                  This order is completed
+                  <button
+                    type="button"
+                    disabled={true}
+                    className="link_update__master-disabled"
+                  ></button>
+                </th>
               )}
             </tr>
           ))}
