@@ -35,7 +35,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
       setIsLoading(false)
     }
     getMasterForTable()
-  }, [])
+  }, [offset])
 
   const next = useCallback(() => {
     setOffset(currentOffset => currentOffset + limit)
