@@ -25,7 +25,7 @@ const CitySelect: FC<CitySelectProps> = ({ setSelectValue }) => {
         }}
       >
         <option value="null" selected>
-          Select master filter
+          Select city filter
         </option>
         {cities.map(({ id, name }) => (
           <option value={+id}>{`${name}`}</option>
