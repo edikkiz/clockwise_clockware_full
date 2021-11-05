@@ -25,7 +25,7 @@ const ClockSizeSelect: FC<ClockSizeProps> = ({ setSelectValue }) => {
         }}
       >
         <option value="null" selected>
-          Select master filter
+          Select clock size filter
         </option>
         {clockSizes.map(({ id, name }) => (
           <option value={+id}>{`${name}`}</option>
