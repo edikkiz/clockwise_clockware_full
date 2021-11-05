@@ -6,6 +6,7 @@ export const createOrderSchema = z.object({
     masterId: z.number().int().nonnegative(),
     clockSizeId: z.number().int().nonnegative(),
     startAt: z.string(),
+    endAt: z.string(),
     name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
     email: z.string().email(),
 })
@@ -67,7 +68,6 @@ export const dataForCityGraphSchema = z.object({
     end: z.string(),
     citiesIDs: z.array(z.string()).min(1),
 })
-
 
 export const dataForMasterGraphSchema = z.object({
     start: z.string(),

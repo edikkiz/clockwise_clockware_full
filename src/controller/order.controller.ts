@@ -236,13 +236,12 @@ class OrderController {
                 OFFSET ${Number(offset)}`
         res.status(200).json(orderListForOneUser)
     }
-
     async createOrder(req: Request, res: Response) {
         const params = createOrderSchema.safeParse(req.body)
         if (!params.success) {
             return
         }
-        const { masterId, cityId, clockSizeId, startAt, name, email } =
+        const { masterId, cityId, clockSizeId, startAt, endAt, name, email } =
             params.data
         const validationErrors = []
         const date = new Date(`${startAt}`)
@@ -288,20 +287,14 @@ class OrderController {
                 )
             ).map(response => response.url)
 
-            const clockInfo = await prisma.clockSize.findUnique({
-                where: { id: Number(clockSizeId) },
-            })
             const feedbackToken = uuidv4()
             const password = uuidv4()
             const salt = bcrypt.genSaltSync(10)
             const hash = bcrypt.hashSync(password, salt)
-            if (clockInfo) {
-                const price = Number(clockInfo.price)
-                const workTime = clockInfo.timeToDone
-                const d = new Date(`${startAt}`)
+            if (clockSize) {
+                const price = Number(clockSize.price)
+                const newOrderEndAt = new Date(`${endAt}`)
                 const newOrderStartAt = new Date(`${startAt}`)
-                d.setHours(d.getHours() + workTime)
-                const endAt = d
                 const user = await prisma.user.findUnique({
                     where: { email: email },
                 })
@@ -314,14 +307,13 @@ class OrderController {
                             clockSizeId: Number(clockSizeId),
                             price: price,
                             startAt: newOrderStartAt,
-                            endAt: endAt,
+                            endAt: newOrderEndAt,
                             feedbackToken: feedbackToken,
                             images: imagesUrls,
                         },
                     })
                     res.status(201).json(newOrder)
                 }
-
                 if (!user) {
                     const newOrder = await prisma.order.create({
                         data: {
