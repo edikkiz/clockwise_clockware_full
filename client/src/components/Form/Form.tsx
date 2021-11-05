@@ -152,7 +152,6 @@ const Form: FC<ControllerFormProps> = () => {
     if (files) {
       if (files.length > 5) {
         addToast('max 5 files', { appearance: 'error' })
-        setIsLoading(false)
         setFilesKey(filesKey === 0 ? 1 : 0)
         setFiles(null)
         return
@@ -160,7 +159,6 @@ const Form: FC<ControllerFormProps> = () => {
       for (let i = 0; i < files.length; i++) {
         if (files[i].size > 1024 * 1024) {
           addToast('max 1 mb for one file', { appearance: 'error' })
-          setIsLoading(false)
           setFilesKey(filesKey === 0 ? 1 : 0)
           setFiles(null)
           reset()
