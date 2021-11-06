@@ -116,7 +116,7 @@ const RateMaster: FC<ControllerRateMasterProps> = () => {
         <ReactStars
           onChange={setRating}
           count={5}
-          size={60}
+          size={30}
           activeColor="#ffd700"
           isHalf={true}
           value={rating}
