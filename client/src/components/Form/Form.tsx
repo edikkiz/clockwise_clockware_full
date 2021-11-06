@@ -7,6 +7,7 @@ import { useToasts } from 'react-toast-notifications'
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form'
 import validator from 'email-validator'
 import { format } from 'date-fns'
+import FileInput from '../reusableСomponents/fileInput/FileInput'
 
 const correctDate = format(new Date(), 'yyyy-MM-dd')
 const hour = new Date().getHours()
@@ -67,8 +68,6 @@ const Form: FC<ControllerFormProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [urls, setUrls] = useState<string[]>([])
-
-  const [files, setFiles] = useState<FileList | null>()
 
   const { addToast } = useToasts()
 
@@ -145,44 +144,8 @@ const Form: FC<ControllerFormProps> = () => {
     return false
   }
 
-  const fileRender = useCallback(() => {
-    if (files) {
-      for (let i = 0; i < files.length; i++) {
-        const fileReader = new FileReader()
-        fileReader.readAsDataURL(files[i])
-        fileReader.onload = () => {
-          const res = fileReader.result
-          if (res && typeof res === 'string') {
-            setUrls(prevUrl => [...prevUrl, res])
-          }
-        }
-      }
-    }
-  }, [files])
-
-  useEffect(() => {
-    fileRender()
-  }, [fileRender])
-
   const onSubmit: SubmitHandler<OrderForm> = async data => {
     setIsLoading(true)
-    if (data.photos) {
-      if (data.photos.length > 5) {
-        addToast('max 5 files', { appearance: 'error' })
-        setIsLoading(false)
-      }
-      for (let i = 0; i < data.photos.length; i++) {
-        if (data.photos[i].size > 1024 * 1024) {
-          addToast('max 1 mb for one file', { appearance: 'error' })
-          setIsLoading(false)
-        }
-      }
-    }
-    const timeToDone = clockSizes.find(
-      ({ id }) => id === Number(dataForFreeMaster[3]),
-    )?.timeToDone
-    const endAt = new Date(`${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`)
-    endAt.setHours(endAt.getHours() + Number(timeToDone))
     await axios
       .post<Order[]>(`/order`, {
         masterId: +data.master,
@@ -318,13 +281,10 @@ const Form: FC<ControllerFormProps> = () => {
             ),
           )}
         </select>
-        <div>Maximum 5 files and no more 1 mb for one</div>
-        <input
-          type="file"
-          multiple={true}
-          accept=".PNG, .JPG, .JPEG"
-          onChange={event => setFiles(event.currentTarget.files)}
-        />
+        <div className="file_input">
+          <label>Maximum 5 files and no more 1 mb for one</label>
+          <FileInput setFiles={setUrls} files={urls} />
+        </div>
         <button className="wrapper_form__button" type="submit">
           Submit
         </button>
