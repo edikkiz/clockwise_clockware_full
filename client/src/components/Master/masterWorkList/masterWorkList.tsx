@@ -7,6 +7,7 @@ import { useToasts } from 'react-toast-notifications'
 import './masterWorkList_module.css'
 import MasterHeader from '../masterHeader/masterHeader'
 import { format } from 'date-fns'
+import { saveAs } from 'file-saver'
 
 const options = {
   year: 'numeric',
@@ -85,15 +86,9 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   }
 
   const download = (images: string[]) => {
-    for (let i = 0; i < images.length; i++) {
-      const el = document.createElement('a')
-      el.setAttribute('href', images[i])
-      el.setAttribute('download', 'download')
-      el.setAttribute('target', '_blank')
-      document.body.appendChild(el)
-      el.click()
-      el.remove()
-    }
+    images.forEach(image => {
+      saveAs(image, 'download.jpg')
+    })
   }
 
   return (
