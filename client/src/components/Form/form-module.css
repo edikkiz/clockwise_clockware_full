@@ -1,4 +1,3 @@
-
 .wrapper {
   margin: 0 auto;
   width: 800px;
@@ -13,10 +12,11 @@
 }
 
 .wrapper_form__form {
-  width: 50%
+  width: 50%;
 }
 
-.wrapper_form__input, .wrapper_form__select {
+.wrapper_form__input,
+.wrapper_form__select {
   margin: 10px 0px;
   box-sizing: border-box;
   width: 100%;
@@ -26,22 +26,26 @@
 }
 
 .wrapper_form__button {
-width: 120px;
-height: 30px;
-background:white;
-color: black;
-font-size: 18px;
-border-radius: 5px;
-border: solid;
+  width: 120px;
+  height: 30px;
+  background: white;
+  color: black;
+  font-size: 18px;
+  border-radius: 5px;
+  border: solid;
 }
 
-.wrapper_form__button:hover {  
+.wrapper_form__button:hover {
   background: black;
   color: white;
   border-radius: 25% 10%;
   cursor: pointer;
 }
 
- p {
-   color: red
- }
+p {
+  color: red;
+}
+
+.file_input {
+  padding: 10px 0;
+}
