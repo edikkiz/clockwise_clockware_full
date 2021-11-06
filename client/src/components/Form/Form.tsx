@@ -83,7 +83,6 @@ const Form: FC<ControllerFormProps> = () => {
 
     getClockSize()
   }, [])
-
   useEffect(() => {
     setIsLoading(true)
     const getMaters = async () => {
@@ -99,9 +98,9 @@ const Form: FC<ControllerFormProps> = () => {
           params: {
             startAt: new Date(
               `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
-            ),
+            ).toISOString(),
             cityId: dataForFreeMaster[2],
-            endAt: endAt,
+            endAt: endAt.toISOString(),
           },
         })
 
@@ -152,7 +151,8 @@ const Form: FC<ControllerFormProps> = () => {
         masterId: +data.master,
         cityId: +data.city,
         clockSizeId: +data.clockSize,
-        startAt: `${data.day} ${data.time}`,
+        startAt: new Date(`${data.day} ${data.time}`).toISOString(),
+        endAt: endAt.toISOString(),
         name: data.name,
         email: data.email,
         images: urls,
@@ -171,7 +171,6 @@ const Form: FC<ControllerFormProps> = () => {
 
     setIsLoading(false)
   }
-
   const test = () => {
     setIsLoading(true)
     setTimeout(() => {

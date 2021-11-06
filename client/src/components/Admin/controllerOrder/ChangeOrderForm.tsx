@@ -111,12 +111,18 @@ const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
         const timeToDone = clockSizes.find(
           ({ id }) => id === dataForFreeMaster[3],
         )?.timeToDone
+        const endAt = new Date(
+          `${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`,
+        )
+        endAt.setHours(endAt.getHours() + Number(timeToDone))
         const { data } = await axios.get<Master[]>(`/free-masters`, {
           params: {
             orderId: +id,
-            startAt: dataForFreeMaster[0] + ' ' + dataForFreeMaster[1],
+            startAt: new Date(
+              dataForFreeMaster[0] + ' ' + dataForFreeMaster[1],
+            ).toISOString(),
             cityId: dataForFreeMaster[2],
-            timeToDone: timeToDone,
+            endAt: endAt.toISOString(),
           },
         })
         setPutMasters(data)
