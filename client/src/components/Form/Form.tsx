@@ -146,6 +146,11 @@ const Form: FC<ControllerFormProps> = () => {
 
   const onSubmit: SubmitHandler<OrderForm> = async data => {
     setIsLoading(true)
+    const timeToDone = clockSizes.find(
+      ({ id }) => id === Number(dataForFreeMaster[3]),
+    )?.timeToDone
+    const endAt = new Date(`${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`)
+    endAt.setHours(endAt.getHours() + Number(timeToDone))
     await axios
       .post<Order[]>(`/order`, {
         masterId: +data.master,
