@@ -21,10 +21,16 @@ import {
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 import { format, startOfDay, endOfDay } from 'date-fns'
+// import Stripe from 'stripe'
 
+// const stripe = new Stripe(
+//     'sk_test_51JoRKQAsmDgU6NBKaoFerhzascwnn6ok47hRAB094jdKvaco58UV9mUWe9MX44AYf4WvmfVXcGu4pLlZ2eMJBW6B00Hx4npo9E',
+//     { apiVersion: '2020-08-27' },
+// )
 const date = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
 const corDate = new Date(`${date}`)
 const prisma = new PrismaClient()
+// const quantity = 1
 
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
@@ -295,6 +301,29 @@ class OrderController {
             if (clockSize) {
                 const price = Number(clockSize.price)
                 const newOrderEndAt = new Date(`${endAt}`)
+                // const session = await stripe.checkout.sessions.create({
+                //     line_items: [
+                //         {
+                //             price_data: {
+                //                 currency: 'usd',
+                //                 product_data: {
+                //                     name: clockInfo.name,
+                //                     images: [
+                //                         'https://www.google.com/url?sa=i&url=https%3A%2F%2Fbigl.ua%2Fp1442091260-mehanicheskie-napolnye-chasy&psig=AOvVaw0dG4cTKoVLaxQUuBRQG6E6&ust=1636450402865000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjxvPm6iPQCFQAAAAAdAAAAABAQ',
+                //                     ],
+                //                 },
+                //                 unit_amount: clockInfo.price * 100,
+                //             },
+                //             quantity: quantity,
+                //         },
+                //     ],
+                //     payment_method_types: ['card'],
+                //     mode: 'payment',
+                //     success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
+                //     cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
+                // })
+                // const sig = req.headers['stripe-signature'];
+                // const paymentSucceeded = stripe.webhooks.constructEvent(request.body, sig, endpointSecret)
                 const newOrderStartAt = new Date(`${startAt}`)
                 const user = await prisma.user.findUnique({
                     where: { email: email },
@@ -339,6 +368,7 @@ class OrderController {
                             endAt: endAt,
                             feedbackToken: feedbackToken,
                             images: imagesUrls,
+                            // session: session.id,
                         },
                     })
 

@@ -26,7 +26,9 @@ const Stripe = () => {
 
   const test = async (e) => {
     e.preventDefault()
-    const {data} = await axios.post("/create-checkout-session")
+    const {data} = await axios.post("/create-checkout-session", {
+      // id: 'cs_test_a14wU0QmGSBWAf0U865W5PGGX79mlHn8cjWTTNNCfyKlEdK9D1qN6O2xvW'
+    })
     console.log(data)
     window.location.href = data.url
   }
