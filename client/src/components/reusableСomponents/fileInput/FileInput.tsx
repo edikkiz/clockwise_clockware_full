@@ -62,9 +62,7 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
           }
         }}
       />
-      {fileNames.map(name => (
-        <div>{name}</div>
-      ))}
+      {files.length ? fileNames.map(name => <div>{name}</div>) : <div></div>}
     </div>
   )
 }
