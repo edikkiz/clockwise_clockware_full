@@ -307,12 +307,12 @@ class OrderController {
                 //             price_data: {
                 //                 currency: 'usd',
                 //                 product_data: {
-                //                     name: clockInfo.name,
+                //                     name: clockSize.name,
                 //                     images: [
                 //                         'https://www.google.com/url?sa=i&url=https%3A%2F%2Fbigl.ua%2Fp1442091260-mehanicheskie-napolnye-chasy&psig=AOvVaw0dG4cTKoVLaxQUuBRQG6E6&ust=1636450402865000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjxvPm6iPQCFQAAAAAdAAAAABAQ',
                 //                     ],
                 //                 },
-                //                 unit_amount: clockInfo.price * 100,
+                //                 unit_amount: clockSize.price * 100,
                 //             },
                 //             quantity: quantity,
                 //         },
@@ -321,6 +321,8 @@ class OrderController {
                 //     mode: 'payment',
                 //     success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
                 //     cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
+                // }).then((res) => {
+                //     console.log(res)
                 // })
                 // const sig = req.headers['stripe-signature'];
                 // const paymentSucceeded = stripe.webhooks.constructEvent(request.body, sig, endpointSecret)

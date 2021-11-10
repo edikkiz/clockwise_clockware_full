@@ -19,8 +19,6 @@ const stripe = new Stripe(
     { apiVersion: '2020-08-27' },
 )
 
-const endpointSecret = 'whsec_...'
-
 app.use(
     cors({
         exposedHeaders: 'Authorization',
@@ -28,6 +26,40 @@ app.use(
 )
 
 app.use(express.static(`${__dirname}/../client/build`))
+
+app.post(
+    '/webhook',
+    express.raw({ type: 'application/json' }),
+    (request, response) => {
+        const payload = request.body
+        const sig = request.headers['stripe-signature']
+        const endpointSecret = 'whsec_S2idM3OZ9TTyZ2HVYlvXB0IolKBVVXop'
+        let event
+
+        try {
+            if (sig) {
+                event = stripe.webhooks.constructEvent(
+                    payload,
+                    sig,
+                    endpointSecret,
+                )
+            }
+        } catch (err) {
+            response.status(400).json({ success: false })
+            return
+        }
+        switch (event?.type) {
+            case 'checkout.session.completed':
+                const paymentIntent = event.data
+                    .object as Stripe.Response<Stripe.Checkout.Session>
+                console.log(paymentIntent.metadata)
+                break
+            default:
+                console.log(`Unhandled event type ${event?.type}`)
+        }
+        response.json({ received: true })
+    },
+)
 
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ limit: '5mb', extended: true }))
@@ -51,83 +83,36 @@ app.use(
 
 app.use('/api/user', authController.checkAccessToken('USER'), userRoleRouter)
 
-app.post(
-    '/webhooks',
-    express.json({ type: 'application/json' }),
-    (request, response) => {
-        const sig = request.headers['stripe-signature']
-
-        let event
-        if (sig) {
-            event = stripe.webhooks.constructEvent(
-                request.body,
-                sig,
-                endpointSecret,
-            )
-        }
-        if (event) {
-            // Handle the event
-            switch (event.type) {
-                case 'payment_intent.succeeded':
-                    const paymentIntent = event.data.object
-                    console.log(paymentIntent)
-                    console.log('PaymentIntent was successful!')
-                    break
-                case 'payment_method.attached':
-                    const paymentMethod = event.data.object
-                    console.log(paymentMethod)
-                    console.log('PaymentMethod was attached to a Customer!')
-                    break
-                // ... handle other event types
-                default:
-                    console.log(`Unhandled event type ${event.type}`)
-            }
-
-            // Return a response to acknowledge receipt of the event
-            response.json({ received: true })
-        }
-    },
-)
-
 app.post('/api/create-checkout-session', async (req, res) => {
-    if (req.body.id) {
-        const test = await stripe.checkout.sessions.retrieve(req.body.id)
-        console.log('test')
-        console.log(test)
-        res.status(200).json({ url: test.url })
-    } else {
-        const product = {
-            name: 'iPhone 12',
-            image: 'https://i.imgur.com/EHyR2nP.png',
-            amount: 10000,
-            quantity: 1,
-        }
-        const session = await stripe.checkout.sessions.create({
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: product.name,
-                            images: [product.image],
-                        },
-                        unit_amount: product.amount,
-                    },
-                    quantity: product.quantity,
-                },
-            ],
-            metadata: {
-                orderId: '1',
-            },
-            payment_method_types: ['card'],
-            mode: 'payment',
-            success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
-            cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
-        })
-        console.log('session')
-        console.log(session)
-        res.status(200).json({ url: session.url })
+    const product = {
+        name: 'iPhone 12',
+        image: 'https://i.imgur.com/EHyR2nP.png',
+        amount: 10000,
+        quantity: 1,
     }
+    const session = await stripe.checkout.sessions.create({
+        line_items: [
+            {
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: product.name,
+                        images: [product.image],
+                    },
+                    unit_amount: product.amount,
+                },
+                quantity: product.quantity,
+            },
+        ],
+        metadata: {
+            orderId: '1',
+        },
+        payment_method_types: ['card'],
+        mode: 'payment',
+        success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
+        cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
+    })
+    res.status(200).json({ url: session.url })
 })
 
 app.get('/*', (req: express.Request, res: express.Response) => {
