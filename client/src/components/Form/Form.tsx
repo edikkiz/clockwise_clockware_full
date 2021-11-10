@@ -166,6 +166,7 @@ const Form: FC<ControllerFormProps> = () => {
         addToast('Order created', { appearance: 'success' })
         reset()
         setValue('day', correctDate)
+        setUrls([])
         setValue('time', time[0])
         setIsLoading(false)
       })
@@ -290,6 +291,13 @@ const Form: FC<ControllerFormProps> = () => {
           <label>Maximum 5 files and no more 1 mb for one</label>
           <FileInput setFiles={setUrls} files={urls} />
         </div>
+        <button
+          onClick={() => setUrls([])}
+          className="wrapper_form__button"
+          type="button"
+        >
+          Clean files
+        </button>
         <button className="wrapper_form__button" type="submit">
           Submit
         </button>
