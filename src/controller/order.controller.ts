@@ -145,8 +145,7 @@ class OrderController {
         const params = allOrdersToTheMasterSchema.safeParse(req.query)
         if (params.success) {
             const { offset, limit, masterId } = params.data
-            const orderListForOneMaster =
-                await prisma.$queryRaw`SELECT 
+            const orderListForOneMaster = await prisma.$queryRaw`SELECT 
                     orders.images AS images,
                     orders.id,
                     orders.status,
@@ -287,7 +286,7 @@ class OrderController {
                         cloudinary.v2.uploader.upload(image),
                     ),
                 )
-            ).map(response => response.url)
+            ).map(response => response.secure_url)
 
             const feedbackToken = uuidv4()
             const password = uuidv4()
