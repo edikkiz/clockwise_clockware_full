@@ -8,6 +8,7 @@ import './masterWorkList_module.css'
 import MasterHeader from '../masterHeader/masterHeader'
 import { format } from 'date-fns'
 import { saveAs } from 'file-saver'
+import Modal from 'src/components/calendar/modal'
 
 const options = {
   year: 'numeric',
@@ -20,6 +21,9 @@ const limit = 10
 interface masterWorkListProps {}
 const MasterWorkList: FC<masterWorkListProps> = () => {
   const { masterId } = useParams<{ masterId: string }>()
+
+  const [modalActive, setModalActive] = useState<boolean>(false)
+  const [modalText, setModalText] = useState<string>()
 
   const [orders, setOrders] = useState<AllOrder[]>([])
 
@@ -132,9 +136,21 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 'yyyy-MM-dd HH:mm',
               )}`}</th>
               <th className="table_block_name__master-orders">{`${order.price}`}</th>
-              <th className="table_block_name__master-orders">{`${
-                order.rating === null ? 'no feedback' : order.feedback
-              }`}</th>
+              <th className="table_link_master">
+                {order.rating !== null ? (
+                  <button
+                    className="link_update__master"
+                    onClick={() => {
+                      setModalText(order.feedback)
+                      setModalActive(true)
+                    }}
+                  >
+                    check feedback
+                  </button>
+                ) : (
+                  <div>no feedback</div>
+                )}
+              </th>
               <th className="table_block_name__master-orders">{`${
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
@@ -198,6 +214,9 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
         </button>
       )}
       {orders.length === 0 && <div>Dont have more orders</div>}
+      <Modal active={modalActive} setActive={setModalActive}>
+        <div>{`feedback: ${modalText}`}</div>
+      </Modal>
     </div>
   )
 }
