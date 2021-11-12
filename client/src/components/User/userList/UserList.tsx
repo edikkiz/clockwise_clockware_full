@@ -7,11 +7,15 @@ import { useParams } from 'react-router-dom'
 import './user-list-module.css'
 import UserHeader from '../userHeader/UserHeader'
 import { format } from 'date-fns'
+import Modal from 'src/components/calendar/modal'
 
 const limit = 10
 interface userListProps {}
 const UserList: FC<userListProps> = () => {
   const { id: userId } = useParams<{ id: string }>()
+
+  const [modalActive, setModalActive] = useState<boolean>(false)
+  const [modalText, setModalText] = useState<string>()
 
   const [orders, setOrders] = useState<AllOrder[]>([])
 
@@ -84,15 +88,27 @@ const UserList: FC<userListProps> = () => {
                 'yyyy-MM-dd HH:mm',
               )} `}</th>
               <th className="table_block_name__user-orders">{`${order.price}`}</th>
-              <th className="table_block_name__user-orders">{`${
-                order.rating === null ? 'no feedback' : order.feedback
-              }`}</th>
+              <th className="table_block_name__user-orders">
+                {order.rating !== null ? (
+                  <button
+                    className="link_update__master"
+                    onClick={() => {
+                      setModalText(order.feedback)
+                      setModalActive(true)
+                    }}
+                  >
+                    check feedback
+                  </button>
+                ) : (
+                  <div>no feedback</div>
+                )}
+              </th>
               <th className="table_block_name__user-orders">{`${
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
               <th className="table_block_id__order">{`${order.status}`}</th>
               {order.status === Status.Completed &&
-              order.feedbackToken !== '' ? (
+              order.feedbackToken !== null ? (
                 <Link
                   to={`/rate/${order.feedbackToken}`}
                   className="link_update__user"
@@ -135,6 +151,9 @@ const UserList: FC<userListProps> = () => {
         </button>
       )}
       {orders.length === 0 && <div>Dont have more orders</div>}
+      <Modal active={modalActive} setActive={setModalActive}>
+        <div>{`feedback: ${modalText}`}</div>
+      </Modal>
     </div>
   )
 }

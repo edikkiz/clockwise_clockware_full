@@ -12,6 +12,7 @@ import DateRange from 'src/components/reusableСomponents/dateRangeSelect/DateRa
 import ClockSizeSelect from 'src/components/reusableСomponents/clockSizeSelect/ClockSizeSelect'
 import MasterSelect from 'src/components/reusableСomponents/masterSelect/MasterSelect'
 import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect'
+import Modal from 'src/components/calendar/modal'
 
 const limit = 10
 interface ControllerOrderTableProps {}
@@ -27,6 +28,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
+
+  const [modalActive, setModalActive] = useState<boolean>(false)
+  const [modalText, setModalText] = useState<string | null>()
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -160,9 +164,21 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
                 'yyyy-MM-dd HH:mm',
               )} `}</th>
               <th className="table_block_name__order">{`${order.price}`}</th>
-              <th className="table_block_name__order">{`${
-                order.rating === null ? 'no feedback' : order.feedback
-              }`}</th>
+              <th className="table_link_master">
+                {order.rating !== null ? (
+                  <button
+                    className="link_update__master"
+                    onClick={() => {
+                      setModalText(order.feedback)
+                      setModalActive(true)
+                    }}
+                  >
+                    check feedback
+                  </button>
+                ) : (
+                  <div>no feedback</div>
+                )}
+              </th>
               <th className="table_block_name__order">{`${
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
@@ -237,6 +253,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         </button>
       )}
       {!orders.length && <div>Dont have more orders</div>}
+      <Modal active={modalActive} setActive={setModalActive}>
+        <div>{`feedback: ${modalText}`}</div>
+      </Modal>
     </div>
   )
 }
