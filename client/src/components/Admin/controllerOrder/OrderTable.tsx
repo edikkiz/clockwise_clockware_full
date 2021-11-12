@@ -13,8 +13,8 @@ import ClockSizeSelect from 'src/components/reusableСomponents/clockSizeSelect/
 import MasterSelect from 'src/components/reusableСomponents/masterSelect/MasterSelect'
 import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect'
 import Modal from 'src/components/calendar/modal'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
-const limit = 10
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [orders, setOrders] = useState<OrderForTable[]>([])
@@ -28,6 +28,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [modalActive, setModalActive] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string | null>()
@@ -59,7 +60,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   useEffect(() => {
     filtered()
-  }, [offset])
+  }, [offset, limit])
 
   const onSubmitDelete = useCallback(
     (id: number) => {
@@ -101,19 +102,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
     },
     [orders],
   )
-
-  const next = useCallback(() => {
-    setOffset(currentOffset => currentOffset + limit)
-  }, [])
-
-  const after = useCallback(() => {
-    if (offset < 10) {
-      setOffset(0)
-    }
-    if (offset >= 10) {
-      setOffset(offset - limit)
-    }
-  }, [offset])
 
   return (
     <div>
@@ -234,28 +222,17 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         </table>
       </div>
 
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {orders.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
       {!orders.length && <div>Dont have more orders</div>}
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
+      <Pagination
+        offset={offset}
+        setOffset={setOffset}
+        limit={limit}
+        setLimit={setLimit}
+        total={1000}
+      ></Pagination>
     </div>
   )
 }
