@@ -231,7 +231,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         setOffset={setOffset}
         limit={limit}
         setLimit={setLimit}
-        total={1000}
+        total={62}
       ></Pagination>
     </div>
   )

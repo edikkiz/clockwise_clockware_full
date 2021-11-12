@@ -1,6 +1,8 @@
 .pagination {
   display: flex;
   flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .page-number {
@@ -8,4 +10,18 @@
   margin-right: 10px;
   border: solid;
   border-width: 2px;
+}
+
+.page-nav img {
+  width: 20px;
+  height: 20px;
+}
+
+.active {
+  background-color: red;
+}
+
+.page-nav {
+  font-size: 20px;
+  margin-right: 10px;
 }
