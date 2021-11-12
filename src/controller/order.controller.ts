@@ -21,16 +21,11 @@ import {
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 import { format, startOfDay, endOfDay } from 'date-fns'
-// import Stripe from 'stripe'
+import Stripe from 'stripe'
 
-// const stripe = new Stripe(
-//     'sk_test_51JoRKQAsmDgU6NBKaoFerhzascwnn6ok47hRAB094jdKvaco58UV9mUWe9MX44AYf4WvmfVXcGu4pLlZ2eMJBW6B00Hx4npo9E',
-//     { apiVersion: '2020-08-27' },
-// )
 const date = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
 const corDate = new Date(`${date}`)
 const prisma = new PrismaClient()
-// const quantity = 1
 
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
@@ -214,6 +209,7 @@ class OrderController {
         const { offset, limit, userId } = req.query
         const orderListForOneUser =
             await prisma.$queryRaw`SELECT orders."feedbackToken" AS "feedbackToken", 
+                orders.images AS images,
                 orders.id, 
                 orders.status, 
                 orders.feedback, 
@@ -243,13 +239,17 @@ class OrderController {
                 OFFSET ${Number(offset)}`
         res.status(200).json(orderListForOneUser)
     }
-    async createOrder(req: Request, res: Response) {
-        const params = createOrderSchema.safeParse(req.body)
+    async createOrder(
+        data: Stripe.Response<Stripe.Checkout.Session>,
+        res: Response,
+    ) {
+        const params = createOrderSchema.safeParse(data.metadata)
         if (!params.success) {
             return
         }
         const { masterId, cityId, clockSizeId, startAt, endAt, name, email } =
             params.data
+
         const validationErrors = []
         const date = new Date(`${startAt}`)
         const master = await prisma.master.findUnique({
@@ -284,16 +284,7 @@ class OrderController {
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
         } else {
-            const fileStr = req.body.images
-
-            const imagesUrls: string[] = (
-                await Promise.all<cloudinary.UploadApiResponse>(
-                    fileStr.map((image: string) =>
-                        cloudinary.v2.uploader.upload(image),
-                    ),
-                )
-            ).map(response => response.secure_url)
-
+            let imagesUrls: string[] = []
             const feedbackToken = uuidv4()
             const password = uuidv4()
             const salt = bcrypt.genSaltSync(10)
@@ -301,37 +292,12 @@ class OrderController {
             if (clockSize) {
                 const price = Number(clockSize.price)
                 const newOrderEndAt = new Date(`${endAt}`)
-                // const session = await stripe.checkout.sessions.create({
-                //     line_items: [
-                //         {
-                //             price_data: {
-                //                 currency: 'usd',
-                //                 product_data: {
-                //                     name: clockSize.name,
-                //                     images: [
-                //                         'https://www.google.com/url?sa=i&url=https%3A%2F%2Fbigl.ua%2Fp1442091260-mehanicheskie-napolnye-chasy&psig=AOvVaw0dG4cTKoVLaxQUuBRQG6E6&ust=1636450402865000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjxvPm6iPQCFQAAAAAdAAAAABAQ',
-                //                     ],
-                //                 },
-                //                 unit_amount: clockSize.price * 100,
-                //             },
-                //             quantity: quantity,
-                //         },
-                //     ],
-                //     payment_method_types: ['card'],
-                //     mode: 'payment',
-                //     success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
-                //     cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
-                // }).then((res) => {
-                //     console.log(res)
-                // })
-                // const sig = req.headers['stripe-signature'];
-                // const paymentSucceeded = stripe.webhooks.constructEvent(request.body, sig, endpointSecret)
                 const newOrderStartAt = new Date(`${startAt}`)
                 const user = await prisma.user.findUnique({
                     where: { email: email },
                 })
                 if (user) {
-                    const newOrder = await prisma.order.create({
+                    await prisma.order.create({
                         data: {
                             userId: user.id,
                             masterId: Number(masterId),
@@ -344,10 +310,10 @@ class OrderController {
                             images: imagesUrls,
                         },
                     })
-                    res.status(201).json(newOrder)
+                    res.status(201)
                 }
                 if (!user) {
-                    const newOrder = await prisma.order.create({
+                    await prisma.order.create({
                         data: {
                             user: {
                                 create: {
@@ -370,7 +336,6 @@ class OrderController {
                             endAt: endAt,
                             feedbackToken: feedbackToken,
                             images: imagesUrls,
-                            // session: session.id,
                         },
                     })
 
@@ -380,9 +345,31 @@ class OrderController {
                         `confirm order`,
                         `<p>your password: ${password}</p>`,
                     )
-                    res.status(201).json(newOrder)
+                    res.status(201)
                 }
             }
+        }
+    }
+
+    async addPhotoInOrder(req: Request, res: Response) {
+        const { images, orderId } = req.body
+
+        if (images) {
+            const imagesUrls = (
+                await Promise.all<cloudinary.UploadApiResponse>(
+                    images.map((image: string) =>
+                        cloudinary.v2.uploader.upload(image),
+                    ),
+                )
+            ).map(response => response.url)
+
+            const orderWithPhotos = await prisma.order.update({
+                where: { id: orderId },
+                data: { images: imagesUrls },
+            })
+            res.status(201).json(orderWithPhotos)
+        } else {
+            res.status(400).send({ message: 'no files' })
         }
     }
 

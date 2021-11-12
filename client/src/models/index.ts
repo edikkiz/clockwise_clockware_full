@@ -154,3 +154,7 @@ export type OrderForFeedback = {
     id: number
   }
 }
+
+export type StripeUrl = {
+  url: string
+}

@@ -7,9 +7,11 @@ import authRouter from './routes/auth.router'
 import adminRouter from './routes/admin.router'
 import masterRoleRouter from './routes/masterRole.router'
 import userRoleRouter from './routes/userRole.route'
+import stripeRouter from './routes/stripe.router'
 import cors from 'cors'
 import authController from './controller/auth.controller'
 import Stripe from 'stripe'
+import orderController from './controller/order.controller'
 
 const PORT = process.env.PORT || 3333
 const app = express.default()
@@ -52,7 +54,7 @@ app.post(
             case 'checkout.session.completed':
                 const paymentIntent = event.data
                     .object as Stripe.Response<Stripe.Checkout.Session>
-                console.log(paymentIntent.metadata)
+                orderController.createOrder(paymentIntent, response)
                 break
             default:
                 console.log(`Unhandled event type ${event?.type}`)
@@ -83,37 +85,7 @@ app.use(
 
 app.use('/api/user', authController.checkAccessToken('USER'), userRoleRouter)
 
-app.post('/api/create-checkout-session', async (req, res) => {
-    const product = {
-        name: 'iPhone 12',
-        image: 'https://i.imgur.com/EHyR2nP.png',
-        amount: 10000,
-        quantity: 1,
-    }
-    const session = await stripe.checkout.sessions.create({
-        line_items: [
-            {
-                price_data: {
-                    currency: 'usd',
-                    product_data: {
-                        name: product.name,
-                        images: [product.image],
-                    },
-                    unit_amount: product.amount,
-                },
-                quantity: product.quantity,
-            },
-        ],
-        metadata: {
-            orderId: '1',
-        },
-        payment_method_types: ['card'],
-        mode: 'payment',
-        success_url: `${process.env.SITE_URL_STRIPE}?success=true`,
-        cancel_url: `${process.env.SITE_URL_STRIPE}?canceled=true`,
-    })
-    res.status(200).json({ url: session.url })
-})
+app.use('/api', stripeRouter)
 
 app.get('/*', (req: express.Request, res: express.Response) => {
     res.sendFile(path.resolve(__dirname, '..', 'client', 'build', 'index.html'))

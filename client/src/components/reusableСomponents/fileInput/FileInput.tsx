@@ -18,11 +18,11 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         addToast('max 1 mb for one file')
         return
       }
+      if (files.length + innerFiles.length > 5) {
+        addToast('max 5 file', { appearance: 'error' })
+        return
+      }
       innerFiles.forEach(innerFiles => {
-        if (files.length >= 5) {
-          addToast('max 5 file', { appearance: 'error' })
-          return
-        }
         setFileNames(prevFileNames => [...prevFileNames, innerFiles.name])
         const fileReader = new FileReader()
         fileReader.readAsDataURL(innerFiles)
@@ -63,6 +63,15 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         }}
       />
       {files.length ? fileNames.map(name => <div>{name}</div>) : <div></div>}
+      <button
+        className="wrapper_form__button"
+        onClick={() => {
+          setFileNames([])
+          setFiles([])
+        }}
+      >
+        Clean photos
+      </button>
     </div>
   )
 }

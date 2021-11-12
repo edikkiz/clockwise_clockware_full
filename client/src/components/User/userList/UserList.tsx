@@ -8,14 +8,18 @@ import './user-list-module.css'
 import UserHeader from '../userHeader/UserHeader'
 import { format } from 'date-fns'
 import Modal from 'src/components/calendar/modal'
+import ModalAddPhotos from 'src/components/reusableСomponents/modalAddPhotos/ModalAddPhotos'
 
 const limit = 10
 interface userListProps {}
 const UserList: FC<userListProps> = () => {
   const { id: userId } = useParams<{ id: string }>()
 
-  const [modalActive, setModalActive] = useState<boolean>(false)
-  const [modalText, setModalText] = useState<string>()
+  const [feedbackActive, setFeedbackActive] = useState<boolean>(false)
+  const [feedbackText, setFeedbackText] = useState<string>()
+  
+  const [activeDownloadPhotos, setActiveDownloadPhotos] = useState<boolean>(false)
+  const [orderId, setOrderId] = useState<number>(0)
 
   const [orders, setOrders] = useState<AllOrder[]>([])
 
@@ -39,7 +43,7 @@ const UserList: FC<userListProps> = () => {
 
     getAllOrders()
     setIsLoading(false)
-  }, [offset])
+  }, [offset, activeDownloadPhotos])
 
   const next = useCallback(() => {
     setOffset(offset + limit)
@@ -71,6 +75,7 @@ const UserList: FC<userListProps> = () => {
             <th className="table_block_name__user-orders">feedback</th>
             <th className="table_block_name__user-orders">rating</th>
             <th className="table_block_id__order">status</th>
+            <th className="table_block_id__order">images</th>
             <th className="table_block_id__order">Rate</th>
           </tr>
           {orders.map(order => (
@@ -93,8 +98,8 @@ const UserList: FC<userListProps> = () => {
                   <button
                     className="link_update__master"
                     onClick={() => {
-                      setModalText(order.feedback)
-                      setModalActive(true)
+                      setFeedbackText(order.feedback)
+                      setFeedbackActive(true)
                     }}
                   >
                     check feedback
@@ -107,6 +112,22 @@ const UserList: FC<userListProps> = () => {
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
               <th className="table_block_id__order">{`${order.status}`}</th>
+              <th className="table_block_id__order">
+                {!order.images.length ? (
+                  <button
+                    type="button"
+                    className="link_update__user-disabled"
+                    onClick={() => {
+                      setOrderId(order.id)
+                      setActiveDownloadPhotos(true)
+                    }}
+                  >
+                    load images
+                  </button>
+                ) : (
+                  `this order have images`
+                )}
+              </th>
               {order.status === Status.Completed &&
               order.feedbackToken !== null ? (
                 <Link
@@ -151,9 +172,14 @@ const UserList: FC<userListProps> = () => {
         </button>
       )}
       {orders.length === 0 && <div>Dont have more orders</div>}
-      <Modal active={modalActive} setActive={setModalActive}>
-        <div>{`feedback: ${modalText}`}</div>
+      <Modal active={feedbackActive} setActive={setFeedbackActive}>
+        <div>{`feedback: ${feedbackText}`}</div>
       </Modal>
+      <ModalAddPhotos
+        active={activeDownloadPhotos}
+        setActive={setActiveDownloadPhotos}
+        orderId={orderId}
+      ></ModalAddPhotos>
     </div>
   )
 }
