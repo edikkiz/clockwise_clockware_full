@@ -2,15 +2,13 @@ import { OrderStatus } from '.prisma/client'
 import { z } from 'zod'
 
 export const createOrderSchema = z.object({
-    cityId: z.string(),
-    masterId: z.string(),
-    clockSizeId: z.string(),
+    cityId: z.number().int().nonnegative(),
+    masterId: z.number().int().nonnegative(),
+    clockSizeId: z.number().int().nonnegative(),
     startAt: z.string(),
     endAt: z.string(),
     name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
     email: z.string().email(),
-    price: z.number().optional(),
-    size: z.string().optional(),
 })
 
 export const updateOrderSchema = z.object({

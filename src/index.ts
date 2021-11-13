@@ -16,11 +16,12 @@ import orderController from './controller/order.controller'
 const PORT = process.env.PORT || 3333
 const app = express.default()
 const path = require('path')
-const stripe = new Stripe(
-    'sk_test_51JoRKQAsmDgU6NBKaoFerhzascwnn6ok47hRAB094jdKvaco58UV9mUWe9MX44AYf4WvmfVXcGu4pLlZ2eMJBW6B00Hx4npo9E',
-    { apiVersion: '2020-08-27' },
-)
-
+if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('stripe secret key is not provided')
+}
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2020-08-27',
+})
 app.use(
     cors({
         exposedHeaders: 'Authorization',
@@ -33,6 +34,9 @@ app.post(
     '/webhook',
     express.raw({ type: 'application/json' }),
     (request, response) => {
+        if (!process.env.STRIPE_SECRET_WEBHOOK_KEY) {
+            throw new Error('stripe secret webhook key is not provided')
+        }
         const payload = request.body
         const sig = request.headers['stripe-signature']
         const endpointSecret = 'whsec_S2idM3OZ9TTyZ2HVYlvXB0IolKBVVXop'
@@ -46,20 +50,22 @@ app.post(
                     endpointSecret,
                 )
             }
-        } catch (err) {
-            response.status(400).json({ success: false })
+        } catch {
+            response.status(400).send(`Webhook Error`)
             return
         }
-        switch (event?.type) {
-            case 'checkout.session.completed':
-                const paymentIntent = event.data
-                    .object as Stripe.Response<Stripe.Checkout.Session>
-                orderController.createOrder(paymentIntent, response)
-                break
-            default:
-                console.log(`Unhandled event type ${event?.type}`)
+        if (event?.type === 'checkout.session.completed') {
+            const paymentIntent = event.data
+                .object as Stripe.Response<Stripe.Checkout.Session>
+            const createOrder = async () => {
+                await orderController.createOrder(paymentIntent, response)
+                response.status(200)
+            }
+            createOrder()
+        } else {
+            console.log(`Unhandled event type ${event?.type}`)
         }
-        response.json({ received: true })
+        response.send()
     },
 )
 

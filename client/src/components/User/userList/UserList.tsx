@@ -17,8 +17,9 @@ const UserList: FC<userListProps> = () => {
 
   const [feedbackActive, setFeedbackActive] = useState<boolean>(false)
   const [feedbackText, setFeedbackText] = useState<string>()
-  
-  const [activeDownloadPhotos, setActiveDownloadPhotos] = useState<boolean>(false)
+
+  const [activeDownloadPhotos, setActiveDownloadPhotos] =
+    useState<boolean>(false)
   const [orderId, setOrderId] = useState<number>(0)
 
   const [orders, setOrders] = useState<AllOrder[]>([])
@@ -122,7 +123,7 @@ const UserList: FC<userListProps> = () => {
                       setActiveDownloadPhotos(true)
                     }}
                   >
-                    load images
+                    Download images
                   </button>
                 ) : (
                   `this order have images`
@@ -178,6 +179,7 @@ const UserList: FC<userListProps> = () => {
       <ModalAddPhotos
         active={activeDownloadPhotos}
         setActive={setActiveDownloadPhotos}
+        filesLimit={5}
         orderId={orderId}
       ></ModalAddPhotos>
     </div>

@@ -158,8 +158,6 @@ const Form: FC<ControllerFormProps> = () => {
     endAt.setHours(endAt.getHours() + Number(clockSize?.timeToDone))
     await axios
       .post<StripeUrl>(`/create-checkout-session`, {
-        size: clockSize?.name,
-        price: clockSize?.price,
         masterId: +data.master,
         cityId: +data.city,
         clockSizeId: +data.clockSize,

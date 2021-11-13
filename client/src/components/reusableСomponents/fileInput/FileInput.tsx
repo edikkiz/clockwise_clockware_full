@@ -4,8 +4,9 @@ import { useToasts } from 'react-toast-notifications'
 interface FileInputProps {
   files: string[]
   setFiles: React.Dispatch<React.SetStateAction<string[]>>
+  filesLimit: number
 }
-const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
+const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
   const { addToast } = useToasts()
 
   const [innerFiles, setInnerFiles] = useState<File[]>()
@@ -16,10 +17,6 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
     if (innerFiles) {
       if (innerFiles.some(file => file.size > 1024 * 1024)) {
         addToast('max 1 mb for one file')
-        return
-      }
-      if (files.length + innerFiles.length > 5) {
-        addToast('max 5 file', { appearance: 'error' })
         return
       }
       innerFiles.forEach(innerFiles => {
@@ -49,7 +46,7 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         onChange={event => {
           if (
             event.currentTarget.files &&
-            event.currentTarget.files.length <= 5
+            event.currentTarget.files.length <= filesLimit
           ) {
             const localCopy: File[] = []
             for (let i = 0; i < event.currentTarget.files.length; i++) {

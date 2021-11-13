@@ -18,7 +18,6 @@ import MasterWorkList from './components/Master/masterWorkList/masterWorkList'
 import Calendar from './components/calendar/Calendar'
 import UserList from './components/User/userList/UserList'
 import OrderCharts from './components/Admin/controllerOrder/orderCharts/OrderCharts'
-import Stripe from './components/Stripe/app'
 
 function App() {
   return (
@@ -38,7 +37,6 @@ function App() {
           </Route>
 
           <PrivateRoute path="/admin/charts" component={OrderCharts} />
-          <Route path="/test"> <Stripe /> </Route>
 
           <Route path="/calendar/:masterId?" exact>  <Calendar /> </Route>
 
