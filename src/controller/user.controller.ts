@@ -26,6 +26,11 @@ class UserController {
         res.status(200).json(users)
     }
 
+    async countUsers(req: Request, res: Response) {
+        const countUsers = await prisma.user.count()
+        res.status(200).json(countUsers)
+    }
+
     async createUser(req: Request, res: Response) {
         const params = createUserSchema.safeParse(req.body)
         if (!params.success) {

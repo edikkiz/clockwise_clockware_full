@@ -20,12 +20,23 @@ class MasterController {
             const masters = await prisma.master.findMany({
                 skip: Number(offset),
                 take: Number(limit),
+                select: {
+                    id: true,
+                    name: true,
+                    cityId: true,
+                    city: { select: { name: true } },
+                },
             })
             res.status(200).json(masters)
         } else {
             const masters = await prisma.master.findMany()
             res.status(200).json(masters)
         }
+    }
+
+    async countMasters(req: Request, res: Response) {
+        const countAllMasters = await prisma.master.count()
+        res.status(200).json(countAllMasters)
     }
 
     async getFreeMasters(req: Request, res: Response) {

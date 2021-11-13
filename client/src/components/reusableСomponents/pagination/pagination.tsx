@@ -20,6 +20,8 @@ const Pagination: FC<PaginationProps> = ({
 }) => {
   const [pagesCount, setPagesCount] = useState<number[]>([])
 
+  const [selectedPage, setSelectedPage] = useState<number>(1)
+
   useEffect(() => {
     const localPagesCount: number[] = []
     for (let i = 1; i <= Math.ceil(total / limit); i++) {
@@ -30,42 +32,87 @@ const Pagination: FC<PaginationProps> = ({
 
   return (
     <div className="pagination">
-      <button className="page-nav" onClick={() => setOffset(0)}>
-        <img src={firstPage} />
-      </button>
-      <button className="page-nav" onClick={() => setOffset(offset - limit)}>
-        <img src={previousPage} />
-      </button>
-
-      {pagesCount.map(number => (
+      <div>
         <button
-          className={
-            (offset + limit) / limit === number
-              ? 'page-number active'
-              : 'page-number'
-          }
-          onClick={() => setOffset((number - 1) * limit)}
+          className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
+          disabled={offset === 0 && true}
+          onClick={() => {
+            setSelectedPage(1)
+            setOffset(0)
+          }}
         >
-          {number}
+          <img src={firstPage} />
         </button>
-      ))}
-      <button className="page-nav" onClick={() => setOffset(offset + limit)}>
-        <img src={nextPage} />
-      </button>
-      <button
-        className="page-nav"
-        onClick={() => setOffset((pagesCount.length - 1) * limit)}
-      >
-        <img src={lastPage} />
-      </button>
+        <button
+          className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
+          onClick={() => {
+            setSelectedPage(selectedPage - 1)
+            offset !== 0 && setOffset(offset - limit)
+          }}
+          disabled={offset === 0 && true}
+        >
+          <img src={previousPage} />
+        </button>
 
-      <select onChange={event => setLimit(+event.currentTarget.value)}>
-        <option selected value={15}>
-          15
-        </option>
-        <option value={25}>25</option>
-        <option value={50}>50</option>
-      </select>
+        {pagesCount.map(
+          number =>
+            selectedPage + 7 >= number &&
+            selectedPage - 3 <= number && (
+              <button
+                className={
+                  selectedPage === number ? 'page-number active' : 'page-number'
+                }
+                onClick={() => {
+                  setSelectedPage(number)
+                  setOffset((number - 1) * limit)
+                }}
+              >
+                {number}
+              </button>
+            ),
+        )}
+        <button
+          className={offset + limit <= total ? 'page-nav' : 'page-nav disabled'}
+          onClick={() => {
+            setSelectedPage(selectedPage + 1)
+            setOffset(offset + limit)
+          }}
+          disabled={offset + limit >= total && true}
+        >
+          <img src={nextPage} />
+        </button>
+        <button
+          className={offset + limit <= total ? 'page-nav' : 'page-nav disabled'}
+          onClick={() => {
+            setSelectedPage(pagesCount.length)
+            setOffset((pagesCount.length - 1) * limit)
+          }}
+          disabled={offset + limit >= total && true}
+        >
+          <img src={lastPage} />
+        </button>
+
+        <select
+          onChange={event => {
+            setOffset(0)
+            setLimit(+event.currentTarget.value)
+            setSelectedPage(1)
+          }}
+        >
+          <option selected value={15}>
+            15
+          </option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+        </select>
+        <label className="label">items per page</label>
+      </div>
+      <div>
+        <div>
+          {offset === 0 ? 1 : offset}-
+          {offset + limit > total ? total : offset + limit} of {total} items
+        </div>
+      </div>
     </div>
   )
 }

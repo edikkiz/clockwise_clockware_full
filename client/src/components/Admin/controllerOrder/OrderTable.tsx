@@ -18,6 +18,7 @@ import Pagination from 'src/components/reusableСomponents/pagination/pagination
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [orders, setOrders] = useState<OrderForTable[]>([])
+  const [countOrders, setCountOrders] = useState<number>(0)
 
   const [cityFilter, setCityFilter] = useState<number | null>(null)
   const [masterFilter, setMasterFilter] = useState<number | null>(null)
@@ -61,6 +62,14 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   useEffect(() => {
     filtered()
   }, [offset, limit])
+
+  useEffect(() => {
+    const countAllOrders = async () => {
+      const { data } = await axios.get(`/admin/count-orders`)
+      setCountOrders(data)
+    }
+    countAllOrders()
+  }, [])
 
   const onSubmitDelete = useCallback(
     (id: number) => {
@@ -226,13 +235,15 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
-      <Pagination
-        offset={offset}
-        setOffset={setOffset}
-        limit={limit}
-        setLimit={setLimit}
-        total={62}
-      ></Pagination>
+      {countOrders && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={countOrders}
+        />
+      )}
     </div>
   )
 }

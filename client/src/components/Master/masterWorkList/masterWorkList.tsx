@@ -9,6 +9,7 @@ import MasterHeader from '../masterHeader/masterHeader'
 import { format } from 'date-fns'
 import { saveAs } from 'file-saver'
 import Modal from 'src/components/calendar/modal'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
 const options = {
   year: 'numeric',
@@ -26,8 +27,10 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   const [modalText, setModalText] = useState<string>()
 
   const [orders, setOrders] = useState<AllOrder[]>([])
+  const [countOrders, setCountOrders] = useState<number>(0)
 
   const [offset, setOffset] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -48,20 +51,18 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     }
 
     getAllOrders()
-    setIsLoading(false)
-  }, [offset])
+  }, [offset, limit])
 
-  const next = useCallback(() => {
-    setOffset(offset + limit)
-  }, [])
-
-  const after = useCallback(() => {
-    if (offset < 10) {
-      setOffset(0)
+  useEffect(() => {
+    const countOrders = async () => {
+      const { data } = await axios.get('/master/count-orders', {
+        params: {
+          id: masterId,
+        },
+      })
+      setCountOrders(data)
     }
-    if (offset >= 10) {
-      setOffset(offset - limit)
-    }
+    countOrders()
   }, [])
 
   const changeStatus = (id: number, email: string) => {
@@ -195,28 +196,19 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           ))}
         </table>
       </div>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {orders.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
       {orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
+      {countOrders && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={countOrders}
+        />
+      )}
     </div>
   )
 }

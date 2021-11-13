@@ -3,15 +3,17 @@ import axios from 'axios'
 import './cities-table-module.css'
 import { City } from 'src/models'
 import { Link } from 'react-router-dom'
-// import Preloader from '@/components/Preloader'
+import Preloader from 'src/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
-
-const limit = 10
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
 interface ControllerCityTableProps {}
 const CitiesTable: FC<ControllerCityTableProps> = () => {
   const [cities, setCities] = useState<City[]>([])
+  const [countCities, setCountCities] = useState<number>(0)
+
+  const [limit, setLimit] = useState<number>(15)
 
   const [offset, setOffset] = useState<number>(0)
 
@@ -32,11 +34,19 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
       setIsLoading(false)
     }
     getCities()
-  }, [offset])
+  }, [offset, limit])
 
   useEffect(() => {
     getCitiesList()
   }, [getCitiesList])
+
+  useEffect(() => {
+    const countCities = async () => {
+      const { data } = await axios.get('/admin/count-cities')
+      setCountCities(data)
+    }
+    countCities()
+  })
 
   const onSubmitDelete = useCallback(
     (deleteId: number) => {
@@ -92,7 +102,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
 
   return (
     <div className="wrapper_cities">
-      {/* <Preloader isLoading={isLoading} /> */}
+      <Preloader isLoading={isLoading} />
       <AdminHeader />
       <table className="wrapper_cities__table">
         <tr>
@@ -127,25 +137,16 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
           </tr>
         ))}
       </table>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {cities.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
       {cities.length === 0 && <div>Dont have more cities</div>}
+      {countCities !== 0 && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={countCities}
+        />
+      )}
     </div>
   )
 }

@@ -25,6 +25,11 @@ class CityController {
         }
     }
 
+    async countCities(req: Request, res: Response) {
+        const countAllCities = await prisma.city.count()
+        res.status(200).json(countAllCities)
+    }
+
     async createCity(req: Request, res: Response) {
         const params = createCitySchema.safeParse(req.body)
         if (!params.success) {

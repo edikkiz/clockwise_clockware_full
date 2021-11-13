@@ -9,8 +9,8 @@ import UserHeader from '../userHeader/UserHeader'
 import { format } from 'date-fns'
 import Modal from 'src/components/calendar/modal'
 import ModalAddPhotos from 'src/components/reusableСomponents/modalAddPhotos/ModalAddPhotos'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
-const limit = 10
 interface userListProps {}
 const UserList: FC<userListProps> = () => {
   const { id: userId } = useParams<{ id: string }>()
@@ -23,8 +23,10 @@ const UserList: FC<userListProps> = () => {
   const [orderId, setOrderId] = useState<number>(0)
 
   const [orders, setOrders] = useState<AllOrder[]>([])
+  const [countOrders, setCountOrders] = useState<number>(0)
 
   const [offset, setOffset] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -44,19 +46,16 @@ const UserList: FC<userListProps> = () => {
 
     getAllOrders()
     setIsLoading(false)
-  }, [offset, activeDownloadPhotos])
+  }, [offset, activeDownloadPhotos, limit])
 
-  const next = useCallback(() => {
-    setOffset(offset + limit)
-  }, [])
-
-  const after = useCallback(() => {
-    if (offset < 10) {
-      setOffset(0)
+  useEffect(() => {
+    const countOrdersOfUser = async () => {
+      const { data } = await axios.get('/user/count-orders', {
+        params: { id: userId },
+      })
+      setCountOrders(data)
     }
-    if (offset >= 10) {
-      setOffset(offset - limit)
-    }
+    countOrdersOfUser()
   }, [])
 
   return (
@@ -154,24 +153,6 @@ const UserList: FC<userListProps> = () => {
           ))}
         </table>
       </div>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {orders.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
       {orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={feedbackActive} setActive={setFeedbackActive}>
         <div>{`feedback: ${feedbackText}`}</div>
@@ -182,6 +163,15 @@ const UserList: FC<userListProps> = () => {
         filesLimit={5}
         orderId={orderId}
       ></ModalAddPhotos>
+      {countOrders && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={countOrders}
+        />
+      )}
     </div>
   )
 }

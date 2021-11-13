@@ -6,82 +6,43 @@ import userController from '../controller/user.controller'
 
 const router = Router()
 
-router.put(
-    '/order',
-    orderController.updateOrder,
-)
+router.put('/order', orderController.updateOrder)
 
-router.delete(
-    '/delete-order',
-    orderController.deleteOrder,
-)
+router.delete('/delete-order', orderController.deleteOrder)
 
-router.get(
-    '/orders-filtered',
-    orderController.getAllOrders,
-)
+router.get('/orders-filtered', orderController.getAllOrders)
 
-router.delete(
-    '/master',
-    masterController.deleteMaster,
-)
+router.get('/count-orders', orderController.countOrders)
 
-router.get(
-    '/masters',
-    masterController.getMasters,
-)
+router.delete('/master', masterController.deleteMaster)
 
-router.post(
-    '/city',
-    cityController.createCity,
-)
+router.get('/masters', masterController.getMasters)
 
-router.put(
-    '/city',
-    cityController.updateCity,
-)
-router.delete(
-    '/city',
-    cityController.deleteCity,
-)
+router.get('/count-masters', masterController.countMasters)
 
-router.get(
-    '/users',
-    userController.getUsers,
-)
+router.post('/city', cityController.createCity)
 
-router.put(
-    '/user',
-    userController.updateUser,
-)
+router.get('/count-cities', cityController.countCities)
 
-router.delete(
-    '/user',
-    userController.deleteUser,
-)
+router.put('/city', cityController.updateCity)
 
-router.get(
-    '/diagrama/master',
-    orderController.getDataForMasterDiagram,
-)
+router.delete('/city', cityController.deleteCity)
 
-router.get(
-    '/diagrama/city',
-    orderController.getDataForCityDiagram,
-)
+router.get('/users', userController.getUsers)
 
-router.get(
-    '/graph/city',
-    orderController.getDataForCityGraph,
-)
+router.get('/count-users', userController.countUsers)
 
-router.get(
-    '/graph/master',
-    orderController.getDataForMasterGraph,
-)
+router.put('/user', userController.updateUser)
 
-router.get(
-    '/masters-list',
-    orderController.getDataForMasterTable,
-)
+router.delete('/user', userController.deleteUser)
+
+router.get('/diagrama/master', orderController.getDataForMasterDiagram)
+
+router.get('/diagrama/city', orderController.getDataForCityDiagram)
+
+router.get('/graph/city', orderController.getDataForCityGraph)
+
+router.get('/graph/master', orderController.getDataForMasterGraph)
+
+router.get('/masters-list', orderController.getDataForMasterTable)
 export default router

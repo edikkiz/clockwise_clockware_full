@@ -158,3 +158,10 @@ export type OrderForFeedback = {
 export type StripeUrl = {
   url: string
 }
+
+export type MasterForAdminTable = {
+  id: number
+  name: string
+  cityId: number
+  city: { name: string }
+}
