@@ -29,7 +29,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(15)
+  const [limit, setLimit] = useState<number>(0)
 
   const [modalActive, setModalActive] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string | null>()

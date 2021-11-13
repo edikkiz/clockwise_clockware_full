@@ -13,7 +13,7 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
   const [countMasters, setCountMasters] = useState<number>(0)
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(15)
+  const [limit, setLimit] = useState<number>(0)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 

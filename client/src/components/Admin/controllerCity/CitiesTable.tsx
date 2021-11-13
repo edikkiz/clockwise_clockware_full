@@ -13,7 +13,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
   const [cities, setCities] = useState<City[]>([])
   const [countCities, setCountCities] = useState<number>(0)
 
-  const [limit, setLimit] = useState<number>(15)
+  const [limit, setLimit] = useState<number>(0)
 
   const [offset, setOffset] = useState<number>(0)
 
