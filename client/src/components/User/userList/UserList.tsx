@@ -123,7 +123,7 @@ const UserList: FC<userListProps> = () => {
                       setActiveDownloadPhotos(true)
                     }}
                   >
-                    Download images
+                    Upload images
                   </button>
                 ) : (
                   `this order have images`
