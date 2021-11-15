@@ -22,13 +22,9 @@ class UserController {
             take: Number(limit),
             skip: Number(offset),
         })
-
-        res.status(200).json(users)
-    }
-
-    async countUsers(req: Request, res: Response) {
         const countUsers = await prisma.user.count()
-        res.status(200).json(countUsers)
+        const result = { total: countUsers, users: users }
+        res.status(200).json(result)
     }
 
     async createUser(req: Request, res: Response) {

@@ -11,6 +11,10 @@ import Modal from 'src/components/calendar/modal'
 import ModalAddPhotos from 'src/components/reusableСomponents/modalAddPhotos/ModalAddPhotos'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
+interface UserResult {
+  total: number
+  orders: AllOrder[]
+}
 interface userListProps {}
 const UserList: FC<userListProps> = () => {
   const { id: userId } = useParams<{ id: string }>()
@@ -22,18 +26,17 @@ const UserList: FC<userListProps> = () => {
     useState<boolean>(false)
   const [orderId, setOrderId] = useState<number>(0)
 
-  const [orders, setOrders] = useState<AllOrder[]>([])
-  const [countOrders, setCountOrders] = useState<number>(0)
+  const [orders, setOrders] = useState<UserResult>({ total: 0, orders: [] })
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     setIsLoading(true)
     const getAllOrders = async () => {
-      const { data } = await axios.get<AllOrder[]>(`/user/user-orders`, {
+      const { data } = await axios.get<UserResult>(`/user/user-orders`, {
         params: {
           userId,
           offset,
@@ -47,16 +50,6 @@ const UserList: FC<userListProps> = () => {
     getAllOrders()
     setIsLoading(false)
   }, [offset, activeDownloadPhotos, limit])
-
-  useEffect(() => {
-    const countOrdersOfUser = async () => {
-      const { data } = await axios.get('/user/count-orders', {
-        params: { id: userId },
-      })
-      setCountOrders(data)
-    }
-    countOrdersOfUser()
-  }, [])
 
   return (
     <div>
@@ -78,7 +71,7 @@ const UserList: FC<userListProps> = () => {
             <th className="table_block_id__order">images</th>
             <th className="table_block_id__order">Rate</th>
           </tr>
-          {orders.map(order => (
+          {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
               <th className="table_block_name__user-orders">{`${order.cityName}`}</th>
@@ -153,7 +146,7 @@ const UserList: FC<userListProps> = () => {
           ))}
         </table>
       </div>
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {orders.orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={feedbackActive} setActive={setFeedbackActive}>
         <div>{`feedback: ${feedbackText}`}</div>
       </Modal>
@@ -163,13 +156,13 @@ const UserList: FC<userListProps> = () => {
         filesLimit={5}
         orderId={orderId}
       ></ModalAddPhotos>
-      {countOrders && (
+      {orders.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countOrders}
+          total={orders.total}
         />
       )}
     </div>

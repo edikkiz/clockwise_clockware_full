@@ -3,27 +3,35 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  width: 97%;
+  margin: 0 auto;
 }
 
 .page-number {
   font-size: 20px;
-  margin-right: 10px;
-  border: solid;
-  border-width: 2px;
+  width: 30px;
+  height: 30px;
+  color: red;
 }
 
 .page-nav img {
-  width: 20px;
-  height: 20px;
-}
-
-.active {
-  background-color: red;
+  width: 30px;
+  height: 30px;
 }
 
 .page-nav {
-  font-size: 20px;
-  margin-right: 10px;
+  margin: 10px 0;
+  width: 30px;
+  height: 30px;
+}
+
+.page-nav {
+  margin: auto;
+}
+
+.active {
+  color: white;
+  background-color: red;
 }
 
 .label {
@@ -32,4 +40,23 @@
 
 .disabled {
   cursor: unset;
+}
+
+.pages {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.pagination-select {
+  margin-left: 30px;
+  font-size: 18px;
+  width: 70px;
+  height: 30px;
+  background: rgba(252, 237, 237, 0.979);
+}
+
+.total {
+  color: rgba(0, 0, 0, 0.5);
 }

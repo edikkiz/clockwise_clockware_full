@@ -8,12 +8,16 @@ import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
+interface CitiesResult {
+  total: number
+  cities: City[]
+}
+
 interface ControllerCityTableProps {}
 const CitiesTable: FC<ControllerCityTableProps> = () => {
-  const [cities, setCities] = useState<City[]>([])
-  const [countCities, setCountCities] = useState<number>(0)
+  const [cities, setCities] = useState<CitiesResult>({ total: 0, cities: [] })
 
-  const [limit, setLimit] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [offset, setOffset] = useState<number>(0)
 
@@ -24,7 +28,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
   const getCitiesList = useCallback(() => {
     setIsLoading(true)
     const getCities = async () => {
-      const { data } = await axios.get<City[]>('/city', {
+      const { data } = await axios.get<CitiesResult>('/city', {
         params: {
           limit,
           offset,
@@ -40,14 +44,6 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
     getCitiesList()
   }, [getCitiesList])
 
-  useEffect(() => {
-    const countCities = async () => {
-      const { data } = await axios.get('/admin/count-cities')
-      setCountCities(data)
-    }
-    countCities()
-  })
-
   const onSubmitDelete = useCallback(
     (deleteId: number) => {
       setIsLoading(true)
@@ -59,18 +55,18 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
             },
           })
           .then(() => {
-            const localCopy = [...cities]
-            const deleteIndex = localCopy.findIndex(
+            const localCopy = cities
+            const deleteIndex = localCopy.cities.findIndex(
               elem => elem.id === deleteId,
             )
-            localCopy.splice(deleteIndex, 1)
+            localCopy.cities.splice(deleteIndex, 1)
             setCities(localCopy)
             setIsLoading(false)
             addToast('city deleted', { appearance: 'success' })
 
             setIsLoading(true)
             const getCities = async () => {
-              const { data } = await axios.get<City[]>('/city', {
+              const { data } = await axios.get<CitiesResult>('/city', {
                 params: {
                   limit,
                   offset,
@@ -116,7 +112,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
             <th className="table_link__city">+</th>
           </Link>
         </tr>
-        {cities.map(({ id, name }) => (
+        {cities.cities.map(({ id, name }) => (
           <tr>
             <th className="table_block_id__city">{`${id}`}</th>
             <th className="table_block_name__city">{`${name}`}</th>
@@ -137,14 +133,14 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
           </tr>
         ))}
       </table>
-      {cities.length === 0 && <div>Dont have more cities</div>}
-      {countCities !== 0 && (
+      {cities.cities.length === 0 && <div>Dont have more cities</div>}
+      {cities.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countCities}
+          total={cities.total}
         />
       )}
     </div>

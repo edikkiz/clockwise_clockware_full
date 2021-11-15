@@ -27,16 +27,13 @@ class MasterController {
                     city: { select: { name: true } },
                 },
             })
-            res.status(200).json(masters)
+            const countAllMasters = await prisma.master.count()
+            const result = { total: countAllMasters, masters: masters }
+            res.status(200).json(result)
         } else {
             const masters = await prisma.master.findMany()
             res.status(200).json(masters)
         }
-    }
-
-    async countMasters(req: Request, res: Response) {
-        const countAllMasters = await prisma.master.count()
-        res.status(200).json(countAllMasters)
     }
 
     async getFreeMasters(req: Request, res: Response) {

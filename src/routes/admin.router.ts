@@ -12,25 +12,17 @@ router.delete('/delete-order', orderController.deleteOrder)
 
 router.get('/orders-filtered', orderController.getAllOrders)
 
-router.get('/count-orders', orderController.countOrders)
-
 router.delete('/master', masterController.deleteMaster)
 
 router.get('/masters', masterController.getMasters)
 
-router.get('/count-masters', masterController.countMasters)
-
 router.post('/city', cityController.createCity)
-
-router.get('/count-cities', cityController.countCities)
 
 router.put('/city', cityController.updateCity)
 
 router.delete('/city', cityController.deleteCity)
 
 router.get('/users', userController.getUsers)
-
-router.get('/count-users', userController.countUsers)
 
 router.put('/user', userController.updateUser)
 

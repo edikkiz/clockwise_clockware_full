@@ -18,7 +18,11 @@ const options = {
   minute: 'numeric',
 }
 
-const limit = 10
+interface MastersResult {
+  total: number
+  orders: AllOrder[]
+}
+
 interface masterWorkListProps {}
 const MasterWorkList: FC<masterWorkListProps> = () => {
   const { masterId } = useParams<{ masterId: string }>()
@@ -26,11 +30,10 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   const [modalActive, setModalActive] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string>()
 
-  const [orders, setOrders] = useState<AllOrder[]>([])
-  const [countOrders, setCountOrders] = useState<number>(0)
+  const [orders, setOrders] = useState<MastersResult>({ total: 0, orders: [] })
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -39,7 +42,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getAllOrders = async () => {
-      const { data } = await axios.get<AllOrder[]>(`/master/master-orders`, {
+      const { data } = await axios.get<MastersResult>(`/master/master-orders`, {
         params: {
           masterId,
           offset,
@@ -53,18 +56,6 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     getAllOrders()
   }, [offset, limit])
 
-  useEffect(() => {
-    const countOrders = async () => {
-      const { data } = await axios.get('/master/count-orders', {
-        params: {
-          id: masterId,
-        },
-      })
-      setCountOrders(data)
-    }
-    countOrders()
-  }, [])
-
   const changeStatus = (id: number, email: string) => {
     if (window.confirm(`confirm change status in order: ${id}`)) {
       setIsLoading(true)
@@ -74,7 +65,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           email: email,
         })
         .then(async () => {
-          const { data } = await axios.get<AllOrder[]>(
+          const { data } = await axios.get<MastersResult>(
             `/master/master-orders`,
             {
               params: {
@@ -120,7 +111,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
               change order status
             </th>
           </tr>
-          {orders.map(order => (
+          {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
               <th className="table_block_name__master-orders">{`${order.userName}`}</th>
@@ -196,17 +187,17 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           ))}
         </table>
       </div>
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {orders.orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
-      {countOrders && (
+      {orders.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countOrders}
+          total={orders.total}
         />
       )}
     </div>

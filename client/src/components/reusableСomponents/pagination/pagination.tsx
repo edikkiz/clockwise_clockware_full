@@ -1,9 +1,10 @@
-import { FC, useEffect, useState } from 'react'
+import { FC } from 'react'
 import './pagination-module.css'
-import nextPage from './img/3916907.svg'
-import previousPage from './img/3916912.svg'
+import nextPage from './img/3916869.svg'
+import previousPage from './img/3916892.svg'
 import lastPage from './img/3916777.svg'
 import firstPage from './img/3916770.svg'
+
 interface PaginationProps {
   offset: number
   setOffset: React.Dispatch<React.SetStateAction<number>>
@@ -11,6 +12,7 @@ interface PaginationProps {
   setLimit: React.Dispatch<React.SetStateAction<number>>
   total: number
 }
+
 const Pagination: FC<PaginationProps> = ({
   offset,
   setOffset,
@@ -18,85 +20,78 @@ const Pagination: FC<PaginationProps> = ({
   setLimit,
   total,
 }) => {
-  const [pagesCount, setPagesCount] = useState<number[]>([])
-
-  const [selectedPage, setSelectedPage] = useState<number>(1)
-
-  useEffect(() => {
-    const localPagesCount: number[] = []
-    for (let i = 1; i <= Math.ceil(total / limit); i++) {
-      localPagesCount.push(i)
-    }
-    setPagesCount(localPagesCount)
-  }, [limit])
+  const page = (num: number) =>
+    Math.ceil(total / limit) >= num && (
+      <button
+        className={
+          (offset + limit) / limit === num
+            ? 'page-number active'
+            : 'page-number'
+        }
+        onClick={() => setOffset((num - 1) * limit)}
+      >
+        {num}
+      </button>
+    )
 
   return (
     <div className="pagination">
-      <div>
+      <div className="pages">
         <button
           className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
-          disabled={offset === 0 && true}
-          onClick={() => {
-            setSelectedPage(1)
-            setOffset(0)
-          }}
+          disabled={offset === 0}
+          onClick={() => setOffset(0)}
         >
           <img src={firstPage} />
         </button>
         <button
           className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
-          onClick={() => {
-            setSelectedPage(selectedPage - 1)
-            offset !== 0 && setOffset(offset - limit)
-          }}
-          disabled={offset === 0 && true}
+          onClick={() => offset !== 0 && setOffset(offset - limit)}
+          disabled={offset === 0}
         >
           <img src={previousPage} />
         </button>
 
-        {pagesCount.map(
-          number =>
-            selectedPage + 7 >= number &&
-            selectedPage - 3 <= number && (
-              <button
-                className={
-                  selectedPage === number ? 'page-number active' : 'page-number'
-                }
-                onClick={() => {
-                  setSelectedPage(number)
-                  setOffset((number - 1) * limit)
-                }}
-              >
-                {number}
-              </button>
-            ),
+        {(offset + limit) / limit > 3 && page((offset + limit) / limit - 3)}
+        {(offset + limit) / limit > 2 && page((offset + limit) / limit - 2)}
+        {(offset + limit) / limit > 1 && page((offset + limit) / limit - 1)}
+        {page((offset + limit) / limit)}
+        {page((offset + limit) / limit + 1)}
+        {page((offset + limit) / limit + 2)}
+        {page((offset + limit) / limit + 3)}
+        {page((offset + limit) / limit + 4)}
+        {page((offset + limit) / limit + 5)}
+        {page((offset + limit) / limit + 6)}
+        {page((offset + limit) / limit + 7)}
+
+        {Math.ceil(total / limit) >= (offset + limit) / limit + 8 && (
+          <button
+            onClick={() => setOffset(((offset + limit) / limit + 7) * limit)}
+          >
+            ...
+          </button>
         )}
+
         <button
-          className={offset + limit <= total ? 'page-nav' : 'page-nav disabled'}
-          onClick={() => {
-            setSelectedPage(selectedPage + 1)
-            setOffset(offset + limit)
-          }}
-          disabled={offset + limit >= total && true}
+          className={offset + limit < total ? 'page-nav' : 'page-nav disabled'}
+          onClick={() => setOffset(offset + limit)}
+          disabled={offset + limit > total}
         >
           <img src={nextPage} />
         </button>
         <button
-          className={offset + limit <= total ? 'page-nav' : 'page-nav disabled'}
-          onClick={() => {
-            setSelectedPage(pagesCount.length)
-            setOffset((pagesCount.length - 1) * limit)
-          }}
-          disabled={offset + limit >= total && true}
+          className={offset + limit < total ? 'page-nav' : 'page-nav disabled'}
+          onClick={() => setOffset(Math.ceil(total / limit) * limit - limit)}
+          disabled={offset + limit > total}
         >
           <img src={lastPage} />
         </button>
 
         <select
+          className="pagination-select"
           onChange={event => {
             setOffset(0)
             setLimit(+event.currentTarget.value)
-            setSelectedPage(1)
           }}
         >
           <option selected value={15}>
@@ -108,9 +103,9 @@ const Pagination: FC<PaginationProps> = ({
         <label className="label">items per page</label>
       </div>
       <div>
-        <div>
-          {offset === 0 ? 1 : offset}-
-          {offset + limit > total ? total : offset + limit} of {total} items
+        <div className="total">
+          {offset + 1}-{offset + limit > total ? total : offset + limit}
+          of {total} items
         </div>
       </div>
     </div>

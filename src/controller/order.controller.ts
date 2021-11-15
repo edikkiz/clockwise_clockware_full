@@ -137,52 +137,35 @@ class OrderController {
                 },
             },
         })
-        res.status(200).json(Orders)
-    }
-
-    async countOrders(req: Request, res: Response) {
-        const countAllOrders = await prisma.order.count({
-            where: { active: true },
-        })
-        res.status(200).json(countAllOrders)
-    }
-
-    async countOrdersOfMaster(req: Request, res: Response) {
-        const { id } = req.query
-        const master = await prisma.master.findUnique({
+        const countOrders = await prisma.order.count({
             where: {
-                id: Number(id),
+                active: true,
+                AND: [
+                    {
+                        cityId: cityId ? Number(cityId) : undefined,
+                    },
+                    {
+                        masterId: masterId ? Number(masterId) : undefined,
+                    },
+                    {
+                        clockSizeId: clockSizeId
+                            ? Number(clockSizeId)
+                            : undefined,
+                    },
+                    {
+                        status: status ? status : undefined,
+                    },
+                    {
+                        startAt: start ? { gte: filterStartAt } : undefined,
+                    },
+                    {
+                        endAt: end ? { lte: filterEndAt } : undefined,
+                    },
+                ],
             },
         })
-        if (!master) {
-            res.status(400).json({
-                message: `Master with that Id does not exist`,
-            })
-        } else {
-            const countOrdersOfMaster = await prisma.order.count({
-                where: { masterId: Number(id) },
-            })
-            res.status(200).json(countOrdersOfMaster)
-        }
-    }
-
-    async countOrdersOfUsers(req: Request, res: Response) {
-        const { id } = req.query
-        const user = await prisma.user.findUnique({
-            where: {
-                id: Number(id),
-            },
-        })
-        if (!user) {
-            res.status(400).json({
-                message: `User with that Id does not exist`,
-            })
-        } else {
-            const countOrdersOfUser = await prisma.order.count({
-                where: { userId: Number(id) },
-            })
-            res.status(200).json(countOrdersOfUser)
-        }
+        const result = { total: countOrders, orders: Orders }
+        res.status(200).json(result)
     }
 
     async getAllOrdersToTheMasterTable(req: Request, res: Response) {
@@ -218,7 +201,11 @@ class OrderController {
                     ORDER BY orders.id DESC 
                     LIMIT ${Number(limit)} 
                     OFFSET ${Number(offset)}`
-            res.status(200).json(orderListForOneMaster)
+            const countOrders = await prisma.order.count({
+                where: { masterId: Number(masterId) },
+            })
+            const result = { total: countOrders, orders: orderListForOneMaster }
+            res.status(200).json(result)
         } else {
             const { masterId } = req.query
             const orderListForOneMaster =
@@ -280,7 +267,11 @@ class OrderController {
                 ORDER BY orders.id DESC 
                 LIMIT ${Number(limit)} 
                 OFFSET ${Number(offset)}`
-        res.status(200).json(orderListForOneUser)
+        const countOrders = await prisma.order.count({
+            where: { userId: Number(userId) },
+        })
+        const result = { total: countOrders, orders: orderListForOneUser }
+        res.status(200).json(result)
     }
 
     async createOrder(

@@ -15,10 +15,14 @@ import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect
 import Modal from 'src/components/calendar/modal'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
+interface OrdersResult {
+  total: number
+  orders: OrderForTable[]
+}
+
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
-  const [orders, setOrders] = useState<OrderForTable[]>([])
-  const [countOrders, setCountOrders] = useState<number>(0)
+  const [orders, setOrders] = useState<OrdersResult>({ total: 0, orders: [] })
 
   const [cityFilter, setCityFilter] = useState<number | null>(null)
   const [masterFilter, setMasterFilter] = useState<number | null>(null)
@@ -29,7 +33,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [filterEnd, setFilterEnd] = useState<string>('')
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [modalActive, setModalActive] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string | null>()
@@ -40,21 +44,18 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const filtered = async () => {
     setIsLoading(true)
-    const { data } = await axios.get<OrderForTable[]>(
-      '/admin/orders-filtered',
-      {
-        params: {
-          offset: offset,
-          limit: limit,
-          cityId: cityFilter,
-          masterId: masterFilter,
-          clockSizeId: clockSizeFilter,
-          status: statusFilter,
-          start: filterStart,
-          end: filterEnd,
-        },
+    const { data } = await axios.get<OrdersResult>('/admin/orders-filtered', {
+      params: {
+        offset: offset,
+        limit: limit,
+        cityId: cityFilter,
+        masterId: masterFilter,
+        clockSizeId: clockSizeFilter,
+        status: statusFilter,
+        start: filterStart,
+        end: filterEnd,
       },
-    )
+    })
     setOrders(data)
     setIsLoading(false)
   }
@@ -62,14 +63,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   useEffect(() => {
     filtered()
   }, [offset, limit])
-
-  useEffect(() => {
-    const countAllOrders = async () => {
-      const { data } = await axios.get(`/admin/count-orders`)
-      setCountOrders(data)
-    }
-    countAllOrders()
-  }, [])
 
   const onSubmitDelete = useCallback(
     (id: number) => {
@@ -82,21 +75,29 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
             },
           })
           .then(() => {
-            const localCopy = [...orders]
-            const deleteIndex = localCopy.findIndex(elem => elem.id === id)
-            localCopy.splice(deleteIndex, 1)
+            const localCopy = orders
+            const deleteIndex = localCopy.orders.findIndex(
+              elem => elem.id === id,
+            )
+            localCopy.orders.splice(deleteIndex, 1)
             setOrders(localCopy)
             setIsLoading(false)
             addToast('order deleted', { appearance: 'success' })
             setIsLoading(true)
 
             const getAllOrders = async () => {
-              const { data } = await axios.get<OrderForTable[]>(
+              const { data } = await axios.get<OrdersResult>(
                 `/admin/orders-filtered`,
                 {
                   params: {
-                    offset,
-                    limit,
+                    offset: offset,
+                    limit: limit,
+                    cityId: cityFilter,
+                    masterId: masterFilter,
+                    clockSizeId: clockSizeFilter,
+                    status: statusFilter,
+                    start: filterStart,
+                    end: filterEnd,
                   },
                 },
               )
@@ -144,7 +145,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
             <th className="table_block_name__order">status</th>
             <th className="link_create__order">update / delete</th>
           </tr>
-          {orders.map(order => (
+          {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
               <th className="table_block_name__order">{`${order.user.name}`}</th>
@@ -231,17 +232,17 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         </table>
       </div>
 
-      {!orders.length && <div>Dont have more orders</div>}
+      {!orders.orders.length && <div>Dont have more orders</div>}
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
-      {countOrders && (
+      {orders.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countOrders}
+          total={orders.total}
         />
       )}
     </div>

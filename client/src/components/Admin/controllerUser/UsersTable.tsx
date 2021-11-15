@@ -8,10 +8,14 @@ import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
+interface UsersResult {
+  total: number
+  users: User[]
+}
+
 interface ControllerUserTableProps {}
 const UsersTable: FC<ControllerUserTableProps> = () => {
-  const [users, setUsers] = useState<User[]>([])
-  const [countUsers, setCountUsers] = useState<number>(0)
+  const [users, setUsers] = useState<UsersResult>({ total: 0, users: [] })
 
   const [offset, setOffset] = useState<number>(0)
   const [limit, setLimit] = useState<number>(0)
@@ -23,7 +27,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
   const getUsersList = useCallback(() => {
     setIsLoading(true)
     const getUsers = async () => {
-      const { data } = await axios.get('/admin/users', {
+      const { data } = await axios.get<UsersResult>('/admin/users', {
         params: {
           limit,
           offset,
@@ -39,28 +43,22 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
     getUsersList()
   }, [getUsersList])
 
-  useEffect(() => {
-    const countUsers = async () => {
-      const { data } = await axios.get('/admin/count-users')
-      setCountUsers(data)
-    }
-    countUsers()
-  }, [])
-
   const onSubmitDelete = useCallback(
     (id: number) => {
       setIsLoading(true)
       if (window.confirm('confirm deletion of the selected order')) {
         axios
-          .delete<User[]>(`/admin/user`, {
+          .delete(`/admin/user`, {
             data: {
               id: +id,
             },
           })
           .then(() => {
-            const localCopy = [...users]
-            const deleteIndex = localCopy.findIndex(elem => elem.id === id)
-            localCopy.splice(deleteIndex, 1)
+            const localCopy = users
+            const deleteIndex = localCopy.users.findIndex(
+              elem => elem.id === id,
+            )
+            localCopy.users.splice(deleteIndex, 1)
 
             setUsers(localCopy)
             setIsLoading(false)
@@ -97,7 +95,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
             <th className="table_block_name__user">email</th>
             <th className="link_create__user">update / delete</th>
           </tr>
-          {users.map(({ id, name, email }) => (
+          {users.users.map(({ id, name, email }) => (
             <tr>
               <th className="table_block_id__user">{`${id}`}</th>
               <th className="table_block_name__user">{`${name}`}</th>
@@ -120,14 +118,14 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
           ))}
         </table>
       </div>
-      {users.length === 0 && <div>Dont have more orders</div>}
-      {countUsers && (
+      {users.users.length === 0 && <div>Dont have more orders</div>}
+      {users && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countUsers}
+          total={users.total}
         />
       )}
     </div>

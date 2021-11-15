@@ -18,16 +18,13 @@ class CityController {
                 skip: Number(offset),
                 take: Number(limit),
             })
-            res.status(200).json(cities)
+            const countAllCities = await prisma.city.count()
+            const result = { total: countAllCities, cities: cities }
+            res.status(200).json(result)
         } else {
             const cities = await prisma.city.findMany()
             res.status(200).json(cities)
         }
-    }
-
-    async countCities(req: Request, res: Response) {
-        const countAllCities = await prisma.city.count()
-        res.status(200).json(countAllCities)
     }
 
     async createCity(req: Request, res: Response) {
