@@ -16,6 +16,8 @@ router.delete('/master', masterController.deleteMaster)
 
 router.get('/masters', masterController.getMasters)
 
+router.get('/all-masters', masterController.getAllMasters)
+
 router.post('/city', cityController.createCity)
 
 router.put('/city', cityController.updateCity)

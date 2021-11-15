@@ -29,17 +29,13 @@
   margin: auto;
 }
 
-.active {
+.activePage {
   color: white;
   background-color: red;
 }
 
 .label {
   margin-left: 10px;
-}
-
-.disabled {
-  cursor: unset;
 }
 
 .pages {
@@ -59,4 +55,8 @@
 
 .total {
   color: rgba(0, 0, 0, 0.5);
+}
+
+.page-nav:disabled {
+  cursor: unset;
 }

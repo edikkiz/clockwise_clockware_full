@@ -74,9 +74,9 @@ const UserList: FC<userListProps> = () => {
           {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
-              <th className="table_block_name__user-orders">{`${order.cityName}`}</th>
-              <th className="table_block_name__user-orders">{`${order.size}`}</th>
-              <th className="table_block_name__user-orders">{`${order.masterName}`}</th>
+              <th className="table_block_name__user-orders">{`${order.city.name}`}</th>
+              <th className="table_block_name__user-orders">{`${order.clockSize.name}`}</th>
+              <th className="table_block_name__user-orders">{`${order.master.name}`}</th>
               <th className="table_block_name__user-orders">{`${format(
                 new Date(order.startAt),
                 'yyyy-MM-dd HH:mm',

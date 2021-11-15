@@ -58,6 +58,10 @@ export const allOrdersToTheMasterSchema = z.object({
     masterId: z.string(),
 })
 
+export const allOrdersToTheMasterCalendarSchema = z.object({
+    masterId: z.string(),
+})
+
 export const allOrdersToTheUserSchema = z.object({
     limit: z.string(),
     offset: z.string(),

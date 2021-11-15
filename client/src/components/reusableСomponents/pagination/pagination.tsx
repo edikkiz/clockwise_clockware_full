@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 import './pagination-module.css'
 import nextPage from './img/3916869.svg'
 import previousPage from './img/3916892.svg'
@@ -13,6 +13,8 @@ interface PaginationProps {
   total: number
 }
 
+const pagesBeforeCurrentPage = 5
+const pagesAfterCurrentPage = 8
 const Pagination: FC<PaginationProps> = ({
   offset,
   setOffset,
@@ -20,49 +22,54 @@ const Pagination: FC<PaginationProps> = ({
   setLimit,
   total,
 }) => {
-  const page = (num: number) =>
-    Math.ceil(total / limit) >= num && (
-      <button
-        className={
-          (offset + limit) / limit === num
-            ? 'page-number active'
-            : 'page-number'
-        }
-        onClick={() => setOffset((num - 1) * limit)}
-      >
-        {num}
-      </button>
-    )
+  const [pages, setPages] = useState<JSX.Element[]>([])
+
+  useEffect(() => {
+    const result = []
+    for (
+      let i = (offset + limit) / limit - pagesBeforeCurrentPage;
+      i <= (offset + limit) / limit + pagesAfterCurrentPage;
+      i++
+    ) {
+      if (i > 0 && Math.ceil(total / limit) >= i) {
+        result.push(
+          <button
+            className={
+              (offset + limit) / limit === i
+                ? 'page-number activePage'
+                : 'page-number'
+            }
+            onClick={() => setOffset((i - 1) * limit)}
+          >
+            {i}
+          </button>,
+        )
+      }
+      setPages(result)
+    }
+  }, [limit, offset])
 
   return (
     <div className="pagination">
       <div className="pages">
         <button
-          className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
+          className="page-nav"
           disabled={offset === 0}
           onClick={() => setOffset(0)}
         >
           <img src={firstPage} />
         </button>
         <button
-          className={offset !== 0 ? 'page-nav' : 'page-nav disabled'}
+          className="page-nav"
           onClick={() => offset !== 0 && setOffset(offset - limit)}
           disabled={offset === 0}
         >
           <img src={previousPage} />
         </button>
 
-        {(offset + limit) / limit > 3 && page((offset + limit) / limit - 3)}
-        {(offset + limit) / limit > 2 && page((offset + limit) / limit - 2)}
-        {(offset + limit) / limit > 1 && page((offset + limit) / limit - 1)}
-        {page((offset + limit) / limit)}
-        {page((offset + limit) / limit + 1)}
-        {page((offset + limit) / limit + 2)}
-        {page((offset + limit) / limit + 3)}
-        {page((offset + limit) / limit + 4)}
-        {page((offset + limit) / limit + 5)}
-        {page((offset + limit) / limit + 6)}
-        {page((offset + limit) / limit + 7)}
+        {pages.map(elem => (
+          <div>{elem}</div>
+        ))}
 
         {Math.ceil(total / limit) >= (offset + limit) / limit + 8 && (
           <button
@@ -73,14 +80,14 @@ const Pagination: FC<PaginationProps> = ({
         )}
 
         <button
-          className={offset + limit < total ? 'page-nav' : 'page-nav disabled'}
+          className="page-nav"
           onClick={() => setOffset(offset + limit)}
           disabled={offset + limit > total}
         >
           <img src={nextPage} />
         </button>
         <button
-          className={offset + limit < total ? 'page-nav' : 'page-nav disabled'}
+          className="page-nav"
           onClick={() => setOffset(Math.ceil(total / limit) * limit - limit)}
           disabled={offset + limit > total}
         >

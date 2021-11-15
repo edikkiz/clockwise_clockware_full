@@ -15,25 +15,28 @@ const prisma = new PrismaClient()
 class MasterController {
     async getMasters(req: Request, res: Response) {
         const params = getMastersSchema.safeParse(req.query)
-        if (params.success) {
-            const { limit, offset } = params.data
-            const masters = await prisma.master.findMany({
-                skip: Number(offset),
-                take: Number(limit),
-                select: {
-                    id: true,
-                    name: true,
-                    cityId: true,
-                    city: { select: { name: true } },
-                },
-            })
-            const countAllMasters = await prisma.master.count()
-            const result = { total: countAllMasters, masters: masters }
-            res.status(200).json(result)
-        } else {
-            const masters = await prisma.master.findMany()
-            res.status(200).json(masters)
+        if (!params.success) {
+            return
         }
+        const { limit, offset } = params.data
+        const masters = await prisma.master.findMany({
+            skip: Number(offset),
+            take: Number(limit),
+            select: {
+                id: true,
+                name: true,
+                cityId: true,
+                city: { select: { name: true } },
+            },
+        })
+        const countAllMasters = await prisma.master.count()
+        const result = { total: countAllMasters, masters: masters }
+        res.status(200).json(result)
+    }
+
+    async getAllMasters(req: Request, res: Response) {
+        const masters = await prisma.master.findMany()
+        res.status(200).json(masters)
     }
 
     async getFreeMasters(req: Request, res: Response) {

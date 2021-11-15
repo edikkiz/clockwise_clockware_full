@@ -114,11 +114,11 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
-              <th className="table_block_name__master-orders">{`${order.userName}`}</th>
-              <th className="table_block_name__master-orders">{`${order.userEmail}`}</th>
-              <th className="table_block_name__master-orders">{`${order.cityName}`}</th>
-              <th className="table_block_name__master-orders">{`${order.size}`}</th>
-              <th className="table_block_name__master-orders">{`${order.masterName}`}</th>
+              <th className="table_block_name__master-orders">{`${order.user.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.user.email}`}</th>
+              <th className="table_block_name__master-orders">{`${order.city.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.clockSize.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.master.name}`}</th>
               <th className="table_block_name__master-orders">{`${format(
                 new Date(order.startAt),
                 'yyyy-MM-dd HH:mm',
@@ -167,7 +167,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 <th className="table_link">
                   <button
                     type="button"
-                    onClick={() => changeStatus(order.id, order.email)}
+                    onClick={() => changeStatus(order.id, order.user.email)}
                     className="link_update__master"
                   >
                     Сlick here to set the status completed

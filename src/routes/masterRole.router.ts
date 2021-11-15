@@ -7,4 +7,6 @@ router.put('/change-status', orderController.updateOrderStatus)
 
 router.get('/master-orders', orderController.getAllOrdersToTheMasterTable)
 
+router.get('/master-calendar', orderController.getAllOrdersToTheMasterCalendar)
+
 export default router
