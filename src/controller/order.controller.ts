@@ -16,6 +16,7 @@ import {
     dataForMasterGraphSchema,
     dataForMasterTableSchema,
     orderFeedbackSchema,
+    addPhotoInOrderSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
@@ -321,7 +322,11 @@ class OrderController {
     }
 
     async addPhotoInOrder(req: Request, res: Response) {
-        const { images, orderId } = req.body
+        const params = addPhotoInOrderSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { images, orderId } = params.data
 
         if (images) {
             const imagesUrls = (
@@ -417,48 +422,39 @@ class OrderController {
         }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
-        } else {
-            const user = await prisma.user.findUnique({
-                where: { id: Number(userId) },
-            })
-            const clockInfo = await prisma.clockSize.findUnique({
+        }
+        if (clockSize) {
+            const workTime = clockSize.timeToDone
+            const d = new Date(`${startAt}`)
+            d.setHours(d.getHours() + workTime)
+            const newOrderEndAt = d.toISOString()
+            const newOrderStartAt = new Date(`${startAt}`)
+
+            const upOrder = await prisma.order.update({
                 where: {
-                    id: clockSizeId,
+                    id: Number(id),
+                },
+                data: {
+                    userId: Number(userId),
+                    masterId: Number(masterId),
+                    cityId: Number(cityId),
+                    clockSizeId: Number(clockSizeId),
+                    price: Number(price),
+                    startAt: newOrderStartAt,
+                    endAt: newOrderEndAt,
+                    status: status,
                 },
             })
-            if (clockInfo) {
-                const workTime = clockInfo.timeToDone
-                const d = new Date(`${startAt}`)
-                d.setHours(d.getHours() + workTime)
-                const newOrderEndAt = d.toISOString()
-                const newOrderStartAt = new Date(`${startAt}`)
+            status === 'Completed' &&
+                user?.email &&
+                (await sendMail(
+                    user.email,
+                    'your order now has a status completed',
+                    'your order now has a status completed',
+                    `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                ))
 
-                const upOrder = await prisma.order.update({
-                    where: {
-                        id: Number(id),
-                    },
-                    data: {
-                        userId: Number(userId),
-                        masterId: Number(masterId),
-                        cityId: Number(cityId),
-                        clockSizeId: Number(clockSizeId),
-                        price: Number(price),
-                        startAt: newOrderStartAt,
-                        endAt: newOrderEndAt,
-                        status: status,
-                    },
-                })
-                status === 'Completed' &&
-                    user?.email &&
-                    (await sendMail(
-                        user.email,
-                        'your order now has a status completed',
-                        'your order now has a status completed',
-                        `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                    ))
-
-                res.status(201).json(upOrder)
-            }
+            res.status(201).json(upOrder)
         }
     }
 

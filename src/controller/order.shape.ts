@@ -1,15 +1,26 @@
 import { OrderStatus } from '.prisma/client'
 import { z } from 'zod'
 
-export const createOrderSchema = z.object({
-    cityId: z.number().int().nonnegative(),
-    masterId: z.number().int().nonnegative(),
-    clockSizeId: z.number().int().nonnegative(),
-    startAt: z.string(),
-    endAt: z.string(),
-    name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
-    email: z.string().email(),
-})
+export const createOrderSchema = z
+    .object({
+        cityId: z.number().int().nonnegative(),
+        masterId: z.number().int().nonnegative(),
+        clockSizeId: z.number().int().nonnegative(),
+        startAt: z.string(),
+        endAt: z.string(),
+        name: z.string().regex(/^[A-Za-zА-Яа-яёЁЇїІіЄєҐґ ]*$/),
+        email: z.string().email(),
+    })
+    .refine(
+        ({ startAt }) =>
+            new Date(startAt).getMinutes() === 0 ||
+            new Date(startAt).getSeconds() === 0 ||
+            new Date(startAt).getMilliseconds() === 0 ||
+            new Date(startAt) < new Date(),
+        {
+            message: 'Invalid date or time',
+        },
+    )
 
 export const updateOrderSchema = z.object({
     id: z.number().int().nonnegative(),
@@ -86,4 +97,9 @@ export const orderFeedbackSchema = z.object({
     id: z.number(),
     feedbackToken: z.string(),
     feedbackDate: z.string(),
+})
+
+export const addPhotoInOrderSchema = z.object({
+    images: z.array(z.string()),
+    orderId: z.number(),
 })

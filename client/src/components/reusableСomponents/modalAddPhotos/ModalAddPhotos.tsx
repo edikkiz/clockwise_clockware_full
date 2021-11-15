@@ -24,16 +24,19 @@ const ModalAddPhotos: FC<ModalAddPhotosProps> = ({
   const { addToast } = useToasts()
 
   useEffect(() => {
-    if (active === false) {
-      setFiles([])
-    }
     if (files.length > filesLimit) {
       setFiles([])
       addToast('max 5 files', { appearance: 'error' })
     } else {
       return
     }
-  }, [active, files])
+  }, [files])
+
+  useEffect(() => {
+    if (active === false) {
+      setFiles([])
+    }
+  }, [active])
 
   const addPhotos = async () => {
     setIsLoading(true)
@@ -61,7 +64,11 @@ const ModalAddPhotos: FC<ModalAddPhotosProps> = ({
       >
         {active === true ? (
           <div>
-            <FileInput files={files} setFiles={setFiles} filesLimit={filesLimit} />
+            <FileInput
+              files={files}
+              setFiles={setFiles}
+              filesLimit={filesLimit}
+            />
             <button className="wrapper_form__button" onClick={addPhotos}>
               Add photos
             </button>
