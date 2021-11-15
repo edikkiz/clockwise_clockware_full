@@ -73,26 +73,25 @@ class UserController {
         }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
-        } else {
-            const userForUpdate = await prisma.user.update({
-                where: {
-                    id: Number(id),
-                },
-                data: {
-                    name: name,
-                    email: email,
-                },
-            })
-            await prisma.person.update({
-                where: {
-                    id: Number(userForUpdate?.personId),
-                },
-                data: {
-                    email: email,
-                },
-            })
-            res.status(201).json()
         }
+        const userForUpdate = await prisma.user.update({
+            where: {
+                id: Number(id),
+            },
+            data: {
+                name: name,
+                email: email,
+            },
+        })
+        await prisma.person.update({
+            where: {
+                id: Number(userForUpdate?.personId),
+            },
+            data: {
+                email: email,
+            },
+        })
+        res.status(201).json()
     }
 
     async deleteUser(req: Request, res: Response) {

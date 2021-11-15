@@ -38,9 +38,7 @@ function App() {
 
           <PrivateRoute path="/admin/charts" component={OrderCharts} />
 
-          <Route path="/calendar/:masterId?" exact>
-            <Calendar />
-          </Route>
+          <Route path="/calendar/:masterId?" exact>  <Calendar /> </Route>
 
           <Route path="/rate/:feedbackToken">
             <Header /> <RateMaster />

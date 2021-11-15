@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { PrismaClient, Prisma } from '@prisma/client'
 import { Request, Response } from 'express'
 import {
-    createOrderSchema,
     updateOrderSchema,
     deleteOrderSchema,
     orderByFeedbackTokenSchema,
@@ -17,13 +16,13 @@ import {
     dataForMasterGraphSchema,
     dataForMasterTableSchema,
     orderFeedbackSchema,
+    addPhotoInOrderSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
-import { format, startOfDay, endOfDay } from 'date-fns'
+import { startOfDay, endOfDay } from 'date-fns'
+import Stripe from 'stripe'
 
-const date = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
-const corDate = new Date(`${date}`)
 const prisma = new PrismaClient()
 
 class OrderController {
@@ -208,6 +207,7 @@ class OrderController {
         const { offset, limit, userId } = req.query
         const orderListForOneUser =
             await prisma.$queryRaw`SELECT orders."feedbackToken" AS "feedbackToken", 
+                orders.images,
                 orders.id, 
                 orders.status, 
                 orders.feedback, 
@@ -237,120 +237,113 @@ class OrderController {
                 OFFSET ${Number(offset)}`
         res.status(200).json(orderListForOneUser)
     }
-    async createOrder(req: Request, res: Response) {
-        const params = createOrderSchema.safeParse(req.body)
-        if (!params.success) {
-            return
-        }
-        const { masterId, cityId, clockSizeId, startAt, endAt, name, email } =
-            params.data
-        const validationErrors = []
-        const date = new Date(`${startAt}`)
-        const master = await prisma.master.findUnique({
-            where: { id: Number(masterId) },
-        })
-        const city = await prisma.city.findUnique({
-            where: { id: Number(cityId) },
-        })
-        const clockSize = await prisma.clockSize.findUnique({
-            where: { id: Number(clockSizeId) },
-        })
 
-        if (!master) {
-            validationErrors.push(`Master with id: ${masterId} is not exsisted`)
-        }
-        if (!city) {
-            validationErrors.push(`City with id: ${cityId} is not exsisted`)
-        }
-        if (!clockSize) {
-            validationErrors.push(
-                `Clock size with id: ${clockSizeId} is not exsisted`,
-            )
-        }
-        if (
-            date.getMinutes() !== 0 ||
-            date.getSeconds() !== 0 ||
-            date.getMilliseconds() !== 0 ||
-            date < corDate
-        ) {
-            validationErrors.push('Invalid date or time')
-        }
-        if (validationErrors.length) {
-            res.status(400).json(validationErrors)
-        } else {
-            const fileStr = req.body.images
+    async createOrder(
+        data: Stripe.Response<Stripe.Checkout.Session>,
+        res: Response,
+    ) {
+        if (data.metadata) {
+            const {
+                masterId,
+                cityId,
+                clockSizeId,
+                startAt,
+                endAt,
+                name,
+                email,
+            } = data.metadata
 
-            const imagesUrls: string[] = (
-                await Promise.all<cloudinary.UploadApiResponse>(
-                    fileStr.map((image: string) =>
-                        cloudinary.v2.uploader.upload(image),
-                    ),
-                )
-            ).map(response => response.secure_url)
-
+            let imagesUrls: string[] = []
             const feedbackToken = uuidv4()
             const password = uuidv4()
             const salt = bcrypt.genSaltSync(10)
             const hash = bcrypt.hashSync(password, salt)
-            if (clockSize) {
-                const price = Number(clockSize.price)
-                const newOrderEndAt = new Date(`${endAt}`)
-                const newOrderStartAt = new Date(`${startAt}`)
-                const user = await prisma.user.findUnique({
-                    where: { email: email },
+            const newOrderEndAt = new Date(`${endAt}`)
+            const newOrderStartAt = new Date(`${startAt}`)
+            const price = await prisma.clockSize.findUnique({
+                where: { id: Number(clockSizeId) },
+                select: { price: true },
+            })
+            const user = await prisma.user.findUnique({
+                where: { email: email },
+            })
+            if (user) {
+                await prisma.order.create({
+                    data: {
+                        userId: user.id,
+                        masterId: Number(masterId),
+                        cityId: Number(cityId),
+                        clockSizeId: Number(clockSizeId),
+                        price: Number(price?.price),
+                        startAt: newOrderStartAt,
+                        endAt: newOrderEndAt,
+                        feedbackToken: feedbackToken,
+                        images: imagesUrls,
+                    },
                 })
-                if (user) {
-                    const newOrder = await prisma.order.create({
-                        data: {
-                            userId: user.id,
-                            masterId: Number(masterId),
-                            cityId: Number(cityId),
-                            clockSizeId: Number(clockSizeId),
-                            price: price,
-                            startAt: newOrderStartAt,
-                            endAt: newOrderEndAt,
-                            feedbackToken: feedbackToken,
-                            images: imagesUrls,
-                        },
-                    })
-                    res.status(201).json(newOrder)
-                }
-                if (!user) {
-                    const newOrder = await prisma.order.create({
-                        data: {
-                            user: {
-                                create: {
-                                    name: name,
-                                    email: email,
-                                    person: {
-                                        create: {
-                                            email: email,
-                                            password: hash,
-                                            role: 'USER',
-                                        },
+                res.status(201)
+            }
+            if (!user) {
+                await prisma.order.create({
+                    data: {
+                        user: {
+                            create: {
+                                name: name,
+                                email: email,
+                                person: {
+                                    create: {
+                                        email: email,
+                                        password: hash,
+                                        role: 'USER',
                                     },
                                 },
                             },
-                            master: { connect: { id: Number(masterId) } },
-                            city: { connect: { id: Number(cityId) } },
-                            clockSize: { connect: { id: Number(clockSizeId) } },
-                            price: price,
-                            startAt: newOrderStartAt,
-                            endAt: endAt,
-                            feedbackToken: feedbackToken,
-                            images: imagesUrls,
                         },
-                    })
+                        master: { connect: { id: Number(masterId) } },
+                        city: { connect: { id: Number(cityId) } },
+                        clockSize: { connect: { id: Number(clockSizeId) } },
+                        price: Number(price?.price),
+                        startAt: newOrderStartAt,
+                        endAt: endAt,
+                        feedbackToken: feedbackToken,
+                        images: imagesUrls,
+                    },
+                })
 
-                    await sendMail(
-                        email,
-                        'confirm your order',
-                        `confirm order`,
-                        `<p>your password: ${password}</p>`,
-                    )
-                    res.status(201).json(newOrder)
-                }
+                await sendMail(
+                    email,
+                    'confirm your order',
+                    `confirm order`,
+                    `<p>your password: ${password}</p>`,
+                )
+                res.status(201)
             }
+        }
+    }
+
+    async addPhotoInOrder(req: Request, res: Response) {
+        const params = addPhotoInOrderSchema.safeParse(req.body)
+        if (!params.success) {
+            return
+        }
+        const { images, orderId } = params.data
+
+        if (images) {
+            const imagesUrls = (
+                await Promise.all<cloudinary.UploadApiResponse>(
+                    images.map((image: string) =>
+                        cloudinary.v2.uploader.upload(image),
+                    ),
+                )
+            ).map(response => response.url)
+
+            const orderWithPhotos = await prisma.order.update({
+                where: { id: orderId },
+                data: { images: imagesUrls },
+            })
+            res.status(201).json(orderWithPhotos)
+        } else {
+            res.status(400).send({ message: 'no files' })
         }
     }
 
@@ -429,48 +422,39 @@ class OrderController {
         }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
-        } else {
-            const user = await prisma.user.findUnique({
-                where: { id: Number(userId) },
-            })
-            const clockInfo = await prisma.clockSize.findUnique({
+        }
+        if (clockSize) {
+            const workTime = clockSize.timeToDone
+            const d = new Date(`${startAt}`)
+            d.setHours(d.getHours() + workTime)
+            const newOrderEndAt = d.toISOString()
+            const newOrderStartAt = new Date(`${startAt}`)
+
+            const upOrder = await prisma.order.update({
                 where: {
-                    id: clockSizeId,
+                    id: Number(id),
+                },
+                data: {
+                    userId: Number(userId),
+                    masterId: Number(masterId),
+                    cityId: Number(cityId),
+                    clockSizeId: Number(clockSizeId),
+                    price: Number(price),
+                    startAt: newOrderStartAt,
+                    endAt: newOrderEndAt,
+                    status: status,
                 },
             })
-            if (clockInfo) {
-                const workTime = clockInfo.timeToDone
-                const d = new Date(`${startAt}`)
-                d.setHours(d.getHours() + workTime)
-                const newOrderEndAt = d.toISOString()
-                const newOrderStartAt = new Date(`${startAt}`)
+            status === 'Completed' &&
+                user?.email &&
+                (await sendMail(
+                    user.email,
+                    'your order now has a status completed',
+                    'your order now has a status completed',
+                    `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                ))
 
-                const upOrder = await prisma.order.update({
-                    where: {
-                        id: Number(id),
-                    },
-                    data: {
-                        userId: Number(userId),
-                        masterId: Number(masterId),
-                        cityId: Number(cityId),
-                        clockSizeId: Number(clockSizeId),
-                        price: Number(price),
-                        startAt: newOrderStartAt,
-                        endAt: newOrderEndAt,
-                        status: status,
-                    },
-                })
-                status === 'Completed' &&
-                    user?.email &&
-                    (await sendMail(
-                        user.email,
-                        'your order now has a status completed',
-                        'your order now has a status completed',
-                        `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                    ))
-
-                res.status(201).json(upOrder)
-            }
+            res.status(201).json(upOrder)
         }
     }
 

@@ -136,34 +136,33 @@ class MasterController {
         }
         if (validationErrors.length) {
             res.status(400).json(validationErrors)
-        } else {
-            const token = jwt.sign(
-                {},
-                process.env.SECRET_KEY ? process.env.SECRET_KEY : 'key',
-                { expiresIn: '2h' },
-            )
-            const salt2 = bcrypt.genSaltSync(10)
-            const hash = bcrypt.hashSync(password, salt2)
-            const newPersonMaste = await prisma.person.create({
-                data: {
-                    email: login,
-                    password: hash,
-                    role: 'MASTER',
-                    token: token,
-                },
-            })
-            const newMaster = await prisma.master.create({
-                data: {
-                    name: name,
-                    cityId: +cityId,
-                    personId: +newPersonMaste.id,
-                },
-            })
-
-            res.set({ Authorization: `Bearer ${token}` })
-                .status(200)
-                .json(newMaster)
         }
+        const token = jwt.sign(
+            {},
+            process.env.SECRET_KEY ? process.env.SECRET_KEY : 'key',
+            { expiresIn: '2h' },
+        )
+        const salt2 = bcrypt.genSaltSync(10)
+        const hash = bcrypt.hashSync(password, salt2)
+        const newPersonMaste = await prisma.person.create({
+            data: {
+                email: login,
+                password: hash,
+                role: 'MASTER',
+                token: token,
+            },
+        })
+        const newMaster = await prisma.master.create({
+            data: {
+                name: name,
+                cityId: +cityId,
+                personId: +newPersonMaste.id,
+            },
+        })
+
+        res.set({ Authorization: `Bearer ${token}` })
+            .status(200)
+            .json(newMaster)
     }
 
     async deleteMaster(req: Request, res: Response) {

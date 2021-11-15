@@ -1,6 +1,13 @@
 import axios from 'axios'
 import { useState, useEffect, FC, useCallback } from 'react'
-import { City, ClockSize, FormError, Master, Order } from 'src/models'
+import {
+  City,
+  ClockSize,
+  FormError,
+  Master,
+  Order,
+  StripeUrl,
+} from 'src/models'
 import './form-module.css'
 import Preloader from '../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -66,8 +73,6 @@ const Form: FC<ControllerFormProps> = () => {
   const [masters, setMasters] = useState<Master[]>([])
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  const [urls, setUrls] = useState<string[]>([])
 
   const { addToast } = useToasts()
 
@@ -146,13 +151,13 @@ const Form: FC<ControllerFormProps> = () => {
 
   const onSubmit: SubmitHandler<OrderForm> = async data => {
     setIsLoading(true)
-    const timeToDone = clockSizes.find(
+    const clockSize = clockSizes.find(
       ({ id }) => id === Number(dataForFreeMaster[3]),
-    )?.timeToDone
+    )
     const endAt = new Date(`${dataForFreeMaster[0]} ${dataForFreeMaster[1]}`)
-    endAt.setHours(endAt.getHours() + Number(timeToDone))
+    endAt.setHours(endAt.getHours() + Number(clockSize?.timeToDone))
     await axios
-      .post<Order[]>(`/order`, {
+      .post<StripeUrl>(`/create-checkout-session`, {
         masterId: +data.master,
         cityId: +data.city,
         clockSizeId: +data.clockSize,
@@ -160,14 +165,9 @@ const Form: FC<ControllerFormProps> = () => {
         endAt: endAt.toISOString(),
         name: data.name,
         email: data.email,
-        images: urls,
       })
-      .then(() => {
-        addToast('Order created', { appearance: 'success' })
-        reset()
-        setValue('day', correctDate)
-        setUrls([])
-        setValue('time', time[0])
+      .then(response => {
+        window.location.href = response.data.url
         setIsLoading(false)
       })
       .catch(() => {
@@ -287,17 +287,6 @@ const Form: FC<ControllerFormProps> = () => {
             ),
           )}
         </select>
-        <div className="file_input">
-          <label>Maximum 5 files and no more 1 mb for one</label>
-          <FileInput setFiles={setUrls} files={urls} />
-        </div>
-        <button
-          onClick={() => setUrls([])}
-          className="wrapper_form__button"
-          type="button"
-        >
-          Clean files
-        </button>
         <button className="wrapper_form__button" type="submit">
           Submit
         </button>

@@ -4,8 +4,9 @@ import { useToasts } from 'react-toast-notifications'
 interface FileInputProps {
   files: string[]
   setFiles: React.Dispatch<React.SetStateAction<string[]>>
+  filesLimit: number
 }
-const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
+const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
   const { addToast } = useToasts()
 
   const [innerFiles, setInnerFiles] = useState<File[]>()
@@ -19,10 +20,6 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         return
       }
       innerFiles.forEach(innerFiles => {
-        if (files.length >= 5) {
-          addToast('max 5 file', { appearance: 'error' })
-          return
-        }
         setFileNames(prevFileNames => [...prevFileNames, innerFiles.name])
         const fileReader = new FileReader()
         fileReader.readAsDataURL(innerFiles)
@@ -49,7 +46,7 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         onChange={event => {
           if (
             event.currentTarget.files &&
-            event.currentTarget.files.length <= 5
+            event.currentTarget.files.length <= filesLimit
           ) {
             const localCopy: File[] = []
             for (let i = 0; i < event.currentTarget.files.length; i++) {
@@ -63,6 +60,15 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files }) => {
         }}
       />
       {files.length ? fileNames.map(name => <div>{name}</div>) : <div></div>}
+      <button
+        className="wrapper_form__button"
+        onClick={() => {
+          setFileNames([])
+          setFiles([])
+        }}
+      >
+        Clean photos
+      </button>
     </div>
   )
 }

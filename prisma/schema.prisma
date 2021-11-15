@@ -97,6 +97,7 @@ model Order {
   status        OrderStatus @default(Pending)
   active        Boolean     @default(true)
   images        String[]
+  session       String?
 
   @@map("orders")
 }
