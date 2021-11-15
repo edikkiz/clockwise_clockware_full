@@ -6,82 +6,37 @@ import userController from '../controller/user.controller'
 
 const router = Router()
 
-router.put(
-    '/order',
-    orderController.updateOrder,
-)
+router.put('/order', orderController.updateOrder)
 
-router.delete(
-    '/delete-order',
-    orderController.deleteOrder,
-)
+router.delete('/delete-order', orderController.deleteOrder)
 
-router.get(
-    '/orders-filtered',
-    orderController.getAllOrders,
-)
+router.get('/orders-filtered', orderController.getAllOrders)
 
-router.delete(
-    '/master',
-    masterController.deleteMaster,
-)
+router.delete('/master', masterController.deleteMaster)
 
-router.get(
-    '/masters',
-    masterController.getMasters,
-)
+router.get('/masters', masterController.getMasters)
 
-router.post(
-    '/city',
-    cityController.createCity,
-)
+router.get('/all-masters', masterController.getAllMasters)
 
-router.put(
-    '/city',
-    cityController.updateCity,
-)
-router.delete(
-    '/city',
-    cityController.deleteCity,
-)
+router.post('/city', cityController.createCity)
 
-router.get(
-    '/users',
-    userController.getUsers,
-)
+router.put('/city', cityController.updateCity)
 
-router.put(
-    '/user',
-    userController.updateUser,
-)
+router.delete('/city', cityController.deleteCity)
 
-router.delete(
-    '/user',
-    userController.deleteUser,
-)
+router.get('/users', userController.getUsers)
 
-router.get(
-    '/diagrama/master',
-    orderController.getDataForMasterDiagram,
-)
+router.put('/user', userController.updateUser)
 
-router.get(
-    '/diagrama/city',
-    orderController.getDataForCityDiagram,
-)
+router.delete('/user', userController.deleteUser)
 
-router.get(
-    '/graph/city',
-    orderController.getDataForCityGraph,
-)
+router.get('/diagrama/master', orderController.getDataForMasterDiagram)
 
-router.get(
-    '/graph/master',
-    orderController.getDataForMasterGraph,
-)
+router.get('/diagrama/city', orderController.getDataForCityDiagram)
 
-router.get(
-    '/masters-list',
-    orderController.getDataForMasterTable,
-)
+router.get('/graph/city', orderController.getDataForCityGraph)
+
+router.get('/graph/master', orderController.getDataForMasterGraph)
+
+router.get('/masters-list', orderController.getDataForMasterTable)
 export default router

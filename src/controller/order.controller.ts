@@ -17,6 +17,7 @@ import {
     dataForMasterTableSchema,
     orderFeedbackSchema,
     addPhotoInOrderSchema,
+    allOrdersToTheMasterCalendarSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
@@ -72,32 +73,31 @@ class OrderController {
         } = params.data
         const filterStartAt = new Date(`${start}`)
         const filterEndAt = new Date(`${end} 23:59:59`)
+        const filter = {
+            active: true,
+            AND: [
+                {
+                    cityId: cityId ? Number(cityId) : undefined,
+                },
+                {
+                    masterId: masterId ? Number(masterId) : undefined,
+                },
+                {
+                    clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                },
+                {
+                    status: status ? status : undefined,
+                },
+                {
+                    startAt: start ? { gte: filterStartAt } : undefined,
+                },
+                {
+                    endAt: end ? { lte: filterEndAt } : undefined,
+                },
+            ],
+        }
         const Orders = await prisma.order.findMany({
-            where: {
-                active: true,
-                AND: [
-                    {
-                        cityId: cityId ? Number(cityId) : undefined,
-                    },
-                    {
-                        masterId: masterId ? Number(masterId) : undefined,
-                    },
-                    {
-                        clockSizeId: clockSizeId
-                            ? Number(clockSizeId)
-                            : undefined,
-                    },
-                    {
-                        status: status ? status : undefined,
-                    },
-                    {
-                        startAt: start ? { gte: filterStartAt } : undefined,
-                    },
-                    {
-                        endAt: end ? { lte: filterEndAt } : undefined,
-                    },
-                ],
-            },
+            where: filter,
             orderBy: [{ id: 'desc' }],
             take: Number(limit),
             skip: Number(offset),
@@ -137,47 +137,58 @@ class OrderController {
                 },
             },
         })
-        res.status(200).json(Orders)
+        const countOrders = await prisma.order.count({
+            where: filter,
+        })
+        const result = { total: countOrders, orders: Orders }
+        res.status(200).json(result)
     }
 
     async getAllOrdersToTheMasterTable(req: Request, res: Response) {
         const params = allOrdersToTheMasterSchema.safeParse(req.query)
-        if (params.success) {
-            const { offset, limit, masterId } = params.data
-            const orderListForOneMaster = await prisma.$queryRaw`SELECT 
-                    orders.images AS images,
-                    orders.id,
-                    orders.status,
-                    orders.feedback,
-                    orders.rating,
-                    "clockSizeId",
-                    orders."cityId",
-                    masters.id AS "masterId", 
-                    users.id AS "userId", 
-                    masters.name AS "masterName", 
-                    cities.name AS "cityName", 
-                    "clockSizes".name AS size, 
-                    users.name AS "userName", 
-                    users.email AS "userEmail", 
-                    orders.price, 
-                    orders."startAt" AS "startAt", 
-                    orders."endAt" AS "endAt", 
-                    email 
-                    FROM orders
-                    INNER JOIN masters ON orders."masterId" = masters.id
-                    INNER JOIN cities ON orders."cityId" = cities.id
-                    INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-                    INNER JOIN users ON orders."userId" = users.id
-                    WHERE orders."masterId" = ${Number(masterId)} 
-                    AND orders.active = true
-                    ORDER BY orders.id DESC 
-                    LIMIT ${Number(limit)} 
-                    OFFSET ${Number(offset)}`
-            res.status(200).json(orderListForOneMaster)
-        } else {
-            const { masterId } = req.query
-            const orderListForOneMaster =
-                await prisma.$queryRaw`SELECT (TO_CHAR(orders.id, '"Order#"99999')) AS title, 
+        if (!params.success) {
+            return
+        }
+        const { offset, limit, masterId } = params.data
+        const filter = { masterId: Number(masterId), active: true }
+        const orderListForOneMaster = await prisma.order.findMany({
+            where: filter,
+            select: {
+                images: true,
+                id: true,
+                status: true,
+                feedback: true,
+                rating: true,
+                price: true,
+                startAt: true,
+                endAt: true,
+                clockSize: { select: { id: true, name: true } },
+                master: { select: { id: true, name: true } },
+                user: { select: { id: true, name: true, email: true } },
+                city: { select: { name: true } },
+            },
+            orderBy: { id: 'desc' },
+            take: Number(limit),
+            skip: Number(offset),
+        })
+        const countOrders = await prisma.order.count({
+            where: filter,
+        })
+        const result = {
+            total: countOrders,
+            orders: orderListForOneMaster,
+        }
+        res.status(200).json(result)
+    }
+
+    async getAllOrdersToTheMasterCalendar(req: Request, res: Response) {
+        const params = allOrdersToTheMasterCalendarSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const { masterId } = params.data
+        const orderListForOneMaster =
+            await prisma.$queryRaw`SELECT (TO_CHAR(orders.id, '"Order#"99999')) AS title, 
                     orders.status, 
                     orders.feedback, 
                     orders.rating, 
@@ -198,44 +209,40 @@ class OrderController {
                     WHERE orders."masterId" = ${Number(masterId)} 
                     AND orders.active = true
                     ORDER BY orders.id`
-            res.status(200).json(orderListForOneMaster)
-        }
+
+        res.status(200).json(orderListForOneMaster)
     }
 
     async getAllOrdersToTheUserTable(req: Request, res: Response) {
         allOrdersToTheUserSchema.parse(req.query)
         const { offset, limit, userId } = req.query
-        const orderListForOneUser =
-            await prisma.$queryRaw`SELECT orders."feedbackToken" AS "feedbackToken", 
-                orders.images,
-                orders.id, 
-                orders.status, 
-                orders.feedback, 
-                orders.rating, 
-                "clockSizeId", 
-                orders."cityId", 
-                masters.id AS "masterId", 
-                users.id AS "userId", 
-                masters.name AS "masterName", 
-                cities.name AS "cityName", 
-                "clockSizes".name AS size, 
-                users.name AS "userName", 
-                users.email AS "userEmail", 
-                orders.price, 
-                orders."startAt" AS "startAt", 
-                orders."endAt" AS "endAt", 
-                email 
-                FROM orders
-                INNER JOIN masters ON orders."masterId" = masters.id
-                INNER JOIN cities ON orders."cityId" = cities.id
-                INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
-                INNER JOIN users ON orders."userId" = users.id
-                WHERE orders."userId" = ${Number(userId)} 
-                AND orders.active = true
-                ORDER BY orders.id DESC 
-                LIMIT ${Number(limit)} 
-                OFFSET ${Number(offset)}`
-        res.status(200).json(orderListForOneUser)
+        const filter = { userId: Number(userId), active: true }
+        const orderListForOneUser = await prisma.order.findMany({
+            where: filter,
+            select: {
+                feedbackToken: true,
+                images: true,
+                id: true,
+                status: true,
+                feedback: true,
+                rating: true,
+                price: true,
+                startAt: true,
+                endAt: true,
+                clockSize: { select: { id: true, name: true } },
+                master: { select: { id: true, name: true } },
+                user: { select: { id: true, name: true, email: true } },
+                city: { select: { name: true, id: true } },
+            },
+            orderBy: { id: 'desc' },
+            take: Number(limit),
+            skip: Number(offset),
+        })
+        const countOrders = await prisma.order.count({
+            where: filter,
+        })
+        const result = { total: countOrders, orders: orderListForOneUser }
+        res.status(200).json(result)
     }
 
     async createOrder(

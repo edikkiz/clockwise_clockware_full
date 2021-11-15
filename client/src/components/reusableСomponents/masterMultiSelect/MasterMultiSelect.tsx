@@ -24,7 +24,7 @@ const MasterMultiSelect: FC<MasterMultiSelectProps> = ({
 
   useEffect(() => {
     const getMasters = async () => {
-      const { data } = await axios.get<Master[]>(`/admin/masters`)
+      const { data } = await axios.get<Master[]>(`/admin/all-masters`)
       const mastersOptions = data.map(({ name, id }): MultiSelectOption => {
         return {
           label: name,

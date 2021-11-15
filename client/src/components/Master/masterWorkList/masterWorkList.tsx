@@ -9,6 +9,7 @@ import MasterHeader from '../masterHeader/masterHeader'
 import { format } from 'date-fns'
 import { saveAs } from 'file-saver'
 import Modal from 'src/components/calendar/modal'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
 const options = {
   year: 'numeric',
@@ -17,7 +18,11 @@ const options = {
   minute: 'numeric',
 }
 
-const limit = 10
+interface MastersResult {
+  total: number
+  orders: AllOrder[]
+}
+
 interface masterWorkListProps {}
 const MasterWorkList: FC<masterWorkListProps> = () => {
   const { masterId } = useParams<{ masterId: string }>()
@@ -25,9 +30,10 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   const [modalActive, setModalActive] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string>()
 
-  const [orders, setOrders] = useState<AllOrder[]>([])
+  const [orders, setOrders] = useState<MastersResult>({ total: 0, orders: [] })
 
   const [offset, setOffset] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -36,7 +42,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
   useEffect(() => {
     setIsLoading(true)
     const getAllOrders = async () => {
-      const { data } = await axios.get<AllOrder[]>(`/master/master-orders`, {
+      const { data } = await axios.get<MastersResult>(`/master/master-orders`, {
         params: {
           masterId,
           offset,
@@ -48,21 +54,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     }
 
     getAllOrders()
-    setIsLoading(false)
-  }, [offset])
-
-  const next = useCallback(() => {
-    setOffset(offset + limit)
-  }, [])
-
-  const after = useCallback(() => {
-    if (offset < 10) {
-      setOffset(0)
-    }
-    if (offset >= 10) {
-      setOffset(offset - limit)
-    }
-  }, [])
+  }, [offset, limit])
 
   const changeStatus = (id: number, email: string) => {
     if (window.confirm(`confirm change status in order: ${id}`)) {
@@ -73,7 +65,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           email: email,
         })
         .then(async () => {
-          const { data } = await axios.get<AllOrder[]>(
+          const { data } = await axios.get<MastersResult>(
             `/master/master-orders`,
             {
               params: {
@@ -119,14 +111,14 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
               change order status
             </th>
           </tr>
-          {orders.map(order => (
+          {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
-              <th className="table_block_name__master-orders">{`${order.userName}`}</th>
-              <th className="table_block_name__master-orders">{`${order.userEmail}`}</th>
-              <th className="table_block_name__master-orders">{`${order.cityName}`}</th>
-              <th className="table_block_name__master-orders">{`${order.size}`}</th>
-              <th className="table_block_name__master-orders">{`${order.masterName}`}</th>
+              <th className="table_block_name__master-orders">{`${order.user.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.user.email}`}</th>
+              <th className="table_block_name__master-orders">{`${order.city.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.clockSize.name}`}</th>
+              <th className="table_block_name__master-orders">{`${order.master.name}`}</th>
               <th className="table_block_name__master-orders">{`${format(
                 new Date(order.startAt),
                 'yyyy-MM-dd HH:mm',
@@ -175,7 +167,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 <th className="table_link">
                   <button
                     type="button"
-                    onClick={() => changeStatus(order.id, order.email)}
+                    onClick={() => changeStatus(order.id, order.user.email)}
                     className="link_update__master"
                   >
                     Сlick here to set the status completed
@@ -195,28 +187,19 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
           ))}
         </table>
       </div>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {orders.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {orders.orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={modalActive} setActive={setModalActive}>
         <div>{`feedback: ${modalText}`}</div>
       </Modal>
+      {orders.total && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={orders.total}
+        />
+      )}
     </div>
   )
 }

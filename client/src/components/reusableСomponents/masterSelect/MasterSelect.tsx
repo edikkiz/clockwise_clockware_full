@@ -10,7 +10,7 @@ const MasterSelect: FC<MasterSelectProps> = ({ setSelectValue }) => {
 
   useEffect(() => {
     const masters = async () => {
-      const { data } = await axios.get<Master[]>(`/admin/masters`)
+      const { data } = await axios.get<Master[]>(`/admin/all-masters`)
       setMasters(data)
     }
     masters()

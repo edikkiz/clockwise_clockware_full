@@ -9,8 +9,12 @@ import UserHeader from '../userHeader/UserHeader'
 import { format } from 'date-fns'
 import Modal from 'src/components/calendar/modal'
 import ModalAddPhotos from 'src/components/reusableСomponents/modalAddPhotos/ModalAddPhotos'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
-const limit = 10
+interface UserResult {
+  total: number
+  orders: AllOrder[]
+}
 interface userListProps {}
 const UserList: FC<userListProps> = () => {
   const { id: userId } = useParams<{ id: string }>()
@@ -22,16 +26,17 @@ const UserList: FC<userListProps> = () => {
     useState<boolean>(false)
   const [orderId, setOrderId] = useState<number>(0)
 
-  const [orders, setOrders] = useState<AllOrder[]>([])
+  const [orders, setOrders] = useState<UserResult>({ total: 0, orders: [] })
 
   const [offset, setOffset] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
     setIsLoading(true)
     const getAllOrders = async () => {
-      const { data } = await axios.get<AllOrder[]>(`/user/user-orders`, {
+      const { data } = await axios.get<UserResult>(`/user/user-orders`, {
         params: {
           userId,
           offset,
@@ -44,20 +49,7 @@ const UserList: FC<userListProps> = () => {
 
     getAllOrders()
     setIsLoading(false)
-  }, [offset, activeDownloadPhotos])
-
-  const next = useCallback(() => {
-    setOffset(offset + limit)
-  }, [])
-
-  const after = useCallback(() => {
-    if (offset < 10) {
-      setOffset(0)
-    }
-    if (offset >= 10) {
-      setOffset(offset - limit)
-    }
-  }, [])
+  }, [offset, activeDownloadPhotos, limit])
 
   return (
     <div>
@@ -79,12 +71,12 @@ const UserList: FC<userListProps> = () => {
             <th className="table_block_id__order">images</th>
             <th className="table_block_id__order">Rate</th>
           </tr>
-          {orders.map(order => (
+          {orders.orders.map(order => (
             <tr>
               <th className="table_block_id__order">{`${order.id}`}</th>
-              <th className="table_block_name__user-orders">{`${order.cityName}`}</th>
-              <th className="table_block_name__user-orders">{`${order.size}`}</th>
-              <th className="table_block_name__user-orders">{`${order.masterName}`}</th>
+              <th className="table_block_name__user-orders">{`${order.city.name}`}</th>
+              <th className="table_block_name__user-orders">{`${order.clockSize.name}`}</th>
+              <th className="table_block_name__user-orders">{`${order.master.name}`}</th>
               <th className="table_block_name__user-orders">{`${format(
                 new Date(order.startAt),
                 'yyyy-MM-dd HH:mm',
@@ -154,25 +146,7 @@ const UserList: FC<userListProps> = () => {
           ))}
         </table>
       </div>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
-      )}
-      {orders.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
-      {orders.length === 0 && <div>Dont have more orders</div>}
+      {orders.orders.length === 0 && <div>Dont have more orders</div>}
       <Modal active={feedbackActive} setActive={setFeedbackActive}>
         <div>{`feedback: ${feedbackText}`}</div>
       </Modal>
@@ -182,6 +156,15 @@ const UserList: FC<userListProps> = () => {
         filesLimit={5}
         orderId={orderId}
       ></ModalAddPhotos>
+      {orders.total && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={orders.total}
+        />
+      )}
     </div>
   )
 }

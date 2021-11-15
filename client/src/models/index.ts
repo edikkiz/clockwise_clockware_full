@@ -68,19 +68,13 @@ export type Order = {
 
 export type AllOrder = {
   id: number
-  userName: string
-  userEmail: string
-  email: string
-  masterName: string
-  cityId: number
-  cityName: string
-  size: string
+  user: { name: string; email: string; id: number }
+  master: { name: string; id: number }
+  clockSize: { name: string; id: number }
+  city: { name: string }
   price: number
   startAt: string
   endAt: string
-  userId: number
-  masterId: number
-  clockSizeId: number
   feedback: string
   rating: number
   status: Status
@@ -157,4 +151,11 @@ export type OrderForFeedback = {
 
 export type StripeUrl = {
   url: string
+}
+
+export type MasterForAdminTable = {
+  id: number
+  name: string
+  cityId: number
+  city: { name: string }
 }

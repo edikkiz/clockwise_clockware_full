@@ -3,15 +3,21 @@ import axios from 'axios'
 import './cities-table-module.css'
 import { City } from 'src/models'
 import { Link } from 'react-router-dom'
-// import Preloader from '@/components/Preloader'
+import Preloader from 'src/components/Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../adminHeader/AdminHeader'
+import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
-const limit = 10
+interface CitiesResult {
+  total: number
+  cities: City[]
+}
 
 interface ControllerCityTableProps {}
 const CitiesTable: FC<ControllerCityTableProps> = () => {
-  const [cities, setCities] = useState<City[]>([])
+  const [cities, setCities] = useState<CitiesResult>({ total: 0, cities: [] })
+
+  const [limit, setLimit] = useState<number>(15)
 
   const [offset, setOffset] = useState<number>(0)
 
@@ -22,7 +28,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
   const getCitiesList = useCallback(() => {
     setIsLoading(true)
     const getCities = async () => {
-      const { data } = await axios.get<City[]>('/city', {
+      const { data } = await axios.get<CitiesResult>('/city', {
         params: {
           limit,
           offset,
@@ -32,7 +38,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
       setIsLoading(false)
     }
     getCities()
-  }, [offset])
+  }, [offset, limit])
 
   useEffect(() => {
     getCitiesList()
@@ -49,18 +55,18 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
             },
           })
           .then(() => {
-            const localCopy = [...cities]
-            const deleteIndex = localCopy.findIndex(
+            const localCopy = cities
+            const deleteIndex = localCopy.cities.findIndex(
               elem => elem.id === deleteId,
             )
-            localCopy.splice(deleteIndex, 1)
+            localCopy.cities.splice(deleteIndex, 1)
             setCities(localCopy)
             setIsLoading(false)
             addToast('city deleted', { appearance: 'success' })
 
             setIsLoading(true)
             const getCities = async () => {
-              const { data } = await axios.get<City[]>('/city', {
+              const { data } = await axios.get<CitiesResult>('/city', {
                 params: {
                   limit,
                   offset,
@@ -92,7 +98,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
 
   return (
     <div className="wrapper_cities">
-      {/* <Preloader isLoading={isLoading} /> */}
+      <Preloader isLoading={isLoading} />
       <AdminHeader />
       <table className="wrapper_cities__table">
         <tr>
@@ -106,7 +112,7 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
             <th className="table_link__city">+</th>
           </Link>
         </tr>
-        {cities.map(({ id, name }) => (
+        {cities.cities.map(({ id, name }) => (
           <tr>
             <th className="table_block_id__city">{`${id}`}</th>
             <th className="table_block_name__city">{`${name}`}</th>
@@ -127,25 +133,16 @@ const CitiesTable: FC<ControllerCityTableProps> = () => {
           </tr>
         ))}
       </table>
-      {offset !== 0 ? (
-        <button className="after_button" onClick={after}>
-          back
-        </button>
-      ) : (
-        <button className="after_button" disabled={true} onClick={after}>
-          back
-        </button>
+      {cities.cities.length === 0 && <div>Dont have more cities</div>}
+      {cities.total && (
+        <Pagination
+          offset={offset}
+          setOffset={setOffset}
+          limit={limit}
+          setLimit={setLimit}
+          total={cities.total}
+        />
       )}
-      {cities.length >= limit ? (
-        <button className="next_button" onClick={next}>
-          next
-        </button>
-      ) : (
-        <button className="next_button" disabled={true} onClick={next}>
-          next
-        </button>
-      )}
-      {cities.length === 0 && <div>Dont have more cities</div>}
     </div>
   )
 }

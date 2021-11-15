@@ -12,17 +12,22 @@ const prisma = new PrismaClient()
 class CityController {
     async getCities(req: Request, res: Response) {
         const params = getCitiesSchema.safeParse(req.query)
-        if (params.success) {
-            const { limit, offset } = params.data
-            const cities = await prisma.city.findMany({
-                skip: Number(offset),
-                take: Number(limit),
-            })
-            res.status(200).json(cities)
-        } else {
-            const cities = await prisma.city.findMany()
-            res.status(200).json(cities)
+        if (!params.success) {
+            return
         }
+        const { limit, offset } = params.data
+        const cities = await prisma.city.findMany({
+            skip: Number(offset),
+            take: Number(limit),
+        })
+        const countAllCities = await prisma.city.count()
+        const result = { total: countAllCities, cities: cities }
+        res.status(200).json(result)
+    }
+
+    async getAllCities(req: Request, res: Response) {
+        const cities = await prisma.city.findMany()
+        res.status(200).json(cities)
     }
 
     async createCity(req: Request, res: Response) {

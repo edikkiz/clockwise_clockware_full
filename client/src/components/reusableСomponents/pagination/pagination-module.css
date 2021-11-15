@@ -1,0 +1,62 @@
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 97%;
+  margin: 0 auto;
+}
+
+.page-number {
+  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  color: red;
+}
+
+.page-nav img {
+  width: 30px;
+  height: 30px;
+}
+
+.page-nav {
+  margin: 10px 0;
+  width: 30px;
+  height: 30px;
+}
+
+.page-nav {
+  margin: auto;
+}
+
+.activePage {
+  color: white;
+  background-color: red;
+}
+
+.label {
+  margin-left: 10px;
+}
+
+.pages {
+  margin: 10px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.pagination-select {
+  margin-left: 30px;
+  font-size: 18px;
+  width: 70px;
+  height: 30px;
+  background: rgba(252, 237, 237, 0.979);
+}
+
+.total {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.page-nav:disabled {
+  cursor: unset;
+}
