@@ -90,6 +90,16 @@ const MastersTable: FC<ControllerMasterTableProps> = () => {
     <div>
       <Preloader isLoading={isLoading} />
       <AdminHeader />
+      <div>
+        <input
+          type="text"
+          value={searchString}
+          onChange={event => {
+            temp(event.currentTarget.value)
+            setSearchString(event.currentTarget.value)
+          }}
+        />
+      </div>
       <div className="wrapper_masters">
         <table className="wrapper_masters__table">
           <tr>

@@ -40,6 +40,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const [searchString, setSearchString] = useState<string>()
+  const [searchTemp, setSearchTemp] = useState<string>('')
   const { addToast } = useToasts()
 
   const filtered = async () => {
@@ -127,7 +129,16 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         </button>
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
       </div>
-
+      <div>
+        <input
+          type="text"
+          value={searchString}
+          onChange={event => {
+            temp(event.currentTarget.value)
+            setSearchString(event.currentTarget.value)
+          }}
+        />
+      </div>
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">
           <tr>
