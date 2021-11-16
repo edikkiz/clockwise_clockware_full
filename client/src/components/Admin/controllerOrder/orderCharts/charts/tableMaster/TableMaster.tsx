@@ -5,7 +5,11 @@ import './table-master-module.css'
 import Preloader from 'src/components/Preloader'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 
-const limit = 10
+interface MastersResult {
+  total: number
+  masters: MasterForTable[]
+}
+
 interface MasterTableChartsProps {}
 const MasterTableCharts: FC<MasterTableChartsProps> = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -13,8 +17,10 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
   const [offset, setOffset] = useState<number>(0)
   const [limit, setLimit] = useState<number>(15)
 
-  const [masters, setMasters] = useState<MasterForTable[]>([])
-  const [countMasters, setCountMasters] = useState<number>(0)
+  const [masters, setMasters] = useState<MastersResult>({
+    total: 0,
+    masters: [],
+  })
 
   const [clockSizes, setClockSizes] = useState<ClockSize[]>([])
 
@@ -26,14 +32,6 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
       setIsLoading(false)
     }
     getClockSizes()
-  }, [])
-
-  useEffect(() => {
-    const countMasters = async () => {
-      const { data } = await axios.get('/admin/count-masters')
-      setCountMasters(data)
-    }
-    countMasters()
   }, [])
 
   useEffect(() => {
@@ -64,7 +62,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
             <th className="table_block_name__master__charts">Completed</th>
             <th className="table_block_name__master__charts">Not completed</th>
           </tr>
-          {masters.map(master => (
+          {masters.masters.map(master => (
             <tr>
               <th className="table_block_id__master">{`${master.id}`}</th>
               <th className="table_block_name__master__charts">{`${master.name}`}</th>
@@ -84,14 +82,14 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
           ))}
         </table>
       </div>
-      {masters.length === 0 && <div>Dont have more masters</div>}
-      {countMasters && (
+      {masters.masters.length === 0 && <div>Dont have more masters</div>}
+      {masters.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}
           limit={limit}
           setLimit={setLimit}
-          total={countMasters}
+          total={masters.total}
         />
       )}
     </div>
