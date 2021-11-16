@@ -43,13 +43,12 @@ class MasterController {
     async searchForMastersByName(req: Request, res: Response) {
         const params = searchForMastersByNameSchema.safeParse(req.query)
         if (params.success) {
-            const { searchString, limit, offset } = params.data
+            const { searchString, limit } = params.data
             const findedMasters = await prisma.master.findMany({
                 where: {
                     name: { contains: searchString },
                 },
                 take: Number(limit),
-                skip: Number(offset),
             })
             res.status(200).json(findedMasters)
         }

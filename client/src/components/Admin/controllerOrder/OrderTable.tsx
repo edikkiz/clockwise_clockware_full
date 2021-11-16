@@ -1,7 +1,7 @@
 import { useEffect, useState, FC, useCallback } from 'react'
 import axios from 'axios'
 import './order-table-module.css'
-import { OrderForTable, Order, Status } from 'src/models/'
+import { OrderForTable, Order, Status, Master } from 'src/models/'
 import { Link } from 'react-router-dom'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
@@ -14,6 +14,7 @@ import MasterSelect from 'src/components/reusableСomponents/masterSelect/Master
 import CitySelect from 'src/components/reusableСomponents/citySelect/CitySelect'
 import Modal from 'src/components/calendar/modal'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
+import FindMasterInput from 'src/components/reusableСomponents/findMasterInput/FindMastersInput'
 
 interface OrdersResult {
   total: number
@@ -28,6 +29,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [masterFilter, setMasterFilter] = useState<number | null>(null)
   const [clockSizeFilter, setClockSizeFilter] = useState<number | null>(null)
   const [statusFilter, setStatusFilter] = useState<Status | null>(null)
+  const [foundMastersByName, setFoundMastersByName] = useState<Master[] | null>(
+    null,
+  )
 
   const [filterStart, setFilterStart] = useState<string>('')
   const [filterEnd, setFilterEnd] = useState<string>('')
@@ -40,8 +44,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const [searchString, setSearchString] = useState<string>()
-  const [searchTemp, setSearchTemp] = useState<string>('')
   const { addToast } = useToasts()
 
   const filtered = async () => {
@@ -121,23 +123,19 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
       <AdminHeader />
       <div className="wrapperFilter">
         <CitySelect setSelectValue={setCityFilter} />
-        <MasterSelect setSelectValue={setMasterFilter} />
+        <MasterSelect
+          setSelectValue={setMasterFilter}
+          propsMasters={
+            foundMastersByName?.length ? foundMastersByName : undefined
+          }
+        />
+        <FindMasterInput setFoundMasters={setFoundMastersByName} />
         <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <button className="buttonFilter" onClick={filtered}>
           filter
         </button>
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
-      </div>
-      <div>
-        <input
-          type="text"
-          value={searchString}
-          onChange={event => {
-            temp(event.currentTarget.value)
-            setSearchString(event.currentTarget.value)
-          }}
-        />
       </div>
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">

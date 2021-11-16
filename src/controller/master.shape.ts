@@ -41,5 +41,4 @@ export const getFreeMastersSchema = z.object({
 export const searchForMastersByNameSchema = z.object({
     searchString: z.string(),
     limit: z.string(),
-    offset: z.string(),
 })
