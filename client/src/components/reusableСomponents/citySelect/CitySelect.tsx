@@ -10,7 +10,7 @@ const CitySelect: FC<CitySelectProps> = ({ setSelectValue }) => {
 
   useEffect(() => {
     const getCities = async () => {
-      const { data } = await axios.get<City[]>(`/city`)
+      const { data } = await axios.get<City[]>(`/all-city`)
       setCities(data)
     }
     getCities()

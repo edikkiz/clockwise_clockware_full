@@ -617,7 +617,7 @@ class OrderController {
         }
         const { limit, offset } = params.data
         const dataForMasterTable = await prisma.$queryRaw`
-        SELECT masters.id, masters.name AS name, (	
+        SELECT masters.id, masters.name AS name, (
             SELECT COUNT(*) FROM orders 
             INNER JOIN "clockSizes" ON orders."clockSizeId" = "clockSizes".id
             WHERE "clockSizes".name = 'small' AND orders."masterId" = masters.id
@@ -645,7 +645,9 @@ class OrderController {
                     ORDER BY masters.name DESC
                     LIMIT ${Number(limit)} OFFSET ${Number(offset)}
         `
-        res.status(200).json(dataForMasterTable)
+        const countAllMasters = await prisma.master.count()
+        const result = { total: countAllMasters, masters: dataForMasterTable }
+        res.status(200).json(result)
     }
 }
 export default new OrderController()

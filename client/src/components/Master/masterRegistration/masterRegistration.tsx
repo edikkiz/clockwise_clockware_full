@@ -49,7 +49,7 @@ const MasterRegistration: FC<MasterRegistrationProps> = () => {
 
   useEffect(() => {
     const getCities = async () => {
-      const data = await axios.get<City[]>(`/city`)
+      const data = await axios.get<City[]>(`/all-city`)
       if (data.data.length) {
         setCities(data.data)
         const { id } = data.data[0]

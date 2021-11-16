@@ -18,7 +18,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
   const [users, setUsers] = useState<UsersResult>({ total: 0, users: [] })
 
   const [offset, setOffset] = useState<number>(0)
-  const [limit, setLimit] = useState<number>(0)
+  const [limit, setLimit] = useState<number>(15)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
