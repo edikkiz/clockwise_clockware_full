@@ -342,7 +342,7 @@ class OrderController {
                         cloudinary.v2.uploader.upload(image),
                     ),
                 )
-            ).map(response => response.url)
+            ).map(response => response.secure_url)
 
             const orderWithPhotos = await prisma.order.update({
                 where: { id: orderId },
