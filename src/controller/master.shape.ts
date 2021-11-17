@@ -37,3 +37,8 @@ export const getFreeMastersSchema = z.object({
     endAt: z.string(),
     orderId: z.string().optional(),
 })
+
+export const searchForMastersByNameSchema = z.object({
+    searchString: z.string(),
+    limit: z.string(),
+})

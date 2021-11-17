@@ -8,6 +8,7 @@ import {
     deleteMasterSchema,
     getMastersSchema,
     getFreeMastersSchema,
+    searchForMastersByNameSchema,
 } from './master.shape'
 
 const prisma = new PrismaClient()
@@ -37,6 +38,20 @@ class MasterController {
     async getAllMasters(req: Request, res: Response) {
         const masters = await prisma.master.findMany()
         res.status(200).json(masters)
+    }
+
+    async searchForMastersByName(req: Request, res: Response) {
+        const params = searchForMastersByNameSchema.safeParse(req.query)
+        if (params.success) {
+            const { searchString, limit } = params.data
+            const findedMasters = await prisma.master.findMany({
+                where: {
+                    name: { contains: searchString },
+                },
+                take: Number(limit),
+            })
+            res.status(200).json(findedMasters)
+        }
     }
 
     async getFreeMasters(req: Request, res: Response) {
