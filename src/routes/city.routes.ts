@@ -5,6 +5,6 @@ const router = Router()
 
 router.get('/city', CityController.getCities)
 
-router.get('/all-city', CityController.getAllCities)
+router.get('/all-cities', CityController.getAllCities)
 
 export default router

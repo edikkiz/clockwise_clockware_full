@@ -119,7 +119,7 @@ const UsersTable: FC<ControllerUserTableProps> = () => {
         </table>
       </div>
       {users.users.length === 0 && <div>Dont have more orders</div>}
-      {users && (
+      {users.total && (
         <Pagination
           offset={offset}
           setOffset={setOffset}

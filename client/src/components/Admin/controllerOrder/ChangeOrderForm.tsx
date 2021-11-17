@@ -134,7 +134,7 @@ const ChangeOrderForm: FC<ChangeOrderFormProps> = () => {
 
   useEffect(() => {
     const getCities = async () => {
-      const { data } = await axios.get<City[]>(`/all-city`)
+      const { data } = await axios.get<City[]>(`/all-cities`)
       setCities(data)
     }
 
