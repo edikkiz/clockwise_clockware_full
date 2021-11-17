@@ -24,7 +24,7 @@ const CityMultiSelect: FC<CityMultiSelectProps> = ({
 
   useEffect(() => {
     const getCities = async () => {
-      const { data } = await axios.get<City[]>(`/all-city`)
+      const { data } = await axios.get<City[]>(`/all-cities`)
       const citiesOptions = data.map(({ name, id }): MultiSelectOption => {
         return { label: name, value: id }
       })

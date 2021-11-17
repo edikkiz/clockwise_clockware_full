@@ -131,7 +131,7 @@ const Form: FC<ControllerFormProps> = () => {
 
   useEffect(() => {
     const getCities = async () => {
-      const { data } = await axios.get<City[]>(`/all-city`)
+      const { data } = await axios.get<City[]>(`/all-cities`)
       setCities(data)
       if (data.length) {
         const { id } = data[0]
