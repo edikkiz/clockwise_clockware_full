@@ -66,7 +66,16 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
 
   useEffect(() => {
     filtered()
-  }, [offset, limit])
+  }, [
+    offset,
+    limit,
+    cityFilter,
+    masterFilter,
+    clockSizeFilter,
+    statusFilter,
+    filterStart,
+    filterEnd,
+  ])
 
   const onSubmitDelete = useCallback(
     (id: number) => {
@@ -132,9 +141,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <FindMasterInput setFoundMasters={setFoundMastersByName} />
         <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
-        <button className="buttonFilter" onClick={filtered}>
-          filter
-        </button>
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
       </div>
       <div className="wrapper_orders">
