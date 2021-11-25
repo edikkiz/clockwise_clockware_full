@@ -11,7 +11,6 @@ import { saveAs } from 'file-saver'
 import Modal from 'src/components/calendar/modal'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
 import { jsPDF } from 'jspdf'
-import { renderToString } from 'react-dom/server'
 
 const options = {
   year: 'numeric',
@@ -89,23 +88,8 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
-  // const PdfContent = (order: AllOrder) => (
-  //   <div>
-  //     <div>{`clock size: ${order.clockSize.name}`}</div>
-  //     <div>{`master: ${order.master.name}`}</div>
-  //     <div>{`master Email: ${order.master.person.email}`}</div>
-  //     <div>{`order start at: ${order.startAt}`}</div>
-  //     <div>{`order end at: ${order.endAt}`}</div>
-  //     <div>{`price: ${order.price.toString()}`}</div>
-  //     <div>{`user: ${order.user.name}`}</div>
-  //     <div>{`email: ${order.user.email}`}</div>
-  //   </div>
-  // )
-
   const downloadPDF = (order: AllOrder) => {
-    // const string = renderToString(PdfContent(order))
     const doc = new jsPDF('p', 'mm', 'a4')
-    // doc.text(string, 50, 50)
     doc.text(
       [
         `order: ${order.id}`,

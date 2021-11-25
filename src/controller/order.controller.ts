@@ -21,8 +21,9 @@ import {
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
-import { startOfDay, endOfDay } from 'date-fns'
+import { startOfDay, endOfDay, format } from 'date-fns'
 import Stripe from 'stripe'
+import { jsPDF } from 'jspdf'
 
 const prisma = new PrismaClient()
 
@@ -403,6 +404,27 @@ class OrderController {
         const validationErrors = []
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
+            select: {
+                feedbackToken: true,
+                images: true,
+                id: true,
+                status: true,
+                feedback: true,
+                rating: true,
+                price: true,
+                startAt: true,
+                endAt: true,
+                clockSize: { select: { id: true, name: true } },
+                master: {
+                    select: {
+                        id: true,
+                        name: true,
+                        person: { select: { email: true } },
+                    },
+                },
+                user: { select: { id: true, name: true, email: true } },
+                city: { select: { name: true } },
+            },
         })
         const user = await prisma.user.findUnique({
             where: { id: Number(userId) },
@@ -458,16 +480,45 @@ class OrderController {
                     status: status,
                 },
             })
-            status === 'Completed' &&
-                user?.email &&
-                (await sendMail(
+            if (status === 'Completed' && user?.email && order) {
+                const doc = new jsPDF('p', 'mm', 'a4')
+                doc.text(
+                    [
+                        `order: ${order.id}`,
+                        `clock size: ${order.clockSize.name}`,
+                        `master: ${order.master.name}`,
+                        `master Email: ${order.master.person.email}`,
+                        `order start at: ${format(
+                            new Date(order.startAt),
+                            'yyyy-MM-dd HH:mm',
+                        )}`,
+                        `order end at: ${format(
+                            new Date(order.endAt),
+                            'yyyy-MM-dd HH:mm',
+                        )}`,
+                        `price: ${order.price.toString()}$`,
+                        `user: ${order.user.name}`,
+                        `email: ${order.user.email}`,
+                    ],
+                    100,
+                    100,
+                    {
+                        align: 'center',
+                        baseline: 'middle',
+                    },
+                )
+                const pdf = doc.output()
+
+                await sendMail(
                     user.email,
                     'your order now has a status completed',
                     'your order now has a status completed',
                     `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                ))
-
-            res.status(201).json(upOrder)
+                    'pdf.pdf',
+                    pdf,
+                ),
+                    res.status(201).json(upOrder)
+            }
         }
     }
 
@@ -479,12 +530,61 @@ class OrderController {
         const { id, email } = params.data
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
+            select: {
+                feedbackToken: true,
+                images: true,
+                id: true,
+                status: true,
+                feedback: true,
+                rating: true,
+                price: true,
+                startAt: true,
+                endAt: true,
+                clockSize: { select: { id: true, name: true } },
+                master: {
+                    select: {
+                        id: true,
+                        name: true,
+                        person: { select: { email: true } },
+                    },
+                },
+                user: { select: { id: true, name: true, email: true } },
+                city: { select: { name: true } },
+            },
         })
         if (!order) {
             res.status(400).json({
                 message: `Order with id: ${id} is not exsisted`,
             })
         } else {
+            const doc = new jsPDF('p', 'mm', 'a4')
+            doc.text(
+                [
+                    `order: ${order.id}`,
+                    `clock size: ${order.clockSize.name}`,
+                    `master: ${order.master.name}`,
+                    `master Email: ${order.master.person.email}`,
+                    `order start at: ${format(
+                        new Date(order.startAt),
+                        'yyyy-MM-dd HH:mm',
+                    )}`,
+                    `order end at: ${format(
+                        new Date(order.endAt),
+                        'yyyy-MM-dd HH:mm',
+                    )}`,
+                    `price: ${order.price.toString()}$`,
+                    `user: ${order.user.name}`,
+                    `email: ${order.user.email}`,
+                ],
+                100,
+                100,
+                {
+                    align: 'center',
+                    baseline: 'middle',
+                },
+            )
+            const pdf = doc.output()
+
             const orderWithNewStatus = await prisma.order.update({
                 where: {
                     id: Number(id),
@@ -493,12 +593,13 @@ class OrderController {
                     status: 'Completed',
                 },
             })
-
             await sendMail(
                 email,
                 'your order now has a status completed',
                 'your order now has a status completed, you can rate master',
                 `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                'pdf.pdf',
+                pdf,
             )
 
             res.status(200).json(orderWithNewStatus)
