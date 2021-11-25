@@ -10,6 +10,8 @@ import { format } from 'date-fns'
 import { saveAs } from 'file-saver'
 import Modal from 'src/components/calendar/modal'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
+import { jsPDF } from 'jspdf'
+import { renderToString } from 'react-dom/server'
 
 const options = {
   year: 'numeric',
@@ -87,6 +89,48 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
+  // const PdfContent = (order: AllOrder) => (
+  //   <div>
+  //     <div>{`clock size: ${order.clockSize.name}`}</div>
+  //     <div>{`master: ${order.master.name}`}</div>
+  //     <div>{`master Email: ${order.master.person.email}`}</div>
+  //     <div>{`order start at: ${order.startAt}`}</div>
+  //     <div>{`order end at: ${order.endAt}`}</div>
+  //     <div>{`price: ${order.price.toString()}`}</div>
+  //     <div>{`user: ${order.user.name}`}</div>
+  //     <div>{`email: ${order.user.email}`}</div>
+  //   </div>
+  // )
+
+  const downloadPDF = (order: AllOrder) => {
+    // const string = renderToString(PdfContent(order))
+    const doc = new jsPDF('p', 'mm', 'a4')
+    // doc.text(string, 50, 50)
+    doc.text(
+      [
+        `order: ${order.id}`,
+        `clock size: ${order.clockSize.name}`,
+        `master: ${order.master.name}`,
+        `master Email: ${order.master.person.email}`,
+        `order start at: ${format(
+          new Date(order.startAt),
+          'yyyy-MM-dd HH:mm',
+        )}`,
+        `order end at: ${format(new Date(order.endAt), 'yyyy-MM-dd HH:mm')}`,
+        `price: ${order.price.toString()}$`,
+        `user: ${order.user.name}`,
+        `email: ${order.user.email}`,
+      ],
+      100,
+      100,
+      {
+        align: 'center',
+        baseline: 'middle',
+      },
+    )
+    doc.save('pdf')
+  }
+
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -107,6 +151,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
             <th className="table_block_name__master-orders">rating</th>
             <th className="table_block_id__order">status</th>
             <th className="table_block_name__master-orders">download images</th>
+            <th className="table_block_name__master-orders">download pdf</th>
             <th className="table_block_name__master-orders">
               change order status
             </th>
@@ -163,6 +208,23 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                   this order dont have images
                 </th>
               )}
+
+              {order.status === Status.Completed ? (
+                <th className="table_link_master">
+                  <button
+                    type="button"
+                    onClick={() => downloadPDF(order)}
+                    className="link_update__master"
+                  >
+                    Сlick here for download pdf
+                  </button>
+                </th>
+              ) : (
+                <th className="table_link__order-disabled">
+                  This order is not completed
+                </th>
+              )}
+
               {order.status != Status.Completed ? (
                 <th className="table_link">
                   <button

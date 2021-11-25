@@ -163,7 +163,13 @@ class OrderController {
                 startAt: true,
                 endAt: true,
                 clockSize: { select: { id: true, name: true } },
-                master: { select: { id: true, name: true } },
+                master: {
+                    select: {
+                        id: true,
+                        name: true,
+                        person: { select: { email: true } },
+                    },
+                },
                 user: { select: { id: true, name: true, email: true } },
                 city: { select: { name: true } },
             },
