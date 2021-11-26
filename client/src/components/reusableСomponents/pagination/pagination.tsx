@@ -47,7 +47,7 @@ const Pagination: FC<PaginationProps> = ({
       }
       setPages(result)
     }
-  }, [limit, offset])
+  }, [limit, offset, total])
 
   return (
     <div className="pagination">
