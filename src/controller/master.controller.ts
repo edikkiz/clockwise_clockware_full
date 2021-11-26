@@ -46,7 +46,7 @@ class MasterController {
             const { searchString, limit } = params.data
             const findedMasters = await prisma.master.findMany({
                 where: {
-                    name: { contains: searchString },
+                    name: { contains: searchString, mode: 'insensitive' },
                 },
                 take: Number(limit),
             })
