@@ -21,9 +21,10 @@ import {
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
-import { startOfDay, endOfDay, format } from 'date-fns'
+import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
-import { jsPDF } from 'jspdf'
+import pdf from 'html-pdf'
+import { orderCheckPdf } from '../pdf/pdf'
 
 const prisma = new PrismaClient()
 
@@ -481,43 +482,18 @@ class OrderController {
                 },
             })
             if (status === 'Completed' && user?.email && order) {
-                const doc = new jsPDF('p', 'mm', 'a4')
-                doc.text(
-                    [
-                        `order: ${order.id}`,
-                        `clock size: ${order.clockSize.name}`,
-                        `master: ${order.master.name}`,
-                        `master Email: ${order.master.person.email}`,
-                        `order start at: ${format(
-                            new Date(order.startAt),
-                            'yyyy-MM-dd HH:mm',
-                        )}`,
-                        `order end at: ${format(
-                            new Date(order.endAt),
-                            'yyyy-MM-dd HH:mm',
-                        )}`,
-                        `price: ${order.price.toString()}$`,
-                        `user: ${order.user.name}`,
-                        `email: ${order.user.email}`,
-                    ],
-                    100,
-                    100,
-                    {
-                        align: 'center',
-                        baseline: 'middle',
-                    },
-                )
-                const pdf = doc.output()
-
-                await sendMail(
-                    user.email,
-                    'your order now has a status completed',
-                    'your order now has a status completed',
-                    `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                    'pdf.pdf',
-                    pdf,
-                ),
-                    res.status(201).json(upOrder)
+                const string = orderCheckPdf(order)
+                pdf.create(string).toBuffer(function (err, buffer) {
+                    sendMail(
+                        user.email,
+                        'your order now has a status completed',
+                        'your order now has a status completed',
+                        `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                        'pdf.pdf',
+                        buffer,
+                    )
+                })
+                res.status(201).json(upOrder)
             }
         }
     }
@@ -557,33 +533,18 @@ class OrderController {
                 message: `Order with id: ${id} is not exsisted`,
             })
         } else {
-            const doc = new jsPDF('p', 'mm', 'a4')
-            doc.text(
-                [
-                    `order: ${order.id}`,
-                    `clock size: ${order.clockSize.name}`,
-                    `master: ${order.master.name}`,
-                    `master Email: ${order.master.person.email}`,
-                    `order start at: ${format(
-                        new Date(order.startAt),
-                        'yyyy-MM-dd HH:mm',
-                    )}`,
-                    `order end at: ${format(
-                        new Date(order.endAt),
-                        'yyyy-MM-dd HH:mm',
-                    )}`,
-                    `price: ${order.price.toString()}$`,
-                    `user: ${order.user.name}`,
-                    `email: ${order.user.email}`,
-                ],
-                100,
-                100,
-                {
-                    align: 'center',
-                    baseline: 'middle',
-                },
-            )
-            const pdf = doc.output()
+            const string = orderCheckPdf(order)
+            pdf.create(string).toBuffer(function (err, buffer) {
+                buffer
+                sendMail(
+                    email,
+                    'your order now has a status completed',
+                    'your order now has a status completed, you can rate master',
+                    `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
+                    'pdf.pdf',
+                    buffer,
+                )
+            })
 
             const orderWithNewStatus = await prisma.order.update({
                 where: {
@@ -593,14 +554,6 @@ class OrderController {
                     status: 'Completed',
                 },
             })
-            await sendMail(
-                email,
-                'your order now has a status completed',
-                'your order now has a status completed, you can rate master',
-                `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                'pdf.pdf',
-                pdf,
-            )
 
             res.status(200).json(orderWithNewStatus)
         }

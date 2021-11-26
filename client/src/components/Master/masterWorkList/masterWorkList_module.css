@@ -101,3 +101,24 @@
   border-radius: 25% 10%;
   cursor: pointer;
 }
+
+.pdf {
+  border: solid 1px;
+  font-size: 8px;
+  width: 210px;
+  height: 100%;
+}
+
+.pdf th {
+  border: solid 1px;
+  width: 70px;
+  height: auto;
+  text-align: center;
+}
+.pdf td {
+  border: solid 1px;
+  width: 140px;
+  height: auto;
+  text-align: center;
+  word-break: break-all;
+}

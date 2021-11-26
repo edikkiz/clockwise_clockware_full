@@ -18,7 +18,7 @@ const sendMail = async (
     text: string,
     html: string,
     filename?: string,
-    pdf?: string,
+    pdf?: Buffer,
 ) => {
     await transporter.sendMail({
         from: process.env.NOTIFICATION_EMAIL,
