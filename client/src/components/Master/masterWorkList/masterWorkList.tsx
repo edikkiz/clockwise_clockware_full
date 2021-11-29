@@ -87,7 +87,8 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
-  const downloadPDF = async (order: AllOrder) => {
+  const downloadPDF = async (order: AllOrder, orderId: number) => {
+    setIsLoading(true)
     const { data } = await axios.get('/master/orderPdf', {
       params: {
         orderId: order.id,
@@ -99,7 +100,8 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
       },
     })
     const blob = new Blob([data])
-    saveAs(blob, 'mypdf.pdf')
+    saveAs(blob, `Order#${orderId}.pdf`)
+    setIsLoading(false)
   }
 
   return (
@@ -184,7 +186,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 <th className="table_link_master">
                   <button
                     type="button"
-                    onClick={() => downloadPDF(order)}
+                    onClick={() => downloadPDF(order, order.id)}
                     className="link_update__master"
                   >
                     Сlick here for download pdf

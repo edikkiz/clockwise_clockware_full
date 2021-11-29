@@ -28,17 +28,18 @@ import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 
 const prisma = new PrismaClient()
-const SendEmailIfStatusComplited = async (
+const sendEmailIfStatusCompleted = async (
     email: string,
     feedbackToken: string,
-    buffer: Buffer,
+    buffer?: Buffer,
+    fileName?: string,
 ) => {
     await sendMail(
         email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
         `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
-        'pdf.pdf',
+        `${fileName}.pdf`,
         buffer,
     )
 }
@@ -138,7 +139,9 @@ class OrderController {
         const orderListForOneMaster = await prisma.order.findMany({
             where: filter,
             include: {
-                master: { select: { person: { select: { email: true } } } },
+                master: {
+                    select: { name: true, person: { select: { email: true } } },
+                },
                 city: true,
                 clockSize: true,
                 user: true,
@@ -428,12 +431,16 @@ class OrderController {
             })
             const feedbackToken = order?.feedbackToken
             if (status === 'Completed' && order && feedbackToken && user) {
-                const string = orderCheckPdf(order)
+                const string = await orderCheckPdf(order)
                 pdf.create(string).toBuffer(async (err, buffer) => {
-                    SendEmailIfStatusComplited(
+                    if (err) {
+                        res.status(500).send(err)
+                    }
+                    await sendEmailIfStatusCompleted(
                         user.email,
                         feedbackToken,
                         buffer,
+                        `Order#${order.id}`,
                     )
                     res.status(201).json(upOrder)
                 })
@@ -465,10 +472,17 @@ class OrderController {
         } else {
             const feedbackToken = order.feedbackToken
             if (feedbackToken) {
-                const string = orderCheckPdf(order)
+                const string = await orderCheckPdf(order)
                 pdf.create(string).toBuffer(async (err, buffer) => {
-                    buffer
-                    SendEmailIfStatusComplited(email, feedbackToken, buffer)
+                    if (err) {
+                        res.status(500).send(err)
+                    }
+                    await sendEmailIfStatusCompleted(
+                        email,
+                        feedbackToken,
+                        buffer,
+                        `Order#${order.id}`,
+                    )
                     const orderWithNewStatus = await prisma.order.update({
                         where: {
                             id: Number(id),
@@ -477,7 +491,6 @@ class OrderController {
                             status: 'Completed',
                         },
                     })
-
                     res.status(200).json(orderWithNewStatus)
                 })
             }
@@ -654,10 +667,13 @@ class OrderController {
         })
 
         if (order) {
-            const string = orderCheckPdf(order)
-
-            pdf.create(string).toFile(`${__dirname}/../mypdf.pdf`, err => {
-                res.download(`${__dirname}/../mypdf.pdf`)
+            const string = await orderCheckPdf(order)
+            const pathToPdfFile = `${__dirname}/../Order#${orderId}.pdf`
+            pdf.create(string).toFile(pathToPdfFile, err => {
+                if (err) {
+                    res.status(500).send(err)
+                }
+                res.download(pathToPdfFile)
             })
         }
     }

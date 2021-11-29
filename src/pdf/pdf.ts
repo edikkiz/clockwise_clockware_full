@@ -1,7 +1,7 @@
 import { format } from 'date-fns'
 import { OrderForPDF } from '../models'
 
-export const orderCheckPdf = (order: OrderForPDF) => {
+export const orderCheckPdf = async (order: OrderForPDF) => {
     return `
   <table align="center">
       <tr>

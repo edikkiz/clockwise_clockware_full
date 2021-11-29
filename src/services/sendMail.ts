@@ -1,4 +1,5 @@
 import * as nodemailer from 'nodemailer'
+import { OptionsForNodemailer } from '../models'
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -20,29 +21,26 @@ const sendMail = async (
     filename?: string,
     pdf?: Buffer,
 ) => {
-    if (pdf && filename) {
-        await transporter.sendMail({
-            from: process.env.NOTIFICATION_EMAIL,
-            to: to,
-            subject: subject,
-            text: text,
-            html: html,
-            attachments: [
-                {
-                    filename: filename,
-                    content: pdf,
-                },
-            ],
-        })
-    } else {
-        await transporter.sendMail({
-            from: process.env.NOTIFICATION_EMAIL,
-            to: to,
-            subject: subject,
-            text: text,
-            html: html,
-        })
+    if (!process.env.NOTIFICATION_EMAIL) {
+        throw new Error('Nodemailer notification email is not provided')
     }
+    const options: OptionsForNodemailer = {
+        from: process.env.NOTIFICATION_EMAIL,
+        to: to,
+        subject: subject,
+        text: text,
+        html: html,
+    }
+    if (filename && pdf) {
+        const file = [
+            {
+                filename: filename,
+                content: pdf,
+            },
+        ]
+        options.attachments = file
+    }
+    await transporter.sendMail(options)
 }
 
 transporter.verify(function () {

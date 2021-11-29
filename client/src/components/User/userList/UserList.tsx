@@ -105,11 +105,11 @@ const UserList: FC<userListProps> = () => {
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
               <th className="table_block_id__order">{`${order.status}`}</th>
-              {!order.images.length ? (
-                <th className="table_block_id__order-button">
+              <th className="table_block_id__order">
+                {!order.images.length ? (
                   <button
                     type="button"
-                    className="link_update__user"
+                    className="link_update__user-disabled"
                     onClick={() => {
                       setOrderId(order.id)
                       setActiveDownloadPhotos(true)
@@ -117,15 +117,15 @@ const UserList: FC<userListProps> = () => {
                   >
                     Upload images
                   </button>
-                </th>
-              ) : (
-                <th className="table_block_id__order">order have images</th>
-              )}
+                ) : (
+                  `this order have images`
+                )}
+              </th>
               {order.status === Status.Completed &&
               order.feedbackToken !== null ? (
                 <Link
                   to={`/rate/${order.feedbackToken}`}
-                  className="link_feedback__user"
+                  className="link_update__user"
                 >
                   <th className="table_link">Сlick here to rate master</th>
                 </Link>
