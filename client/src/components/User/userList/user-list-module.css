@@ -1,87 +1,116 @@
-
 .warapper_order {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .wrapper_order__table {
-    width: 100%;
+  width: 100%;
 }
 
 .table_link__order {
-    border: solid;
-    width: 5%;
+  border: solid;
+  width: 5%;
 }
 
-
-
 .link_create__order {
-    color: black;
-    font-size: 18px;
-    text-decoration: none;
-    border: solid;
+  color: black;
+  font-size: 18px;
+  text-decoration: none;
+  border: solid;
 }
 
 .link_update__user {
-    width: 100%;
-    color: black;
-    font-size: 18px;
-    text-decoration: none;
+  width: 100%;
+  height: 75px;
+  color: black;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.link_feedback__user {
+  width: 100%;
+  height: 75px;
+  color: black;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.table_block_id__order-button:hover {
+  border-radius: 25% 10%;
+  background-color: black;
+  cursor: pointer;
+}
+
+.table_block_id__order-button:hover button {
+  color: white;
+}
+
+.table_block_id__order-button {
+  border: solid;
+  font-size: 18px;
+  width: 3%;
+}
+
+.link_update__user:hover {
+  background-color: black;
+  color: white;
+  border-radius: 25% 10%;
 }
 
 .link_update__user-disabled {
-    width: 100%;
-    color: black;
-    font-size: 18px;
-    text-decoration: none;
-    cursor: auto;
+  width: 100%;
+  color: black;
+  font-size: 18px;
+  text-decoration: none;
+  cursor: auto;
 }
 
-
-
 .table_block_id__order {
-    border: solid;
-    font-size: 18px;
-    width: 3%;
+  border: solid;
+  font-size: 18px;
+  width: 3%;
 }
 
 .table_block_name__user-orders {
-    width: 8%;
-    font-size: 18px;
-    border: solid;
+  width: 8%;
+  font-size: 18px;
+  border: solid;
 }
 
 .table_link__order:hover {
-    background-color: black;
-    color:  white;
-    border-radius: 25% 10%;
+  background-color: black;
+  color: white;
+  border-radius: 25% 10%;
 }
 
-.next_button, .after_button {
-    width: 120px;
-    height: 30px;
-    background: white;
-    color: black;
-    font-size: 18px;
-    border-radius: 5px;
-    border: solid;
-  }
-  
-  .next_button:disabled:hover, .after_button:disabled:hover {
-    width: 120px;
-    height: 30px;
-    background: white;
-    color: black;
-    font-size: 18px;
-    border-radius: 5px;
-    border: solid;
-    cursor: auto;
-  }
+.next_button,
+.after_button {
+  width: 120px;
+  height: 30px;
+  background: white;
+  color: black;
+  font-size: 18px;
+  border-radius: 5px;
+  border: solid;
+}
 
-.next_button:hover, .after_button:hover {    
+.next_button:disabled:hover,
+.after_button:disabled:hover {
+  width: 120px;
+  height: 30px;
+  background: white;
+  color: black;
+  font-size: 18px;
+  border-radius: 5px;
+  border: solid;
+  cursor: auto;
+}
+
+.next_button:hover,
+.after_button:hover {
   background: black;
   color: white;
   border-radius: 25% 10%;
   cursor: pointer;
-  }
+}

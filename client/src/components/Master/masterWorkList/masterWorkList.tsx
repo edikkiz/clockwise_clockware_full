@@ -10,8 +10,6 @@ import { format } from 'date-fns'
 import { saveAs } from 'file-saver'
 import Modal from 'src/components/calendar/modal'
 import Pagination from 'src/components/reusableСomponents/pagination/pagination'
-import { jsPDF } from 'jspdf'
-import { renderToString } from 'react-dom/server'
 
 const options = {
   year: 'numeric',
@@ -89,56 +87,19 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
-  const Pdf = (order: AllOrder) => (
-    <table  className="pdf">
-      <tr>
-        <th colSpan={2}>Clockwise Clockware</th>
-      </tr>
-      <tr>
-        <th>Order</th>
-        <td>{`#${order.id}`}</td>
-      </tr>
-      <tr>
-        <th>Clock size</th>
-        <td>{`${order.clockSize.name}`}</td>
-      </tr>
-      <tr>
-        <th>Master</th>
-        <td>{`${order.master.name}`}</td>
-      </tr>
-      <tr>
-        <th>Master email</th>
-        <td>{`${order.master.person.email}`}</td>
-      </tr>
-      <tr>
-        <th>Order start at</th>
-        <td>{`${format(new Date(order.startAt), 'yyyy-MM-dd HH:mm')}`}</td>
-      </tr>
-      <tr>
-        <th>Order end at</th>
-        <td>{`${format(new Date(order.endAt), 'yyyy-MM-dd HH:mm')}`}</td>
-      </tr>
-      <tr>
-        <th>Price</th>
-        <td>{`${order.price.toString()}$`}</td>
-      </tr>
-      <tr>
-        <th>Client</th>
-        <td>{`${order.user.email}`}</td>
-      </tr>
-    </table>
-  )
-
-  const downloadPDF = (order: AllOrder) => {
-    const doc = new jsPDF()
-    const string = renderToString(Pdf(order))
-    doc.html(string, {
-      callback: function (doc) {
-        doc.save()
+  const downloadPDF = async (order: AllOrder) => {
+    const { data } = await axios.get('/master/orderPdf', {
+      params: {
+        orderId: order.id,
       },
-      x: 0,
-      y: 0,
+      responseType: 'arraybuffer',
+      headers: {
+        Accept: 'application/pdf',
+        'Content-Disposition': 'attachment; john-resume.pdf',
+      },
     })
+    const blob = new Blob([data])
+    saveAs(blob, 'mypdf.pdf')
   }
 
   return (

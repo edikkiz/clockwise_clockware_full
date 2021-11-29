@@ -75,7 +75,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
               }`}</th>
               <th className="table_block_name__master__charts">{`${
                 master.profit === null ? 0 : master.profit
-              }`}</th>
+              }$`}</th>
               <th className="table_block_name__master__charts">{`${master.countCompletedOrders}`}</th>
               <th className="table_block_name__master__charts">{`${master.countNotCompletedOrders}`}</th>
             </tr>

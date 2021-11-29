@@ -20,19 +20,29 @@ const sendMail = async (
     filename?: string,
     pdf?: Buffer,
 ) => {
-    await transporter.sendMail({
-        from: process.env.NOTIFICATION_EMAIL,
-        to: to,
-        subject: subject,
-        text: text,
-        html: html,
-        attachments: [
-            {
-                filename: filename,
-                content: pdf,
-            },
-        ],
-    })
+    if (pdf && filename) {
+        await transporter.sendMail({
+            from: process.env.NOTIFICATION_EMAIL,
+            to: to,
+            subject: subject,
+            text: text,
+            html: html,
+            attachments: [
+                {
+                    filename: filename,
+                    content: pdf,
+                },
+            ],
+        })
+    } else {
+        await transporter.sendMail({
+            from: process.env.NOTIFICATION_EMAIL,
+            to: to,
+            subject: subject,
+            text: text,
+            html: html,
+        })
+    }
 }
 
 transporter.verify(function () {

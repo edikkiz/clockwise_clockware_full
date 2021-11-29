@@ -107,3 +107,7 @@ export const addPhotoInOrderSchema = z.object({
     images: z.array(z.string()),
     orderId: z.number(),
 })
+
+export const sendCheckPdfFileSchema = z.object({
+    orderId: z.string(),
+})

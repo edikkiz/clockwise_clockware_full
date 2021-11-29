@@ -1,5 +1,3 @@
-import { OrderStatus } from '.prisma/client'
-
 export type Order = {
     id: number
     userId: number
@@ -38,15 +36,11 @@ export type DataForCharts = {
 
 export type OrderForPDF = {
     id: number
-    user: { name: string; email: string; id: number }
-    master: { name: string; id: number; person: { email: string } }
-    clockSize: { name: string; id: number }
-    city: { name: string }
+    feedbackToken?: string | null
+    user: { email: string }
+    master: { name: string; person: { email: string } }
+    clockSize: { name: string }
     price: number
     startAt: Date
     endAt: Date
-    feedback: string | null
-    rating: number | null
-    status: OrderStatus
-    images: string[]
 }
