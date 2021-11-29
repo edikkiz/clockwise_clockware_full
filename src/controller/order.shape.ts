@@ -111,3 +111,12 @@ export const addPhotoInOrderSchema = z.object({
 export const sendCheckPdfFileSchema = z.object({
     orderId: z.string(),
 })
+
+export const tableToXLSXSchema = z.object({
+    masterId: z.string().optional(),
+    cityId: z.string().optional(),
+    clockSizeId: z.string().optional(),
+    status: z.nativeEnum(OrderStatus).optional(),
+    start: z.string().optional().nullable(),
+    end: z.string().optional().nullable(),
+})

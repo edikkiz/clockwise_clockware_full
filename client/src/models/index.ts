@@ -107,7 +107,7 @@ export type OrderForTable = {
   images: string[]
   master: { id: number; name: string }
   price: number
-  rating: null
+  rating: number | null
   startAt: string
   status: Status
   user: {

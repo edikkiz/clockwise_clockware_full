@@ -126,6 +126,20 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
     [orders],
   )
 
+  const exportToExel = async () => {
+    const { data } = await axios.get('/admin/exportToXLSX', {
+      params: {
+        cityId: cityFilter,
+        masterId: masterFilter,
+        clockSizeId: clockSizeFilter,
+        status: statusFilter,
+        start: filterStart,
+        end: filterEnd,
+      },
+    })
+    console.log(data)
+  }
+
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -142,6 +156,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
+        <button onClick={exportToExel} className="buttonFilter">
+          export to Exel
+        </button>
       </div>
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">

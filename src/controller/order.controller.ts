@@ -1,7 +1,7 @@
 import { DataForCharts } from '../models'
 import sendMail from '../services/sendMail'
 import { v4 as uuidv4 } from 'uuid'
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient, Prisma, OrderStatus } from '@prisma/client'
 import { Request, Response } from 'express'
 import {
     updateOrderSchema,
@@ -19,6 +19,7 @@ import {
     addPhotoInOrderSchema,
     allOrdersToTheMasterCalendarSchema,
     sendCheckPdfFileSchema,
+    tableToXLSXSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
@@ -54,6 +55,42 @@ const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
     })
 }
 
+import XLSX from 'xlsx'
+
+const filter = (
+    cityId?: number,
+    masterId?: number,
+    clockSizeId?: number,
+    start?: string | null,
+    status?: OrderStatus,
+    end?: string | null,
+) => {
+    const filterStartAt = new Date(`${start}`)
+    const filterEndAt = new Date(`${end} 23:59:59`)
+    return {
+        active: true,
+        AND: [
+            {
+                cityId: cityId ? Number(cityId) : undefined,
+            },
+            {
+                masterId: masterId ? Number(masterId) : undefined,
+            },
+            {
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+            },
+            {
+                status: status ? status : undefined,
+            },
+            {
+                startAt: start ? { gte: filterStartAt } : undefined,
+            },
+            {
+                endAt: end ? { lte: filterEndAt } : undefined,
+            },
+        ],
+    }
+}
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
         const params = orderByFeedbackTokenSchema.safeParse(req.query)
@@ -95,33 +132,16 @@ class OrderController {
             start,
             end,
         } = params.data
-        const filterStartAt = new Date(`${start}`)
-        const filterEndAt = new Date(`${end} 23:59:59`)
-        const filter = {
-            active: true,
-            AND: [
-                {
-                    cityId: cityId ? Number(cityId) : undefined,
-                },
-                {
-                    masterId: masterId ? Number(masterId) : undefined,
-                },
-                {
-                    clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
-                },
-                {
-                    status: status ? status : undefined,
-                },
-                {
-                    startAt: start ? { gte: filterStartAt } : undefined,
-                },
-                {
-                    endAt: end ? { lte: filterEndAt } : undefined,
-                },
-            ],
-        }
+
         const Orders = await prisma.order.findMany({
-            where: filter,
+            where: filter(
+                cityId ? Number(cityId) : undefined,
+                masterId ? Number(masterId) : undefined,
+                clockSizeId ? Number(clockSizeId) : undefined,
+                start ? start : undefined,
+                status ? status : undefined,
+                end ? end : undefined,
+            ),
             orderBy: [{ id: 'desc' }],
             take: Number(limit),
             skip: Number(offset),
@@ -133,7 +153,14 @@ class OrderController {
             },
         })
         const countOrders = await prisma.order.count({
-            where: filter,
+            where: filter(
+                cityId ? Number(cityId) : undefined,
+                masterId ? Number(masterId) : undefined,
+                clockSizeId ? Number(clockSizeId) : undefined,
+                start ? start : undefined,
+                status ? status : undefined,
+                end ? end : undefined,
+            ),
         })
         const result = { total: countOrders, orders: Orders }
         res.status(200).json(result)
@@ -685,6 +712,47 @@ class OrderController {
             })
         }
         await createPDFFile(HTMLString)
+    }
+
+    async exportToXLSX(req: Request, res: Response) {
+        const params = tableToXLSXSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const { cityId, masterId, clockSizeId, status, start, end } =
+            params.data
+
+        const ordersForXLSX = await prisma.order.findMany({
+            where: filter(
+                cityId ? Number(cityId) : undefined,
+                masterId ? Number(masterId) : undefined,
+                clockSizeId ? Number(clockSizeId) : undefined,
+                start ? start : undefined,
+                status ? status : undefined,
+                end ? end : undefined,
+            ),
+            include: {
+                master: true,
+                user: true,
+                clockSize: true,
+                city: true,
+            },
+            orderBy: [{ id: 'desc' }],
+        })
+        const workBook = XLSX.utils.book_new()
+
+        var data = ordersForXLSX.map((order) => {
+            return {
+                "id": order.id
+            }
+        })
+        var workSheet = XLSX.utils.json_to_sheet(data)
+        XLSX.utils.book_append_sheet(workBook, workSheet, 'Results')
+        XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
+
+        console.log(workBook)
+        res.status(200).end(workBook.toString())
+        // res.status(200).send(ordersForXLSX)
     }
 }
 export default new OrderController()
