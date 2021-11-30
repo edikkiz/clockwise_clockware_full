@@ -741,9 +741,20 @@ class OrderController {
         })
         const workBook = XLSX.utils.book_new()
 
-        var data = ordersForXLSX.map((order) => {
+        var data = ordersForXLSX.map(order => {
             return {
-                "id": order.id
+                'id ': order.id,
+                'user name': order.user.name,
+                'user email': order.user.email,
+                'city: order': order.city.name,
+                'clock size': order.clockSize.name,
+                'master name': order.master.name,
+                'start at': order.startAt.toLocaleString(),
+                'end at': order.endAt.toLocaleString(),
+                'price ': order.price,
+                'feedback ': order.feedback,
+                'rating ': order.rating,
+                'status ': order.status,
             }
         })
         var workSheet = XLSX.utils.json_to_sheet(data)
