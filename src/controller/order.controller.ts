@@ -26,7 +26,10 @@ import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
+import util from 'util'
+// import child_process from 'child_process'
 
+// const exec = util.promisify(child_process.execFile)
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = async (
     email: string,
@@ -432,6 +435,7 @@ class OrderController {
             const feedbackToken = order?.feedbackToken
             if (status === 'Completed' && order && feedbackToken && user) {
                 const string = await orderCheckPdf(order)
+
                 pdf.create(string).toBuffer(async (err, buffer) => {
                     if (err) {
                         res.status(500).send(err)
@@ -453,7 +457,8 @@ class OrderController {
         if (!params.success) {
             return
         }
-        const { id, email } = params.data
+        // email
+        const { id } = params.data
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
 
@@ -473,26 +478,42 @@ class OrderController {
             const feedbackToken = order.feedbackToken
             if (feedbackToken) {
                 const string = await orderCheckPdf(order)
-                pdf.create(string).toBuffer(async (err, buffer) => {
-                    if (err) {
-                        res.status(500).send(err)
-                    }
-                    await sendEmailIfStatusCompleted(
-                        email,
-                        feedbackToken,
-                        buffer,
-                        `Order#${order.id}`,
-                    )
-                    const orderWithNewStatus = await prisma.order.update({
-                        where: {
-                            id: Number(id),
-                        },
-                        data: {
-                            status: 'Completed',
-                        },
-                    })
-                    res.status(200).json(orderWithNewStatus)
+                const toBufferPromise = util.promisify(
+                    pdf.create(string).toBuffer,
+                )
+                // toBufferPromise()
+                //     .then(buffer => {
+                //         console.log(buffer)
+                //     })
+                //     .catch(err => console.log(err))
+
+                const test = async () => {
+                    const result = await toBufferPromise()
+                    console.log(result)
+                }
+                test().catch(err => {
+                    console.log(err)
                 })
+                // pdf.create(string).toBuffer(async (err, buffer) => {
+                //     if (err) {
+                //         res.status(500).send(err)
+                //     }
+                //     await sendEmailIfStatusCompleted(
+                //         email,
+                //         feedbackToken,
+                //         buffer,
+                //         `Order#${order.id}`,
+                //     )
+                //     const orderWithNewStatus = await prisma.order.update({
+                //         where: {
+                //             id: Number(id),
+                //         },
+                //         data: {
+                //             status: 'Completed',
+                //         },
+                //     })
+                //     res.status(200).json(orderWithNewStatus)
+                // })
             }
         }
     }
