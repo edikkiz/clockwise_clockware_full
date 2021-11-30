@@ -740,8 +740,7 @@ class OrderController {
             orderBy: [{ id: 'desc' }],
         })
         const workBook = XLSX.utils.book_new()
-
-        var data = ordersForXLSX.map(order => {
+        const data = ordersForXLSX.map(order => {
             return {
                 'id ': order.id,
                 'user name': order.user.name,
@@ -757,13 +756,15 @@ class OrderController {
                 'status ': order.status,
             }
         })
-        var workSheet = XLSX.utils.json_to_sheet(data)
+        const workSheet = XLSX.utils.json_to_sheet(data)
         XLSX.utils.book_append_sheet(workBook, workSheet, 'Results')
-        XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
-
-        console.log(workBook)
-        res.status(200).end(workBook.toString())
-        // res.status(200).send(ordersForXLSX)
+        // XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
+        res.setHeader(
+            'Content-type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        res.setHeader('Content-Disposition: attachment; filename=table.xlsx')
+        res.status(200).download(workBook)
     }
 }
 export default new OrderController()
