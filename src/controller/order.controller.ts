@@ -27,6 +27,7 @@ import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
+import xlsx from 'xlsx'
 
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = (
@@ -739,7 +740,7 @@ class OrderController {
             },
             orderBy: [{ id: 'desc' }],
         })
-        const workBook = XLSX.utils.book_new()
+        const workBook = xlsx.utils.book_new()
         const data = ordersForXLSX.map(order => {
             return {
                 'id ': order.id,
@@ -756,15 +757,21 @@ class OrderController {
                 'status ': order.status,
             }
         })
-        const workSheet = XLSX.utils.json_to_sheet(data)
-        XLSX.utils.book_append_sheet(workBook, workSheet, 'Results')
+        const workSheet = xlsx.utils.json_to_sheet(data)
+        xlsx.utils.book_append_sheet(workBook, workSheet, 'Results')
         // XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
         res.setHeader(
-            'Content-type',
+            'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         )
-        res.setHeader('Content-Disposition: attachment; filename=table.xlsx')
-        res.status(200).download(workBook)
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename="table.xlsx"',
+        )
+        res.setHeader('Content-Transfer-Encoding', 'binary')
+        res.setHeader('Expires', '0')
+
+        xlsx.write(workBook)
     }
 }
 export default new OrderController()
