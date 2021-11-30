@@ -26,7 +26,7 @@ import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
-import util from 'util'
+// import util from 'util'
 // import child_process from 'child_process'
 
 // const exec = util.promisify(child_process.execFile)
@@ -434,20 +434,25 @@ class OrderController {
             })
             const feedbackToken = order?.feedbackToken
             if (status === 'Completed' && order && feedbackToken && user) {
-                const string = await orderCheckPdf(order)
-
-                pdf.create(string).toBuffer(async (err, buffer) => {
-                    if (err) {
-                        res.status(500).send(err)
-                    }
-                    await sendEmailIfStatusCompleted(
-                        user.email,
-                        feedbackToken,
-                        buffer,
-                        `Order#${order.id}`,
-                    )
-                    res.status(201).json(upOrder)
-                })
+                const HTMLString = await orderCheckPdf(order)
+                const createPDFBuffer = (
+                    HTMLString: string,
+                ): Promise<Buffer> => {
+                    return new Promise((resolve, reject) => {
+                        pdf.create(HTMLString).toBuffer((err, buffer) => {
+                            if (err) return reject(err)
+                            return resolve(buffer)
+                        })
+                    })
+                }
+                const buffer = await createPDFBuffer(HTMLString)
+                await sendEmailIfStatusCompleted(
+                    user.email,
+                    feedbackToken,
+                    buffer,
+                    `Order#${order.id}`,
+                )
+                res.status(201).json(upOrder)
             }
         }
     }
@@ -457,11 +462,9 @@ class OrderController {
         if (!params.success) {
             return
         }
-        // email
-        const { id } = params.data
+        const { id, email } = params.data
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
-
             include: {
                 master: {
                     select: { name: true, person: { select: { email: true } } },
@@ -477,43 +480,33 @@ class OrderController {
         } else {
             const feedbackToken = order.feedbackToken
             if (feedbackToken) {
-                const string = await orderCheckPdf(order)
-                const toBufferPromise = util.promisify(
-                    pdf.create(string).toBuffer,
-                )
-                // toBufferPromise()
-                //     .then(buffer => {
-                //         console.log(buffer)
-                //     })
-                //     .catch(err => console.log(err))
-
-                const test = async () => {
-                    const result = await toBufferPromise()
-                    console.log(result)
+                const HTMLString = await orderCheckPdf(order)
+                const createPDFBuffer = (
+                    HTMLString: string,
+                ): Promise<Buffer> => {
+                    return new Promise((resolve, reject) => {
+                        pdf.create(HTMLString).toBuffer((err, buffer) => {
+                            if (err) return reject(err)
+                            return resolve(buffer)
+                        })
+                    })
                 }
-                test().catch(err => {
-                    console.log(err)
+                const buffer = await createPDFBuffer(HTMLString)
+                await sendEmailIfStatusCompleted(
+                    email,
+                    feedbackToken,
+                    buffer,
+                    `Order#${order.id}`,
+                )
+                const orderWithNewStatus = await prisma.order.update({
+                    where: {
+                        id: Number(id),
+                    },
+                    data: {
+                        status: 'Completed',
+                    },
                 })
-                // pdf.create(string).toBuffer(async (err, buffer) => {
-                //     if (err) {
-                //         res.status(500).send(err)
-                //     }
-                //     await sendEmailIfStatusCompleted(
-                //         email,
-                //         feedbackToken,
-                //         buffer,
-                //         `Order#${order.id}`,
-                //     )
-                //     const orderWithNewStatus = await prisma.order.update({
-                //         where: {
-                //             id: Number(id),
-                //         },
-                //         data: {
-                //             status: 'Completed',
-                //         },
-                //     })
-                //     res.status(200).json(orderWithNewStatus)
-                // })
+                res.status(200).json(orderWithNewStatus)
             }
         }
     }
@@ -688,14 +681,18 @@ class OrderController {
         })
 
         if (order) {
-            const string = await orderCheckPdf(order)
+            const HTMLString = await orderCheckPdf(order)
             const pathToPdfFile = `${__dirname}/../Order#${orderId}.pdf`
-            pdf.create(string).toFile(pathToPdfFile, err => {
-                if (err) {
-                    res.status(500).send(err)
-                }
-                res.download(pathToPdfFile)
-            })
+            const createPDFFile = (HTMLString: string) => {
+                return new Promise((resolve, reject) => {
+                    pdf.create(HTMLString).toFile(pathToPdfFile, err => {
+                        if (err) return reject(err)
+                        return resolve(true)
+                    })
+                })
+            }
+            await createPDFFile(HTMLString)
+            res.download(pathToPdfFile)
         }
     }
 }
