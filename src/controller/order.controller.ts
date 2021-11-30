@@ -26,10 +26,7 @@ import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
-// import util from 'util'
-// import child_process from 'child_process'
 
-// const exec = util.promisify(child_process.execFile)
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = async (
     email: string,

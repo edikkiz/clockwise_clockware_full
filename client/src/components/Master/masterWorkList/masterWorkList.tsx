@@ -94,11 +94,14 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
         orderId: order.id,
       },
       responseType: 'arraybuffer',
-      headers: {
-        Accept: 'application/pdf',
-        'Content-Disposition': 'attachment; john-resume.pdf',
-      },
     })
+    if (!data) {
+      addToast('something wrong, please try again later', {
+        appearance: 'error',
+      })
+      setIsLoading(false)
+      return
+    }
     const blob = new Blob([data])
     saveAs(blob, `Order#${orderId}.pdf`)
     setIsLoading(false)

@@ -32,13 +32,12 @@ const sendMail = async (
         html: html,
     }
     if (filename && pdf) {
-        const file = [
+        options.attachments = [
             {
                 filename: filename,
                 content: pdf,
             },
         ]
-        options.attachments = file
     }
     await transporter.sendMail(options)
 }
