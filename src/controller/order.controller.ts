@@ -27,22 +27,24 @@ import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 
+type dataForMailWithPdf = {
+    email: string
+    feedbackToken: string
+    buffer: Buffer
+    fileName: string
+}
+
 const prisma = new PrismaClient()
-const sendEmailIfStatusCompleted = (
-    email: string,
-    feedbackToken: string,
-    buffer: Buffer,
-    fileName: string,
-) => {
-    return sendMail(
-        email,
+const sendEmailIfStatusCompleted = (dataForMailWithPdf: dataForMailWithPdf) =>
+    sendMail(
+        dataForMailWithPdf.email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
-        `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
-        `${fileName}.pdf`,
-        buffer,
+        `<p>Click <a href="${process.env.SITE_URL}/rate/${dataForMailWithPdf.feedbackToken}">here</a> to rate work</p>`,
+        `${dataForMailWithPdf.fileName}.pdf`,
+        dataForMailWithPdf.buffer,
     )
-}
+
 const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
     return new Promise((resolve, reject) => {
         pdf.create(HTMLString).toBuffer((err, buffer) => {
@@ -441,12 +443,12 @@ class OrderController {
             if (status === 'Completed' && order && feedbackToken && user) {
                 const HTMLString = await orderCheckPdf(order)
                 const buffer = await createPDFBuffer(HTMLString)
-                await sendEmailIfStatusCompleted(
-                    user.email,
-                    feedbackToken,
-                    buffer,
-                    `Order#${order.id}`,
-                )
+                await sendEmailIfStatusCompleted({
+                    email: user.email,
+                    feedbackToken: feedbackToken,
+                    buffer: buffer,
+                    fileName: `Order#${order.id}`,
+                })
                 res.status(201).json(upOrder)
             }
         }
@@ -489,12 +491,12 @@ class OrderController {
             },
         })
         const buffer = await createPDFBuffer(HTMLString)
-        await sendEmailIfStatusCompleted(
-            email,
-            feedbackToken,
-            buffer,
-            `Order#${order.id}`,
-        )
+        await sendEmailIfStatusCompleted({
+            email: email,
+            feedbackToken: feedbackToken,
+            buffer: buffer,
+            fileName: `Order#${order.id}`,
+        })
         res.status(200).json(orderWithNewStatus)
     }
 
