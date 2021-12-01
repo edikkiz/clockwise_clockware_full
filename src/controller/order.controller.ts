@@ -485,7 +485,7 @@ class OrderController {
                 id: Number(id),
             },
             data: {
-                status: 'Pending',
+                status: 'Completed',
             },
         })
         const buffer = await createPDFBuffer(HTMLString)
