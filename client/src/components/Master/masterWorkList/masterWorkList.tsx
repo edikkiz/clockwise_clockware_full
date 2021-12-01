@@ -89,25 +89,20 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
 
   const downloadPDF = async (order: AllOrder) => {
     setIsLoading(true)
-    await axios
-      .get<Buffer>('/master/orderPdf', {
+    try {
+      await axios.get<ArrayBuffer>('/master/orderPdf', {
         params: {
           orderId: order.id,
         },
         responseType: 'arraybuffer',
       })
-      .then(res => {
-        const blob = new Blob([res.data])
-        saveAs(blob, `Order#${order.id}.pdf`)
-        setIsLoading(false)
+      setIsLoading(false)
+    } catch {
+      addToast('something wrong, please try again later', {
+        appearance: 'error',
       })
-      .catch(() => {
-        addToast('something wrong, please try again later', {
-          appearance: 'error',
-        })
-        setIsLoading(false)
-        return
-      })
+      setIsLoading(false)
+    }
   }
 
   return (

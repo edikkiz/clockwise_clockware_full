@@ -28,7 +28,7 @@ import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 
 const prisma = new PrismaClient()
-const sendEmailIfStatusCompleted = async (
+const sendEmailIfStatusCompleted = (
     email: string,
     feedbackToken: string,
     dataForPdf?: {
@@ -36,7 +36,7 @@ const sendEmailIfStatusCompleted = async (
         fileName: string
     },
 ) => {
-    await sendMail(
+    sendMail(
         email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
@@ -315,23 +315,23 @@ class OrderController {
         }
         const { images, orderId } = params.data
 
-        if (images) {
-            const imagesUrls = (
-                await Promise.all<cloudinary.UploadApiResponse>(
-                    images.map((image: string) =>
-                        cloudinary.v2.uploader.upload(image),
-                    ),
-                )
-            ).map(response => response.secure_url)
-
-            const orderWithPhotos = await prisma.order.update({
-                where: { id: orderId },
-                data: { images: imagesUrls },
-            })
-            res.status(201).json(orderWithPhotos)
-        } else {
+        if (!images) {
             res.status(400).send({ message: 'no files' })
+            return
         }
+        const imagesUrls = (
+            await Promise.all<cloudinary.UploadApiResponse>(
+                images.map((image: string) =>
+                    cloudinary.v2.uploader.upload(image),
+                ),
+            )
+        ).map(response => response.secure_url)
+
+        const orderWithPhotos = await prisma.order.update({
+            where: { id: orderId },
+            data: { images: imagesUrls },
+        })
+        res.status(201).json(orderWithPhotos)
     }
 
     async feedbackUpdate(req: Request, res: Response) {
@@ -443,7 +443,7 @@ class OrderController {
             if (status === 'Completed' && order && feedbackToken && user) {
                 const HTMLString = await orderCheckPdf(order)
                 const buffer = await createPDFBuffer(HTMLString)
-                await sendEmailIfStatusCompleted(user.email, feedbackToken, {
+                sendEmailIfStatusCompleted(user.email, feedbackToken, {
                     buffer: buffer,
                     fileName: `Order#${order.id}`,
                 })
@@ -472,28 +472,32 @@ class OrderController {
             res.status(400).json({
                 message: `Order with id: ${id} is not exsisted`,
             })
-        } else {
-            const feedbackToken = order.feedbackToken
-            if (feedbackToken) {
-                const HTMLString = await orderCheckPdf(order)
-                const orderWithNewStatus = await prisma.order.update({
-                    where: {
-                        id: Number(id),
-                    },
-                    data: {
-                        status: 'Completed',
-                    },
-                })
-                const buffer = await createPDFBuffer(HTMLString)
-                await sendEmailIfStatusCompleted(email, feedbackToken, {
-                    buffer: buffer,
-                    fileName: `Order#${order.id}`,
-                })
-                res.status(200).json(orderWithNewStatus)
-            } else {
-                res.status(500).send({ message: 'please try again later' })
-            }
+            return
         }
+        const feedbackToken = order.feedbackToken
+        if (!feedbackToken) {
+            res.status(500).send({ message: 'please try again later' })
+            return
+        }
+        const HTMLString = await orderCheckPdf(order)
+        const orderWithNewStatus = await prisma.order.update({
+            where: {
+                id: Number(id),
+            },
+            data: {
+                status: 'Pending',
+            },
+        })
+        const test = () => {
+            return createPDFBuffer(HTMLString)
+        }
+        console.log(test())
+        const buffer = await createPDFBuffer(HTMLString)
+        sendEmailIfStatusCompleted(email, feedbackToken, {
+            buffer: buffer,
+            fileName: `Order#${order.id}`,
+        })
+        res.status(200).json(orderWithNewStatus)
     }
 
     async deleteOrder(req: Request, res: Response) {
@@ -668,20 +672,19 @@ class OrderController {
             res.status(400).json({
                 message: `Order with id: ${orderId} is not exsisted`,
             })
-        } else {
-            const HTMLString = await orderCheckPdf(order)
-            const pathToPdfFile = `${__dirname}/../Order#${orderId}.pdf`
-            const createPDFFile = (HTMLString: string) => {
-                return new Promise((resolve, reject) => {
-                    pdf.create(HTMLString).toFile(pathToPdfFile, err => {
-                        if (err) return reject(err)
-                        return resolve(true)
-                    })
-                })
-            }
-            await createPDFFile(HTMLString)
-            res.download(pathToPdfFile)
+            return
         }
+        const HTMLString = await orderCheckPdf(order)
+        const createPDFFile = (HTMLString: string) => {
+            return new Promise((resolve, reject) => {
+                pdf.create(HTMLString).toStream((err, stream) => {
+                    if (err) return reject(err)
+                    res.setHeader('Content-type', 'application/pdf')
+                    stream.pipe(res)
+                })
+            })
+        }
+        await createPDFFile(HTMLString)
     }
 }
 export default new OrderController()
