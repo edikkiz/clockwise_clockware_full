@@ -31,18 +31,16 @@ const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = (
     email: string,
     feedbackToken: string,
-    dataForPdf?: {
-        buffer: Buffer
-        fileName: string
-    },
+    buffer: Buffer,
+    fileName: string,
 ) => {
-    sendMail(
+    return sendMail(
         email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
         `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
-        `${dataForPdf?.fileName}.pdf`,
-        dataForPdf?.buffer,
+        `${fileName}.pdf`,
+        buffer,
     )
 }
 const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
@@ -443,10 +441,12 @@ class OrderController {
             if (status === 'Completed' && order && feedbackToken && user) {
                 const HTMLString = await orderCheckPdf(order)
                 const buffer = await createPDFBuffer(HTMLString)
-                sendEmailIfStatusCompleted(user.email, feedbackToken, {
-                    buffer: buffer,
-                    fileName: `Order#${order.id}`,
-                })
+                await sendEmailIfStatusCompleted(
+                    user.email,
+                    feedbackToken,
+                    buffer,
+                    `Order#${order.id}`,
+                )
                 res.status(201).json(upOrder)
             }
         }
@@ -488,15 +488,13 @@ class OrderController {
                 status: 'Pending',
             },
         })
-        const test = () => {
-            return createPDFBuffer(HTMLString)
-        }
-        console.log(test())
         const buffer = await createPDFBuffer(HTMLString)
-        sendEmailIfStatusCompleted(email, feedbackToken, {
-            buffer: buffer,
-            fileName: `Order#${order.id}`,
-        })
+        await sendEmailIfStatusCompleted(
+            email,
+            feedbackToken,
+            buffer,
+            `Order#${order.id}`,
+        )
         res.status(200).json(orderWithNewStatus)
     }
 
