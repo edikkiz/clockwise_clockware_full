@@ -761,21 +761,27 @@ class OrderController {
         const workSheet = xlsx.utils.json_to_sheet(data)
         xlsx.utils.book_append_sheet(workBook, workSheet, 'Results')
         // XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
+        // res.setHeader(
+        //     'Content-Type',
+        //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        // )
+        // res.setHeader(
+        //     'Content-Disposition',
+        //     'attachment; filename="table.xlsx"',
+        // )
+
+        xlsx.writeFile(workBook, 'test.xlsx')
+        const test = fs.createReadStream('./test.xlsx')
         res.setHeader(
-            'Content-Type',
+            'Content-type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         )
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename="table.xlsx"',
-        )
-        res.setHeader('Content-Transfer-Encoding', 'binary')
-        res.setHeader('Expires', '0')
-        res.attachment('table.xlsx')
-        const stream = fs.(workBook)
-        const file = xlsx.write(workBook, { type: 'binary', bookType: 'xlsx' })
+        // test.on('end', () => {
+        // })
+        test.pipe(res)
+        // const file = xlsx.write(workBook, { type: 'binary', bookType: 'xlsx' })
 
-        res.status(200).send(file)
+        // res.status(200).send(file)
     }
 }
 export default new OrderController()

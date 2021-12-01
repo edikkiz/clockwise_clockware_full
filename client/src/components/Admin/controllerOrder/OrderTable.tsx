@@ -127,7 +127,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
   )
 
   const exportToExel = async () => {
-    const { data } = await axios.get('/admin/exportToXLSX', {
+    await axios.get('/admin/exportToXLSX', {
       params: {
         cityId: cityFilter,
         masterId: masterFilter,
@@ -140,8 +140,8 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         'Content-Type':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       },
+      responseType: 'arraybuffer',
     })
-    console.log(data)
   }
 
   return (
