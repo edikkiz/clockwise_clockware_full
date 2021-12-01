@@ -87,24 +87,27 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
-  const downloadPDF = async (order: AllOrder, orderId: number) => {
+  const downloadPDF = async (order: AllOrder) => {
     setIsLoading(true)
-    const { data } = await axios.get('/master/orderPdf', {
-      params: {
-        orderId: order.id,
-      },
-      responseType: 'arraybuffer',
-    })
-    if (!data) {
-      addToast('something wrong, please try again later', {
-        appearance: 'error',
+    await axios
+      .get<Buffer>('/master/orderPdf', {
+        params: {
+          orderId: order.id,
+        },
+        responseType: 'arraybuffer',
       })
-      setIsLoading(false)
-      return
-    }
-    const blob = new Blob([data])
-    saveAs(blob, `Order#${orderId}.pdf`)
-    setIsLoading(false)
+      .then(res => {
+        const blob = new Blob([res.data])
+        saveAs(blob, `Order#${order.id}.pdf`)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        addToast('something wrong, please try again later', {
+          appearance: 'error',
+        })
+        setIsLoading(false)
+        return
+      })
   }
 
   return (
@@ -189,7 +192,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 <th className="table_link_master">
                   <button
                     type="button"
-                    onClick={() => downloadPDF(order, order.id)}
+                    onClick={() => downloadPDF(order)}
                     className="link_update__master"
                   >
                     Сlick here for download pdf

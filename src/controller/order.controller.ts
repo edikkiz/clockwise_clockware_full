@@ -31,17 +31,27 @@ const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = async (
     email: string,
     feedbackToken: string,
-    buffer?: Buffer,
-    fileName?: string,
+    dataForPdf?: {
+        buffer: Buffer
+        fileName: string
+    },
 ) => {
     await sendMail(
         email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
         `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
-        `${fileName}.pdf`,
-        buffer,
+        `${dataForPdf?.fileName}.pdf`,
+        dataForPdf?.buffer,
     )
+}
+const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
+    return new Promise((resolve, reject) => {
+        pdf.create(HTMLString).toBuffer((err, buffer) => {
+            if (err) return reject(err)
+            return resolve(buffer)
+        })
+    })
 }
 
 class OrderController {
@@ -432,23 +442,11 @@ class OrderController {
             const feedbackToken = order?.feedbackToken
             if (status === 'Completed' && order && feedbackToken && user) {
                 const HTMLString = await orderCheckPdf(order)
-                const createPDFBuffer = (
-                    HTMLString: string,
-                ): Promise<Buffer> => {
-                    return new Promise((resolve, reject) => {
-                        pdf.create(HTMLString).toBuffer((err, buffer) => {
-                            if (err) return reject(err)
-                            return resolve(buffer)
-                        })
-                    })
-                }
                 const buffer = await createPDFBuffer(HTMLString)
-                await sendEmailIfStatusCompleted(
-                    user.email,
-                    feedbackToken,
-                    buffer,
-                    `Order#${order.id}`,
-                )
+                await sendEmailIfStatusCompleted(user.email, feedbackToken, {
+                    buffer: buffer,
+                    fileName: `Order#${order.id}`,
+                })
                 res.status(201).json(upOrder)
             }
         }
@@ -478,23 +476,6 @@ class OrderController {
             const feedbackToken = order.feedbackToken
             if (feedbackToken) {
                 const HTMLString = await orderCheckPdf(order)
-                const createPDFBuffer = (
-                    HTMLString: string,
-                ): Promise<Buffer> => {
-                    return new Promise((resolve, reject) => {
-                        pdf.create(HTMLString).toBuffer((err, buffer) => {
-                            if (err) return reject(err)
-                            return resolve(buffer)
-                        })
-                    })
-                }
-                const buffer = await createPDFBuffer(HTMLString)
-                await sendEmailIfStatusCompleted(
-                    email,
-                    feedbackToken,
-                    buffer,
-                    `Order#${order.id}`,
-                )
                 const orderWithNewStatus = await prisma.order.update({
                     where: {
                         id: Number(id),
@@ -503,7 +484,14 @@ class OrderController {
                         status: 'Completed',
                     },
                 })
+                const buffer = await createPDFBuffer(HTMLString)
+                await sendEmailIfStatusCompleted(email, feedbackToken, {
+                    buffer: buffer,
+                    fileName: `Order#${order.id}`,
+                })
                 res.status(200).json(orderWithNewStatus)
+            } else {
+                res.status(500).send({ message: 'please try again later' })
             }
         }
     }
@@ -676,8 +664,11 @@ class OrderController {
                 clockSize: true,
             },
         })
-
-        if (order) {
+        if (!order) {
+            res.status(400).json({
+                message: `Order with id: ${orderId} is not exsisted`,
+            })
+        } else {
             const HTMLString = await orderCheckPdf(order)
             const pathToPdfFile = `${__dirname}/../Order#${orderId}.pdf`
             const createPDFFile = (HTMLString: string) => {
