@@ -87,6 +87,24 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
+  const downloadPDF = async (order: AllOrder) => {
+    setIsLoading(true)
+    try {
+      await axios.get<ArrayBuffer>('/master/orderPdf', {
+        params: {
+          orderId: order.id,
+        },
+        responseType: 'arraybuffer',
+      })
+      setIsLoading(false)
+    } catch {
+      addToast('something wrong, please try again later', {
+        appearance: 'error',
+      })
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -107,6 +125,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
             <th className="table_block_name__master-orders">rating</th>
             <th className="table_block_id__order">status</th>
             <th className="table_block_name__master-orders">download images</th>
+            <th className="table_block_name__master-orders">download pdf</th>
             <th className="table_block_name__master-orders">
               change order status
             </th>
@@ -163,6 +182,23 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                   this order dont have images
                 </th>
               )}
+
+              {order.status === Status.Completed ? (
+                <th className="table_link_master">
+                  <button
+                    type="button"
+                    onClick={() => downloadPDF(order)}
+                    className="link_update__master"
+                  >
+                    Сlick here for download pdf
+                  </button>
+                </th>
+              ) : (
+                <th className="table_link__order-disabled">
+                  This order is not completed
+                </th>
+              )}
+
               {order.status != Status.Completed ? (
                 <th className="table_link">
                   <button

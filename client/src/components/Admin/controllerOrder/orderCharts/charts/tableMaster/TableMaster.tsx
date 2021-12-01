@@ -73,7 +73,7 @@ const MasterTableCharts: FC<MasterTableChartsProps> = () => {
               <th className="table_block_name__master__charts">{`${
                 master.rating === null ? 0 : master.rating.toFixed(1)
               }`}</th>
-              <th className="table_block_name__master__charts">{`${
+              <th className="table_block_name__master__charts">{`$${
                 master.profit === null ? 0 : master.profit
               }`}</th>
               <th className="table_block_name__master__charts">{`${master.countCompletedOrders}`}</th>

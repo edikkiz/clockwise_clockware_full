@@ -9,4 +9,6 @@ router.get('/master-orders', orderController.getAllOrdersToTheMasterTable)
 
 router.get('/master-calendar', orderController.getAllOrdersToTheMasterCalendar)
 
+router.get('/orderPdf', orderController.sendCheckPdfFile)
+
 export default router

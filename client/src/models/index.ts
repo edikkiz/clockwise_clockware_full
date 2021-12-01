@@ -69,7 +69,7 @@ export type Order = {
 export type AllOrder = {
   id: number
   user: { name: string; email: string; id: number }
-  master: { name: string; id: number }
+  master: { name: string; id: number; person: { email: string } }
   clockSize: { name: string; id: number }
   city: { name: string }
   price: number

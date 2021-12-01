@@ -18,13 +18,41 @@ import {
     orderFeedbackSchema,
     addPhotoInOrderSchema,
     allOrdersToTheMasterCalendarSchema,
+    sendCheckPdfFileSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
 import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
+import pdf from 'html-pdf'
+import { orderCheckPdf } from '../pdf/pdf'
 
 const prisma = new PrismaClient()
+const sendEmailIfStatusCompleted = (
+    email: string,
+    feedbackToken: string,
+    dataForPdf?: {
+        buffer: Buffer
+        fileName: string
+    },
+) => {
+    sendMail(
+        email,
+        'your order now has a status completed',
+        'your order now has a status completed, you can rate master',
+        `<p>Click <a href="${process.env.SITE_URL}/rate/${feedbackToken}">here</a> to rate work</p>`,
+        `${dataForPdf?.fileName}.pdf`,
+        dataForPdf?.buffer,
+    )
+}
+const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
+    return new Promise((resolve, reject) => {
+        pdf.create(HTMLString).toBuffer((err, buffer) => {
+            if (err) return reject(err)
+            return resolve(buffer)
+        })
+    })
+}
 
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
@@ -37,15 +65,11 @@ class OrderController {
             where: {
                 feedbackToken: feedbackToken,
             },
-            select: {
-                id: true,
-                price: true,
-                startAt: true,
-                endAt: true,
-                master: { select: { name: true } },
-                city: { select: { name: true } },
-                clockSize: { select: { name: true } },
-                user: { select: { name: true, email: true, id: true } },
+            include: {
+                master: true,
+                city: true,
+                clockSize: true,
+                user: true,
             },
         })
         res.status(200).json(orderByFeedbackToken)
@@ -101,40 +125,11 @@ class OrderController {
             orderBy: [{ id: 'desc' }],
             take: Number(limit),
             skip: Number(offset),
-            select: {
-                images: true,
-                id: true,
-                status: true,
-                feedback: true,
-                rating: true,
-                price: true,
-                startAt: true,
-                endAt: true,
-                master: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
-                clockSize: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                city: {
-                    select: {
-                        id: true,
-                        name: true,
-                    },
-                },
+            include: {
+                master: true,
+                city: true,
+                clockSize: true,
+                user: true,
             },
         })
         const countOrders = await prisma.order.count({
@@ -153,19 +148,13 @@ class OrderController {
         const filter = { masterId: Number(masterId), active: true }
         const orderListForOneMaster = await prisma.order.findMany({
             where: filter,
-            select: {
-                images: true,
-                id: true,
-                status: true,
-                feedback: true,
-                rating: true,
-                price: true,
-                startAt: true,
-                endAt: true,
-                clockSize: { select: { id: true, name: true } },
-                master: { select: { id: true, name: true } },
-                user: { select: { id: true, name: true, email: true } },
-                city: { select: { name: true } },
+            include: {
+                master: {
+                    select: { name: true, person: { select: { email: true } } },
+                },
+                city: true,
+                clockSize: true,
+                user: true,
             },
             orderBy: { id: 'desc' },
             take: Number(limit),
@@ -219,20 +208,11 @@ class OrderController {
         const filter = { userId: Number(userId), active: true }
         const orderListForOneUser = await prisma.order.findMany({
             where: filter,
-            select: {
-                feedbackToken: true,
-                images: true,
-                id: true,
-                status: true,
-                feedback: true,
-                rating: true,
-                price: true,
-                startAt: true,
-                endAt: true,
-                clockSize: { select: { id: true, name: true } },
-                master: { select: { id: true, name: true } },
-                user: { select: { id: true, name: true, email: true } },
-                city: { select: { name: true, id: true } },
+            include: {
+                master: true,
+                city: true,
+                clockSize: true,
+                user: true,
             },
             orderBy: { id: 'desc' },
             take: Number(limit),
@@ -335,23 +315,23 @@ class OrderController {
         }
         const { images, orderId } = params.data
 
-        if (images) {
-            const imagesUrls = (
-                await Promise.all<cloudinary.UploadApiResponse>(
-                    images.map((image: string) =>
-                        cloudinary.v2.uploader.upload(image),
-                    ),
-                )
-            ).map(response => response.secure_url)
-
-            const orderWithPhotos = await prisma.order.update({
-                where: { id: orderId },
-                data: { images: imagesUrls },
-            })
-            res.status(201).json(orderWithPhotos)
-        } else {
+        if (!images) {
             res.status(400).send({ message: 'no files' })
+            return
         }
+        const imagesUrls = (
+            await Promise.all<cloudinary.UploadApiResponse>(
+                images.map((image: string) =>
+                    cloudinary.v2.uploader.upload(image),
+                ),
+            )
+        ).map(response => response.secure_url)
+
+        const orderWithPhotos = await prisma.order.update({
+            where: { id: orderId },
+            data: { images: imagesUrls },
+        })
+        res.status(201).json(orderWithPhotos)
     }
 
     async feedbackUpdate(req: Request, res: Response) {
@@ -397,6 +377,13 @@ class OrderController {
         const validationErrors = []
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
+            include: {
+                master: {
+                    select: { name: true, person: { select: { email: true } } },
+                },
+                user: true,
+                clockSize: true,
+            },
         })
         const user = await prisma.user.findUnique({
             where: { id: Number(userId) },
@@ -452,16 +439,16 @@ class OrderController {
                     status: status,
                 },
             })
-            status === 'Completed' &&
-                user?.email &&
-                (await sendMail(
-                    user.email,
-                    'your order now has a status completed',
-                    'your order now has a status completed',
-                    `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-                ))
-
-            res.status(201).json(upOrder)
+            const feedbackToken = order?.feedbackToken
+            if (status === 'Completed' && order && feedbackToken && user) {
+                const HTMLString = await orderCheckPdf(order)
+                const buffer = await createPDFBuffer(HTMLString)
+                sendEmailIfStatusCompleted(user.email, feedbackToken, {
+                    buffer: buffer,
+                    fileName: `Order#${order.id}`,
+                })
+                res.status(201).json(upOrder)
+            }
         }
     }
 
@@ -473,30 +460,44 @@ class OrderController {
         const { id, email } = params.data
         const order = await prisma.order.findUnique({
             where: { id: Number(id) },
+            include: {
+                master: {
+                    select: { name: true, person: { select: { email: true } } },
+                },
+                user: true,
+                clockSize: true,
+            },
         })
         if (!order) {
             res.status(400).json({
                 message: `Order with id: ${id} is not exsisted`,
             })
-        } else {
-            const orderWithNewStatus = await prisma.order.update({
-                where: {
-                    id: Number(id),
-                },
-                data: {
-                    status: 'Completed',
-                },
-            })
-
-            await sendMail(
-                email,
-                'your order now has a status completed',
-                'your order now has a status completed, you can rate master',
-                `<p>Click <a href="${process.env.SITE_URL}/rate/${order?.feedbackToken}">here</a> to rate work</p>`,
-            )
-
-            res.status(200).json(orderWithNewStatus)
+            return
         }
+        const feedbackToken = order.feedbackToken
+        if (!feedbackToken) {
+            res.status(500).send({ message: 'please try again later' })
+            return
+        }
+        const HTMLString = await orderCheckPdf(order)
+        const orderWithNewStatus = await prisma.order.update({
+            where: {
+                id: Number(id),
+            },
+            data: {
+                status: 'Pending',
+            },
+        })
+        const test = () => {
+            return createPDFBuffer(HTMLString)
+        }
+        console.log(test())
+        const buffer = await createPDFBuffer(HTMLString)
+        sendEmailIfStatusCompleted(email, feedbackToken, {
+            buffer: buffer,
+            fileName: `Order#${order.id}`,
+        })
+        res.status(200).json(orderWithNewStatus)
     }
 
     async deleteOrder(req: Request, res: Response) {
@@ -648,6 +649,42 @@ class OrderController {
         const countAllMasters = await prisma.master.count()
         const result = { total: countAllMasters, masters: dataForMasterTable }
         res.status(200).json(result)
+    }
+
+    async sendCheckPdfFile(req: Request, res: Response) {
+        const params = sendCheckPdfFileSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const { orderId } = params.data
+
+        const order = await prisma.order.findUnique({
+            where: { id: Number(orderId) },
+            include: {
+                master: {
+                    select: { name: true, person: { select: { email: true } } },
+                },
+                user: true,
+                clockSize: true,
+            },
+        })
+        if (!order) {
+            res.status(400).json({
+                message: `Order with id: ${orderId} is not exsisted`,
+            })
+            return
+        }
+        const HTMLString = await orderCheckPdf(order)
+        const createPDFFile = (HTMLString: string) => {
+            return new Promise((resolve, reject) => {
+                pdf.create(HTMLString).toStream((err, stream) => {
+                    if (err) return reject(err)
+                    res.setHeader('Content-type', 'application/pdf')
+                    stream.pipe(res)
+                })
+            })
+        }
+        await createPDFFile(HTMLString)
     }
 }
 export default new OrderController()
