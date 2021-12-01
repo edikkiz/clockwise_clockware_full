@@ -28,6 +28,7 @@ import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 import xlsx from 'xlsx'
+import fs from 'fs'
 
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = (
@@ -770,8 +771,11 @@ class OrderController {
         )
         res.setHeader('Content-Transfer-Encoding', 'binary')
         res.setHeader('Expires', '0')
+        res.attachment('table.xlsx')
+        const stream = fs.(workBook)
+        const file = xlsx.write(workBook, { type: 'binary', bookType: 'xlsx' })
 
-        xlsx.write(workBook)
+        res.status(200).send(file)
     }
 }
 export default new OrderController()

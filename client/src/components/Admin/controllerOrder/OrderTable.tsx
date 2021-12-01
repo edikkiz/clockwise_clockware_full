@@ -136,6 +136,10 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         start: filterStart,
         end: filterEnd,
       },
+      headers: {
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
     })
     console.log(data)
   }
