@@ -27,7 +27,7 @@ import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 
-type dataForMailWithPdf = {
+type DataForMailWithPdf = {
     email: string
     feedbackToken: string
     buffer: Buffer
@@ -35,14 +35,14 @@ type dataForMailWithPdf = {
 }
 
 const prisma = new PrismaClient()
-const sendEmailIfStatusCompleted = (dataForMailWithPdf: dataForMailWithPdf) =>
+const sendEmailIfStatusCompleted = (options: DataForMailWithPdf) =>
     sendMail(
-        dataForMailWithPdf.email,
+        options.email,
         'your order now has a status completed',
         'your order now has a status completed, you can rate master',
-        `<p>Click <a href="${process.env.SITE_URL}/rate/${dataForMailWithPdf.feedbackToken}">here</a> to rate work</p>`,
-        `${dataForMailWithPdf.fileName}.pdf`,
-        dataForMailWithPdf.buffer,
+        `<p>Click <a href="${process.env.SITE_URL}/rate/${options.feedbackToken}">here</a> to rate work</p>`,
+        `${options.fileName}.pdf`,
+        options.buffer,
     )
 const createPDFBuffer = (HTMLString: string): Promise<Buffer> =>
     new Promise((resolve, reject) => {
