@@ -30,6 +30,14 @@ import { orderCheckPdf } from '../pdf/pdf'
 import xlsx from 'xlsx'
 import { Readable } from 'stream'
 
+type DataForFilter = {
+    cityId?: number
+    masterId?: number
+    clockSizeId?: number
+    start?: string | null
+    status?: OrderStatus
+    end?: string | null
+}
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = (
     email: string,
@@ -56,36 +64,33 @@ const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
         })
     })
 }
-const filter = (
-    cityId?: number,
-    masterId?: number,
-    clockSizeId?: number,
-    start?: string | null,
-    status?: OrderStatus,
-    end?: string | null,
-) => {
-    const filterStartAt = new Date(`${start}`)
-    const filterEndAt = new Date(`${end} 23:59:59`)
+const filter = (options: DataForFilter) => {
+    const filterStartAt = new Date(`${options.start}`)
+    const filterEndAt = new Date(`${options.end} 23:59:59`)
     return {
         active: true,
         AND: [
             {
-                cityId: cityId ? Number(cityId) : undefined,
+                cityId: options.cityId ? Number(options.cityId) : undefined,
             },
             {
-                masterId: masterId ? Number(masterId) : undefined,
+                masterId: options.masterId
+                    ? Number(options.masterId)
+                    : undefined,
             },
             {
-                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                clockSizeId: options.clockSizeId
+                    ? Number(options.clockSizeId)
+                    : undefined,
             },
             {
-                status: status ? status : undefined,
+                status: options.status ? options.status : undefined,
             },
             {
-                startAt: start ? { gte: filterStartAt } : undefined,
+                startAt: options.start ? { gte: filterStartAt } : undefined,
             },
             {
-                endAt: end ? { lte: filterEndAt } : undefined,
+                endAt: options.end ? { lte: filterEndAt } : undefined,
             },
         ],
     }
@@ -134,14 +139,14 @@ class OrderController {
         } = params.data
 
         const Orders = await prisma.order.findMany({
-            where: filter(
-                cityId ? Number(cityId) : undefined,
-                masterId ? Number(masterId) : undefined,
-                clockSizeId ? Number(clockSizeId) : undefined,
-                start ? start : undefined,
-                status ? status : undefined,
-                end ? end : undefined,
-            ),
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status ? status : undefined,
+                end: end ? end : undefined,
+            }),
             orderBy: [{ id: 'desc' }],
             take: Number(limit),
             skip: Number(offset),
@@ -153,14 +158,14 @@ class OrderController {
             },
         })
         const countOrders = await prisma.order.count({
-            where: filter(
-                cityId ? Number(cityId) : undefined,
-                masterId ? Number(masterId) : undefined,
-                clockSizeId ? Number(clockSizeId) : undefined,
-                start ? start : undefined,
-                status ? status : undefined,
-                end ? end : undefined,
-            ),
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status ? status : undefined,
+                end: end ? end : undefined,
+            }),
         })
         const result = { total: countOrders, orders: Orders }
         res.status(200).json(result)
@@ -722,14 +727,14 @@ class OrderController {
         const { cityId, masterId, clockSizeId, status, start, end } =
             params.data
         const ordersForXLSX = await prisma.order.findMany({
-            where: filter(
-                cityId ? Number(cityId) : undefined,
-                masterId ? Number(masterId) : undefined,
-                clockSizeId ? Number(clockSizeId) : undefined,
-                start ? start : undefined,
-                status !== 'null' ? status : undefined,
-                end ? end : undefined,
-            ),
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status !== 'null' ? status : undefined,
+                end: end ? end : undefined,
+            }),
             include: {
                 master: true,
                 user: true,
