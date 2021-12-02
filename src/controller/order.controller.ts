@@ -28,7 +28,8 @@ import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 import xlsx from 'xlsx'
-import fs from 'fs'
+// import fs from 'fs'
+import { Readable } from 'stream'
 
 const prisma = new PrismaClient()
 const sendEmailIfStatusCompleted = (
@@ -765,20 +766,20 @@ class OrderController {
         //     'Content-Type',
         //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         // )
-        // res.setHeader(
-        //     'Content-Disposition',
-        //     'attachment; filename="table.xlsx"',
-        // )
-
-        xlsx.writeFile(workBook, 'test.xlsx')
-        const test = fs.createReadStream('./test.xlsx')
+        const buffer = xlsx.write(workBook, { type: 'buffer' })
+        const readable = new Readable()
+        readable.push(buffer)
+        readable.push(null)
         res.setHeader(
-            'Content-type',
+            'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         )
-        // test.on('end', () => {
-        // })
-        test.pipe(res)
+        res.setHeader('Content-Disposition', 'attachment; filename="table.xlsx"')
+
+        readable.pipe(res)
+
+        // res.setHeader('Content-length', 49551)
+
         // const file = xlsx.write(workBook, { type: 'binary', bookType: 'xlsx' })
 
         // res.status(200).send(file)
