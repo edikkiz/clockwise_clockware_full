@@ -87,24 +87,6 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
     })
   }
 
-  const downloadPDF = async (order: AllOrder) => {
-    setIsLoading(true)
-    try {
-      await axios.get<ArrayBuffer>('/master/orderPdf', {
-        params: {
-          orderId: order.id,
-        },
-        responseType: 'arraybuffer',
-      })
-      setIsLoading(false)
-    } catch {
-      addToast('something wrong, please try again later', {
-        appearance: 'error',
-      })
-      setIsLoading(false)
-    }
-  }
-
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -147,8 +129,8 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                 'yyyy-MM-dd HH:mm',
               )}`}</th>
               <th className="table_block_name__master-orders">{`${order.price}`}</th>
-              <th className="table_link_master">
-                {order.rating !== null ? (
+              {order.rating !== null ? (
+                <th className="table_link_master_active">
                   <button
                     className="link_update__master"
                     onClick={() => {
@@ -158,17 +140,19 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                   >
                     check feedback
                   </button>
-                ) : (
+                </th>
+              ) : (
+                <th className="table_link_master">
                   <div>no feedback</div>
-                )}
-              </th>
+                </th>
+              )}
               <th className="table_block_name__master-orders">{`${
                 order.rating === null ? 'not rated' : order.rating
               }`}</th>
               <th className="table_block_id__order">{`${order.status}`}</th>
 
               {order.images.length ? (
-                <th className="table_link_master">
+                <th className="table_link_master_active">
                   <button
                     type="button"
                     onClick={() => download(order.images)}
@@ -184,14 +168,18 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
               )}
 
               {order.status === Status.Completed ? (
-                <th className="table_link_master">
-                  <button
-                    type="button"
-                    onClick={() => downloadPDF(order)}
+                <th className="table_download_link_master">
+                  <a
+                    target="_blank"
+                    href={`${
+                      process.env.REACT_APP_API_URL
+                    }/master/orderPdf?orderId=${
+                      order.id
+                    }&token=${localStorage.getItem('accessToken')}`}
                     className="link_update__master"
                   >
                     Сlick here for download pdf
-                  </button>
+                  </a>
                 </th>
               ) : (
                 <th className="table_link__order-disabled">

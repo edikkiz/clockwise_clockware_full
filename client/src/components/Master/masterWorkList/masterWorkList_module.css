@@ -40,12 +40,6 @@
   cursor: auto;
 }
 
-.link_update__master:hover {
-  background-color: black;
-  color: white;
-  border-radius: 25% 10%;
-}
-
 .link_create__order {
   color: black;
   font-size: 20px;
@@ -63,6 +57,36 @@
 .table_link_master {
   border: solid;
   width: 5%;
+}
+
+.table_link_master_active {
+  border: solid;
+  width: 5%;
+}
+
+.table_link_master_active:hover {
+  cursor: pointer;
+  background-color: black;
+  border-radius: 25% 10%;
+}
+
+.table_link_master_active:hover button {
+  color: white;
+}
+
+.table_download_link_master {
+  border: solid;
+  width: 5%;
+}
+
+.table_download_link_master:hover {
+  cursor: pointer;
+  background-color: black;
+  border-radius: 25% 10%;
+}
+
+.table_download_link_master:hover a {
+  color: white;
 }
 
 .table_link__order:hover {
