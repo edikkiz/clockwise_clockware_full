@@ -110,4 +110,5 @@ export const addPhotoInOrderSchema = z.object({
 
 export const sendCheckPdfFileSchema = z.object({
     orderId: z.string(),
+    token: z.string(),
 })
