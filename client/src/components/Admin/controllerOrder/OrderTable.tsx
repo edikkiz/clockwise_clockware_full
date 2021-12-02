@@ -20,7 +20,6 @@ interface OrdersResult {
   total: number
   orders: OrderForTable[]
 }
-
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [orders, setOrders] = useState<OrdersResult>({ total: 0, orders: [] })
@@ -126,37 +125,6 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
     [orders],
   )
 
-  const exportToExel = async () => {
-    const { data } = await axios.get('/exportToXLSX', {
-      params: {
-        cityId: cityFilter,
-        masterId: masterFilter,
-        clockSizeId: clockSizeFilter,
-        status: statusFilter,
-        start: filterStart,
-        end: filterEnd,
-      },
-      headers: {
-        ContentDisposition: 'attachment; filename="table.xlsx"',
-        accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-      },
-      responseType: 'arraybuffer',
-    })
-
-    const blob = new Blob([data])
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'table.xlsx'
-    a.target = '_blank'
-    setTimeout(function () {
-      a.click()
-    })
-
-    // saveAs(blob, 'test.xlsx')
-  }
-
   return (
     <div>
       <Preloader isLoading={isLoading} />
@@ -173,12 +141,15 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
-        <a href="http://localhost:3333/api/exportToXLSX?start=&end=">
-          asdasdasdasd
+        <a
+          target="_blank"
+          className="download-exel"
+          href={`http://localhost:3333/api/admin/exportToXLSX?start=${filterStart}&end=${filterEnd}&status=${statusFilter}&clockSizeId=${clockSizeFilter}&masterId=${masterFilter}&cityId=${cityFilter}&token=Bearer ${localStorage.getItem(
+            'accessToken',
+          )}`}
+        >
+          Download exel
         </a>
-        <button onClick={() => exportToExel()} className="buttonFilter">
-          export to Exel
-        </button>
       </div>
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">

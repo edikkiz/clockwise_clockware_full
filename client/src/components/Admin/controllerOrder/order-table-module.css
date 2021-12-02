@@ -133,6 +133,21 @@
   cursor: pointer;
 }
 
+.download-exel {
+  text-decoration: none;
+  cursor: pointer;
+  color: black;
+  border: solid 1px;
+  border-radius: 5px;
+}
+
+.download-exel:hover {
+  background: black;
+  color: white;
+  border-radius: 25% 10%;
+  cursor: pointer;
+}
+
 @media (min-width: 1024px) and (max-width: 1240px) {
   .wrapper_orders__table tr th,
   .wrapper_orders__table tr th button {

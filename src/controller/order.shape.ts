@@ -113,10 +113,18 @@ export const sendCheckPdfFileSchema = z.object({
 })
 
 export const tableToXLSXSchema = z.object({
-    masterId: z.string().optional(),
-    cityId: z.string().optional(),
-    clockSizeId: z.string().optional(),
-    status: z.nativeEnum(OrderStatus).optional(),
-    start: z.string().optional().nullable(),
-    end: z.string().optional().nullable(),
+    masterId: z.string().nullable().optional(),
+    cityId: z.string().nullable().optional(),
+    clockSizeId: z.string().nullable().optional(),
+    status: z.enum([
+        OrderStatus.InProgress,
+        OrderStatus.Completed,
+        OrderStatus.Pending,
+        OrderStatus.Active,
+        OrderStatus.InActive,
+        'null',
+    ]),
+    start: z.string().nullable().optional(),
+    end: z.string().nullable().optional(),
+    token: z.string(),
 })

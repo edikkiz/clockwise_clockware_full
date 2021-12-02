@@ -724,14 +724,13 @@ class OrderController {
         }
         const { cityId, masterId, clockSizeId, status, start, end } =
             params.data
-
         const ordersForXLSX = await prisma.order.findMany({
             where: filter(
                 cityId ? Number(cityId) : undefined,
                 masterId ? Number(masterId) : undefined,
                 clockSizeId ? Number(clockSizeId) : undefined,
                 start ? start : undefined,
-                status ? status : undefined,
+                status !== 'null' ? status : undefined,
                 end ? end : undefined,
             ),
             include: {
@@ -761,11 +760,6 @@ class OrderController {
         })
         const workSheet = xlsx.utils.json_to_sheet(data)
         xlsx.utils.book_append_sheet(workBook, workSheet, 'Results')
-        // XLSX.writeFile(workBook, 'out.xlsx', { type: 'file' })
-        // res.setHeader(
-        //     'Content-Type',
-        //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        // )
         const buffer = xlsx.write(workBook, { type: 'buffer' })
         const readable = new Readable()
         readable.push(buffer)
@@ -774,15 +768,11 @@ class OrderController {
             'Content-Type',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         )
-        res.setHeader('Content-Disposition', 'attachment; filename="table.xlsx"')
-
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename="table.xlsx"',
+        )
         readable.pipe(res)
-
-        // res.setHeader('Content-length', 49551)
-
-        // const file = xlsx.write(workBook, { type: 'binary', bookType: 'xlsx' })
-
-        // res.status(200).send(file)
     }
 }
 export default new OrderController()
