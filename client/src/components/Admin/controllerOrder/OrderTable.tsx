@@ -144,7 +144,9 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <a
           target="_blank"
           className="download-exel"
-          href={`http://localhost:3333/api/admin/exportToXLSX?start=${filterStart}&end=${filterEnd}&status=${statusFilter}&clockSizeId=${clockSizeFilter}&masterId=${masterFilter}&cityId=${cityFilter}&token=Bearer ${localStorage.getItem(
+          href={`${
+            process.env.REACT_APP_API_URL
+          }/admin/exportToXLSX?start=${filterStart}&end=${filterEnd}&status=${statusFilter}&clockSizeId=${clockSizeFilter}&masterId=${masterFilter}&cityId=${cityFilter}&token=Bearer ${localStorage.getItem(
             'accessToken',
           )}`}
         >
