@@ -28,7 +28,6 @@ import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
 import xlsx from 'xlsx'
-// import fs from 'fs'
 import { Readable } from 'stream'
 
 const prisma = new PrismaClient()
@@ -57,9 +56,6 @@ const createPDFBuffer = (HTMLString: string): Promise<Buffer> => {
         })
     })
 }
-
-import XLSX from 'xlsx'
-
 const filter = (
     cityId?: number,
     masterId?: number,
@@ -94,6 +90,7 @@ const filter = (
         ],
     }
 }
+
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
         const params = orderByFeedbackTokenSchema.safeParse(req.query)
