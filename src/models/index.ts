@@ -1,3 +1,5 @@
+import { OrderStatus } from '.prisma/client'
+
 export type Order = {
     id: number
     userId: number
@@ -55,4 +57,24 @@ export type OptionsForNodemailer = {
         filename: string
         content: Buffer
     }[]
+}
+
+export type OrderXLSXTable = {
+    city: { id: number; name: string }
+    cityId: number
+    clockSize: { id: number; name: string }
+    endAt: Date
+    feedback: string | null
+    id: number
+    images: string[]
+    master: { id: number; name: string }
+    price: number
+    rating: number | null
+    startAt: Date
+    status: OrderStatus
+    user: {
+        id: number
+        name: string
+        email: string
+    }
 }

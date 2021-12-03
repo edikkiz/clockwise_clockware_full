@@ -40,4 +40,7 @@ router.get('/graph/city', orderController.getDataForCityGraph)
 router.get('/graph/master', orderController.getDataForMasterGraph)
 
 router.get('/masters-list', orderController.getDataForMasterTable)
+
+router.get('/exportToXLSX', orderController.exportToXLSX)
+
 export default router

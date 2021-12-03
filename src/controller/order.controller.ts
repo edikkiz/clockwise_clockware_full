@@ -1,7 +1,7 @@
 import { DataForCharts } from '../models'
 import sendMail from '../services/sendMail'
 import { v4 as uuidv4 } from 'uuid'
-import { PrismaClient, Prisma } from '@prisma/client'
+import { PrismaClient, Prisma, OrderStatus } from '@prisma/client'
 import { Request, Response } from 'express'
 import {
     updateOrderSchema,
@@ -19,6 +19,7 @@ import {
     addPhotoInOrderSchema,
     allOrdersToTheMasterCalendarSchema,
     sendCheckPdfFileSchema,
+    tableToXLSXSchema,
 } from './order.shape'
 import { cloudinary } from '../utils/cloudinary'
 import bcrypt from 'bcrypt'
@@ -26,6 +27,18 @@ import { startOfDay, endOfDay } from 'date-fns'
 import Stripe from 'stripe'
 import pdf from 'html-pdf'
 import { orderCheckPdf } from '../pdf/pdf'
+import xlsx from 'xlsx'
+import { Readable } from 'stream'
+
+
+type DataForFilter = {
+    cityId?: number
+    masterId?: number
+    clockSizeId?: number
+    start?: string | null
+    status?: OrderStatus
+    end?: string | null
+}
 
 type DataForMailWithPdf = {
     email: string
@@ -51,6 +64,38 @@ const createPDFBuffer = (HTMLString: string): Promise<Buffer> =>
             return resolve(buffer)
         })
     })
+}
+const filter = (options: DataForFilter) => {
+    const filterStartAt = new Date(`${options.start}`)
+    const filterEndAt = new Date(`${options.end} 23:59:59`)
+    return {
+        active: true,
+        AND: [
+            {
+                cityId: options.cityId ? Number(options.cityId) : undefined,
+            },
+            {
+                masterId: options.masterId
+                    ? Number(options.masterId)
+                    : undefined,
+            },
+            {
+                clockSizeId: options.clockSizeId
+                    ? Number(options.clockSizeId)
+                    : undefined,
+            },
+            {
+                status: options.status ? options.status : undefined,
+            },
+            {
+                startAt: options.start ? { gte: filterStartAt } : undefined,
+            },
+            {
+                endAt: options.end ? { lte: filterEndAt } : undefined,
+            },
+        ],
+    }
+}
 
 class OrderController {
     async getOrderByFeedbackToken(req: Request, res: Response) {
@@ -93,33 +138,16 @@ class OrderController {
             start,
             end,
         } = params.data
-        const filterStartAt = new Date(`${start}`)
-        const filterEndAt = new Date(`${end} 23:59:59`)
-        const filter = {
-            active: true,
-            AND: [
-                {
-                    cityId: cityId ? Number(cityId) : undefined,
-                },
-                {
-                    masterId: masterId ? Number(masterId) : undefined,
-                },
-                {
-                    clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
-                },
-                {
-                    status: status ? status : undefined,
-                },
-                {
-                    startAt: start ? { gte: filterStartAt } : undefined,
-                },
-                {
-                    endAt: end ? { lte: filterEndAt } : undefined,
-                },
-            ],
-        }
+
         const Orders = await prisma.order.findMany({
-            where: filter,
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status ? status : undefined,
+                end: end ? end : undefined,
+            }),
             orderBy: [{ id: 'desc' }],
             take: Number(limit),
             skip: Number(offset),
@@ -131,7 +159,14 @@ class OrderController {
             },
         })
         const countOrders = await prisma.order.count({
-            where: filter,
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status ? status : undefined,
+                end: end ? end : undefined,
+            }),
         })
         const result = { total: countOrders, orders: Orders }
         res.status(200).json(result)
@@ -687,6 +722,64 @@ class OrderController {
             })
         }
         await createPDFFile(HTMLString)
+    }
+
+    async exportToXLSX(req: Request, res: Response) {
+        const params = tableToXLSXSchema.safeParse(req.query)
+        if (!params.success) {
+            return
+        }
+        const { cityId, masterId, clockSizeId, status, start, end } =
+            params.data
+        const ordersForXLSX = await prisma.order.findMany({
+            where: filter({
+                cityId: cityId ? Number(cityId) : undefined,
+                masterId: masterId ? Number(masterId) : undefined,
+                clockSizeId: clockSizeId ? Number(clockSizeId) : undefined,
+                start: start ? start : undefined,
+                status: status !== 'null' ? status : undefined,
+                end: end ? end : undefined,
+            }),
+            include: {
+                master: true,
+                user: true,
+                clockSize: true,
+                city: true,
+            },
+            orderBy: [{ id: 'desc' }],
+        })
+        const workBook = xlsx.utils.book_new()
+        const data = ordersForXLSX.map(order => {
+            return {
+                'id ': order.id,
+                'user name': order.user.name,
+                'user email': order.user.email,
+                'city: order': order.city.name,
+                'clock size': order.clockSize.name,
+                'master name': order.master.name,
+                'start at': order.startAt.toLocaleString(),
+                'end at': order.endAt.toLocaleString(),
+                'price ': order.price,
+                'feedback ': order.feedback,
+                'rating ': order.rating,
+                'status ': order.status,
+            }
+        })
+        const workSheet = xlsx.utils.json_to_sheet(data)
+        xlsx.utils.book_append_sheet(workBook, workSheet, 'Results')
+        const buffer = xlsx.write(workBook, { type: 'buffer' })
+        const readable = new Readable()
+        readable.push(buffer)
+        readable.push(null)
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        res.setHeader(
+            'Content-Disposition',
+            'attachment; filename="table.xlsx"',
+        )
+        readable.pipe(res)
     }
 }
 export default new OrderController()

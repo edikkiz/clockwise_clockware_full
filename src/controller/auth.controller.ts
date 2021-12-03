@@ -11,6 +11,9 @@ class AuthController {
     checkAccessToken =
         (tokenType: 'ADMIN' | 'MASTER' | 'USER') =>
         async (req: Request, res: Response, next: NextFunction) => {
+            if (typeof req.query.token === 'string') {
+                req.headers['authorization'] = req.query.token
+            }
             if (!process.env.SECRET_KEY) {
                 throw new Error('Secret jwt key is not provided')
             }

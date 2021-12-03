@@ -71,6 +71,9 @@ app.post(
 
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ limit: '5mb', extended: true }))
+
+app.get('/api/exportToXLSX', orderController.exportToXLSX)
+
 app.use('/api', userRouter)
 
 app.use('/api', cityRouter)

@@ -20,7 +20,6 @@ interface OrdersResult {
   total: number
   orders: OrderForTable[]
 }
-
 interface ControllerOrderTableProps {}
 const OrderTable: FC<ControllerOrderTableProps> = () => {
   const [orders, setOrders] = useState<OrdersResult>({ total: 0, orders: [] })
@@ -142,6 +141,17 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
         <ClockSizeSelect setSelectValue={setClockSizeFilter} />
         <StatusSelect setSelectValue={setStatusFilter} />
         <DateRange setStart={setFilterStart} setEnd={setFilterEnd} />
+        <a
+          target="_blank"
+          className="download-exel"
+          href={`${
+            process.env.REACT_APP_API_URL
+          }/admin/exportToXLSX?start=${filterStart}&end=${filterEnd}&status=${statusFilter}&clockSizeId=${clockSizeFilter}&masterId=${masterFilter}&cityId=${cityFilter}&token=Bearer ${localStorage.getItem(
+            'accessToken',
+          )}`}
+        >
+          Download exel
+        </a>
       </div>
       <div className="wrapper_orders">
         <table className="wrapper_orders__table">
