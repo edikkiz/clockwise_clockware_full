@@ -175,7 +175,7 @@ const MasterWorkList: FC<masterWorkListProps> = () => {
                       process.env.REACT_APP_API_URL
                     }/master/orderPdf?orderId=${
                       order.id
-                    }&token=${localStorage.getItem('accessToken')}`}
+                    }&token=Bearer ${localStorage.getItem('accessToken')}`}
                     className="link_update__master"
                   >
                     Сlick here for download pdf
