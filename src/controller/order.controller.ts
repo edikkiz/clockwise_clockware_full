@@ -64,7 +64,7 @@ const createPDFBuffer = (HTMLString: string): Promise<Buffer> =>
             return resolve(buffer)
         })
     })
-}
+
 const filter = (options: DataForFilter) => {
     const filterStartAt = new Date(`${options.start}`)
     const filterEndAt = new Date(`${options.end} 23:59:59`)
