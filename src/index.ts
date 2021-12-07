@@ -7,7 +7,7 @@ import authRouter from './routes/auth.router'
 import adminRouter from './routes/admin.router'
 import masterRoleRouter from './routes/masterRole.router'
 import userRoleRouter from './routes/userRole.route'
-import blogRouter from './routes/blog.router'
+import blogRoute from './routes/blog.route'
 import stripeRouter from './routes/stripe.router'
 import cors from 'cors'
 import authController from './controller/auth.controller'
@@ -77,7 +77,7 @@ app.get('/api/exportToXLSX', orderController.exportToXLSX)
 
 app.use('/api', userRouter)
 
-app.use('/api', blogRouter)
+app.use('/api', blogRoute)
 
 app.use('/api', cityRouter)
 

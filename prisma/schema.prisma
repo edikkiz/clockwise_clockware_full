@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("DATABASE_LOCAL")
+  provider = "postgresql"
+  url      = env("DATABASE_LOCAL")
+  // shadowDatabaseUrl = env("DATABASE_LOCAL")
 }
 
 generator client {
@@ -100,4 +100,15 @@ model Order {
   session       String?
 
   @@map("orders")
+}
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  content     String
+  titleImg    String
+  createAt    DateTime @default(now())
+  title       String
+  previewText String
+
+  @@map("posts")
 }

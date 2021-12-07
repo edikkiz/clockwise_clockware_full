@@ -1,0 +1,16 @@
+.post p {
+  color: black;
+}
+
+.post .wrapper_form__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.button-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

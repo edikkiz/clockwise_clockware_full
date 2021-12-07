@@ -2,16 +2,22 @@ import { FC, useCallback, useEffect, useState } from 'react'
 import { useToasts } from 'react-toast-notifications'
 
 interface FileInputProps {
+  fileNames?: string[]
   files: string[]
   setFiles: React.Dispatch<React.SetStateAction<string[]>>
   filesLimit: number
 }
-const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
+const FileInput: FC<FileInputProps> = ({
+  setFiles,
+  files,
+  filesLimit,
+  fileNames,
+}) => {
   const { addToast } = useToasts()
 
   const [innerFiles, setInnerFiles] = useState<File[]>()
 
-  const [fileNames, setFileNames] = useState<string[]>([])
+  const [innerFileNames, setInnerFileNames] = useState<string[]>([])
 
   const fileRender = useCallback(() => {
     if (innerFiles) {
@@ -20,7 +26,10 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
         return
       }
       innerFiles.forEach(innerFiles => {
-        setFileNames(prevFileNames => [...prevFileNames, innerFiles.name])
+        setInnerFileNames(prevInnerFileNames => [
+          ...prevInnerFileNames,
+          innerFiles.name,
+        ])
         const fileReader = new FileReader()
         fileReader.readAsDataURL(innerFiles)
         fileReader.onload = () => {
@@ -36,6 +45,20 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
   useEffect(() => {
     fileRender()
   }, [fileRender])
+
+  useEffect(() => {
+    if (files.length > filesLimit) {
+      setFiles([])
+      setInnerFileNames([])
+      addToast(`max ${filesLimit} files`, { appearance: 'error' })
+    } else {
+      return
+    }
+  }, [files])
+
+  useEffect(() => {
+    fileNames && setInnerFileNames(fileNames)
+  }, [])
 
   return (
     <div>
@@ -54,16 +77,22 @@ const FileInput: FC<FileInputProps> = ({ setFiles, files, filesLimit }) => {
             }
             setInnerFiles(localCopy)
           } else {
-            addToast('max 5 file', { appearance: 'error' })
+            addToast(`max ${filesLimit} file`, { appearance: 'error' })
             return
           }
         }}
       />
-      {files.length ? fileNames.map(name => <div>{name}</div>) : <div></div>}
+      <div id="filesName">
+        {files.length ? (
+          innerFileNames.map(name => <div>{name}</div>)
+        ) : (
+          <div></div>
+        )}
+      </div>
       <button
         className="wrapper_form__button"
         onClick={() => {
-          setFileNames([])
+          setInnerFileNames([])
           setFiles([])
         }}
       >

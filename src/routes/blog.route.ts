@@ -3,6 +3,6 @@ import blogController from '../controller/blog.controller'
 
 const router = Router()
 
-router.post('/upload/img', blogController.uploadImage)
+router.get('/posts', blogController.getPosts)
 
 export default router
