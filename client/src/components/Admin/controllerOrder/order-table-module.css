@@ -153,7 +153,8 @@
   .wrapper_orders__table tr th button {
     font-size: 15px;
   }
-  .selectFilter {
+  .selectFilter,
+  a {
     font-size: 10px;
   }
 }
@@ -163,7 +164,8 @@
   .wrapper_orders__table tr th button {
     font-size: 13px;
   }
-  .selectFilter {
+  .selectFilter,
+  a {
     font-size: 10px;
   }
 }
@@ -173,7 +175,8 @@
   .wrapper_orders__table tr th button {
     font-size: 10px;
   }
-  .selectFilter {
+  .selectFilter,
+  a {
     font-size: 10px;
   }
 }
