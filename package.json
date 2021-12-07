@@ -4,10 +4,10 @@
     "description": "Clockwise Clockware",
     "main": "index.ts",
     "engines": {
-      "node": "14.16.1"
+        "node": "14.16.1"
     },
     "scripts": {
-        "postinstall": "npm i && cd client && npm i && npm run build",
+        "postinstall": "cd client && npm i && npm run build",
         "prettier": "prettier",
         "startdev": "ts-node src/index.ts",
         "start": "tsc && node dist/index.js"
