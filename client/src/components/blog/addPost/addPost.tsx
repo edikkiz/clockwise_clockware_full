@@ -79,7 +79,6 @@ const AddPost: FC<ControllerAddPostProps> = () => {
   }
 
   const updatePost = () => {
-    console.log(content, props)
     if (content && props) {
       setIsLoading(true)
       const src = content.matchAll(regex)
