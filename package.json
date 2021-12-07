@@ -4,7 +4,7 @@
     "description": "Clockwise Clockware",
     "main": "index.ts",
     "engines": {
-      "node": "14.x"
+      "node": "14.16.1"
     },
     "scripts": {
         "postinstall": "cd client && npm i && npm run build",
