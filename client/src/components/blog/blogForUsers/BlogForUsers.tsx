@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { FC, useEffect, useState } from 'react'
-import { Redirect } from 'react-router'
 import { Link } from 'react-router-dom'
 import { Post } from 'src/models'
 import './blog-for-users-module.css'
@@ -20,18 +19,47 @@ const BlogForUsers: FC<ControllerBlogForUsersProps> = () => {
 
   const [offset, setOffset] = useState<number>(0)
 
-  useEffect(() => {
-    const getPosts = async () => {
-      const { data } = await axios.get<Posts>('/posts', {
-        params: {
-          limit: limit,
-          offset: offset,
-        },
-      })
-      setPosts(data)
+  const [onLoad, setOnLoad] = useState<boolean>(true)
+
+  const scrollHandler = (event: any) => {
+    if (
+      event?.target.documentElement.scrollHeight -
+        (event?.target.documentElement.scrollTop + window.innerHeight) <
+        200 &&
+      posts.total > posts.posts.length
+    ) {
+      setOnLoad(true)
     }
-    getPosts()
-  }, [])
+  }
+
+  useEffect(() => {
+    document.addEventListener('scroll', scrollHandler)
+    return function () {
+      document.removeEventListener('scroll', scrollHandler)
+    }
+  }, [posts])
+
+  useEffect(() => {
+    if (onLoad) {
+      axios
+        .get<Posts>('/posts', {
+          params: {
+            limit: limit,
+            offset: offset,
+          },
+        })
+        .then(({ data }) => {
+          setPosts(prevPosts => {
+            return {
+              total: data.total,
+              posts: [...prevPosts.posts, ...data.posts],
+            }
+          })
+          setOffset(offset + limit)
+          setOnLoad(false)
+        })
+    }
+  }, [onLoad])
 
   return (
     <div>

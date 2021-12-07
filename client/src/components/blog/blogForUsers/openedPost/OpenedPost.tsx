@@ -20,6 +20,7 @@ const OpenedPost: FC<ControllerOpenedPostProps> = () => {
           Close post
         </Link>
       </div>
+      <div className="button-wrapper"></div>
     </div>
   )
 }

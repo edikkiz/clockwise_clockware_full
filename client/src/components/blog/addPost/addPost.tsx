@@ -1,7 +1,7 @@
 import './add-post-module.css'
 import { Editor } from '@tinymce/tinymce-react'
 import axios from 'axios'
-import { FC, useCallback, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import { useHistory } from 'react-router-dom'
 import FileInput from '../../reusableСomponents/fileInput/FileInput'
