@@ -694,7 +694,6 @@ class OrderController {
             return
         }
         const { orderId } = params.data
-
         const order = await prisma.order.findUnique({
             where: { id: Number(orderId) },
             include: {
@@ -717,6 +716,10 @@ class OrderController {
                 pdf.create(HTMLString).toStream((err, stream) => {
                     if (err) return reject(err)
                     res.setHeader('Content-type', 'application/pdf')
+                    res.setHeader(
+                        'Content-Disposition',
+                        `attachment; filename="order${order.id}.pdf"`,
+                    )
                     stream.pipe(res)
                 })
             })
