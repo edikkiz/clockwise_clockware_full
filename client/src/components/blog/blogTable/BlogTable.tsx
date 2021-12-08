@@ -6,14 +6,14 @@ import Pagination from 'src/components/reusableСomponents/pagination/pagination
 import { Post } from 'src/models'
 import './blog-table-module.css'
 import Preloader from '../../Preloader'
+import { useToasts } from 'react-toast-notifications'
 
 type Posts = {
   total: number
   posts: Post[]
 }
 
-interface ControllerBlogTableProps {}
-const BlogTable: FC<ControllerBlogTableProps> = () => {
+const BlogTable = () => {
   const [posts, setPosts] = useState<Posts>({
     total: 0,
     posts: [],
@@ -25,21 +25,29 @@ const BlogTable: FC<ControllerBlogTableProps> = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
+  const { addToast } = useToasts()
+
   useEffect(() => {
     const getPosts = async () => {
-      setIsLoading(true)
-      const { data } = await axios.get<Posts>('/posts', {
-        params: {
-          limit: limit,
-          offset: offset,
-        },
-      })
-      setPosts(data)
-      setIsLoading(false)
+      try {
+        setIsLoading(true)
+        const { data } = await axios.get<Posts>('/posts', {
+          params: {
+            limit: limit,
+            offset: offset,
+          },
+        })
+        setPosts(data)
+        setIsLoading(false)
+      } catch {
+        addToast('Something wrong, please try again later', {
+          appearance: 'error',
+        })
+        setIsLoading(false)
+      }
     }
     getPosts()
   }, [limit, offset])
-
 
   return (
     <div>
@@ -64,18 +72,13 @@ const BlogTable: FC<ControllerBlogTableProps> = () => {
             <tr>
               <th className="table_block_id__blog">{`${post.id}`}</th>
               <th className="table_block_id__blog">
-                <img src={post.titleImg} />
+                <img src={post.previewImg} />
               </th>
               <th className="table_block_name__blog">{`${post.title}`}</th>
               <th className="table_block_name__blog">{`${post.previewText}`}</th>
               <Link
                 className="link_update__blog"
-                to={{
-                  pathname: `/admin/add-post`,
-                  state: {
-                    post: post,
-                  },
-                }}
+                to={`/admin/add-post/${post.id}`}
               >
                 <th className="table_link_blog">update</th>
               </Link>
@@ -83,15 +86,13 @@ const BlogTable: FC<ControllerBlogTableProps> = () => {
           ))}
         </table>
       </div>
-      {posts.total && (
-        <Pagination
-          total={posts.total}
-          offset={offset}
-          setOffset={setOffset}
-          limit={limit}
-          setLimit={setLimit}
-        />
-      )}
+      <Pagination
+        total={posts.total}
+        offset={offset}
+        setOffset={setOffset}
+        limit={limit}
+        setLimit={setLimit}
+      />
     </div>
   )
 }

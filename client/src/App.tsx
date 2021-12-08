@@ -28,7 +28,7 @@ function App() {
     <ToastProvider placement="top-right">
       <Router>
         <Switch>
-          <PrivateRoute path="/admin/add-post" component={addPost} />
+          <PrivateRoute path="/admin/add-post/:id?" component={addPost} />
 
           <PrivateRoute path="/admin/blogTable" component={BlogTable} />
 
@@ -43,7 +43,7 @@ function App() {
             <Header /> <MasterRegistration />
           </Route>
 
-          <Route path="/opened-post">
+          <Route path="/opened-post/:id">
             <Header /> <OpenedPost />
           </Route>
 
@@ -58,8 +58,7 @@ function App() {
           <PrivateRoute path="/admin/charts" component={OrderCharts} />
 
           <Route path="/calendar/:masterId?" exact>
-            {' '}
-            <Calendar />{' '}
+            <Calendar />
           </Route>
 
           <Route path="/rate/:feedbackToken">

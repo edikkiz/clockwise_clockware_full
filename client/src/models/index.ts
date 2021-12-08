@@ -163,7 +163,7 @@ export type MasterForAdminTable = {
 export type Post = {
   id: number
   title: string
-  titleImg: string
+  previewImg: string
   content: string
   previewText: string
 }

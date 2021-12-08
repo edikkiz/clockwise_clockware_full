@@ -2,40 +2,26 @@ import './add-post-module.css'
 import { Editor } from '@tinymce/tinymce-react'
 import axios from 'axios'
 import { FC, useEffect, useState } from 'react'
-import { useLocation } from 'react-router'
+import { useParams } from 'react-router'
 import { useHistory } from 'react-router-dom'
 import FileInput from '../../reusableСomponents/fileInput/FileInput'
 import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../../Admin/adminHeader/AdminHeader'
+import { Post } from 'src/models'
 
-type LocationState = {
-  post: {
-    content: string
-    title: string
-    titleImg: string
-    previewText: string
-    postId: number
-    id: number
-  }
-}
 const regex = /<img.*?src="(.*?)"/g
-interface ControllerAddPostProps {}
-const AddPost: FC<ControllerAddPostProps> = () => {
-  const handleEditorChange = (innerContent: any, editor: any) => {
-    setContent(innerContent)
-  }
+const AddPost = () => {
+  const { id: postId } = useParams<{ id: string }>()
+  const [postContentForUpdate, setPostContentForUpdate] = useState<string>('')
 
-  const location = useLocation<LocationState | undefined>()
+  const [title, setTitle] = useState<string>('')
 
-  const props = location.state
+  const [previewImg, setPreviewImg] = useState<string>()
 
-  const [title, setTitle] = useState<string>()
-  const [titleImage, setTitleImage] = useState<string[]>([])
+  const [content, setContent] = useState<string>('')
 
-  const [content, setContent] = useState<string>()
-
-  const [previewText, setPreviewText] = useState<string>()
+  const [previewText, setPreviewText] = useState<string>('')
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -43,91 +29,114 @@ const AddPost: FC<ControllerAddPostProps> = () => {
 
   const { addToast } = useToasts()
 
-  const createPost = () => {
+  const handleEditorChange = (innerContent: string) => {
+    setContent(innerContent)
+  }
+
+  const createPost = async () => {
     if (content) {
-      setIsLoading(true)
-      const src = content.matchAll(regex)
-      const srcArray = Array.from(src)
-      const images = srcArray.map(image => image[1])
-      let i = 0
-      const contentWithOutImages = content.replace(regex, () => {
-        i++
-        return `<img src="${i}"`
-      })
-      axios
-        .post(`/admin/add-post`, {
+      try {
+        setIsLoading(true)
+        const src = content.matchAll(regex)
+        const srcArray = Array.from(src)
+        const images = srcArray.map(image => image[1])
+        let i = -1
+        const contentWithoutImages = content.replace(regex, () => {
+          i++
+          return `<img src="${i}"`
+        })
+        await axios.post(`/admin/add-post`, {
           images: images,
-          content: contentWithOutImages,
-          titleImg: titleImage[0],
+          content: contentWithoutImages,
+          previewImg: previewImg,
           title: title,
           previewText: previewText,
         })
-        .then(() => {
-          setIsLoading(false)
-          addToast('Post created', {
-            appearance: 'success',
-          })
-          history.push('/admin/blogTable')
+        setIsLoading(false)
+        addToast('Post created', {
+          appearance: 'success',
         })
-        .catch(() => {
-          addToast('Something wrong, please try again later', {
-            appearance: 'error',
-          })
-          setIsLoading(false)
+        history.push('/admin/blogTable')
+      } catch {
+        addToast('Something wrong, please try again later', {
+          appearance: 'error',
         })
+        setIsLoading(false)
+      }
+    } else {
+      addToast('type content for post', { appearance: 'info' })
     }
   }
 
-  const updatePost = () => {
-    if (content && props) {
-      setIsLoading(true)
-      const src = content.matchAll(regex)
-      const srcArray = Array.from(src)
-      const images = srcArray.map(image => image[1])
-      let i = 0
-      const contentWithOutImages = content.replace(regex, () => {
-        i++
-        return `<img src="${i}"`
-      })
-      axios
-        .put(`/admin/update-post`, {
+  const updatePost = async () => {
+    if (content && postId) {
+      try {
+        setIsLoading(true)
+        const src = content.matchAll(regex)
+        const srcArray = Array.from(src)
+        const images = srcArray.map(image => image[1])
+        let i = 0
+        const contentWithOutImages = content.replace(regex, () => {
+          i++
+          return `<img src="${i}"`
+        })
+        await axios.put(`/admin/update-post`, {
           images: images,
           content: contentWithOutImages,
-          titleImg: titleImage[0],
+          previewImg: previewImg,
           title: title,
           previewText: previewText,
-          id: props.post.id,
+          id: Number(postId),
         })
-        .then(() => {
-          setIsLoading(false)
-          addToast('Post updated', {
-            appearance: 'success',
-          })
-          history.push('/admin/blogTable')
+        setIsLoading(false)
+        addToast('Post updated', {
+          appearance: 'success',
         })
-        .catch(() => {
-          addToast('Something wrong, please try again later', {
-            appearance: 'error',
-          })
-          setIsLoading(false)
+        history.push('/admin/blogTable')
+      } catch {
+        addToast('Something wrong, please try again later', {
+          appearance: 'error',
         })
+        setIsLoading(false)
+      }
+    } else {
+      addToast('type content for post', { appearance: 'info' })
     }
   }
 
   useEffect(() => {
-    if (props) {
-      setTitle(props.post.title)
-      setTitleImage([props.post.titleImg])
-      setPreviewText(props.post.previewText)
+    if (postId) {
+      const getPostForUpdate = async () => {
+        try {
+          setIsLoading(true)
+          const { data } = await axios.get<Post>('/one-post', {
+            params: {
+              id: postId,
+            },
+          })
+          setTitle(data.title)
+          setPreviewImg(data.previewImg)
+          setPreviewText(data.previewText)
+          setContent(data.content)
+          setPostContentForUpdate(data.content)
+          setIsLoading(false)
+        } catch {
+          addToast('Something wrong, please try again later', {
+            appearance: 'error',
+          })
+          setIsLoading(false)
+        }
+      }
+      getPostForUpdate()
     }
-  }, [props])
+  }, [postId])
 
   return (
     <div>
       <AdminHeader />
       <Preloader isLoading={isLoading} />
       <Editor
-        initialValue={props?.post.content}
+        initialValue={postContentForUpdate}
         apiKey="2a5j3zv485lz12e39kwm48dyrs61drkph0k8ksntwsbfjhhh"
         init={{
           paste_data_images: true,
@@ -135,7 +144,7 @@ const AddPost: FC<ControllerAddPostProps> = () => {
           images_file_types: 'jpeg,jpg,png',
           skin: 'snow',
           icons: 'thin',
-          placeholder: 'Ask a question or post an update...',
+          placeholder: 'type here',
           height: 600,
           menubar: true,
           plugins: [
@@ -150,14 +159,14 @@ const AddPost: FC<ControllerAddPostProps> = () => {
         onEditorChange={handleEditorChange}
         outputFormat="html"
       />
-      <div className="titleInputsAndImage">
+      <div className="title-inputs-and-image">
         <FileInput
-          files={titleImage}
-          setFiles={setTitleImage}
+          files={previewImg ? [previewImg] : []}
+          setFiles={}
           filesLimit={1}
-          fileNames={props && ['prev Image']}
+          fileNames={postId ? ['prev Image'] : []}
         />
-        <div className="titleInputs">
+        <div className="title-inputs">
           <input
             className="wrapper_form__input"
             value={title}
@@ -174,17 +183,18 @@ const AddPost: FC<ControllerAddPostProps> = () => {
           />
         </div>
       </div>
-      <div className="titleInputsAndImage">
-        {!props ? (
-          <button className="wrapper_form__button" onClick={() => createPost()}>
-            Submit
-          </button>
-        ) : (
+      <div className="title-inputs-and-image">
+        {postId ? (
           <button className="wrapper_form__button" onClick={() => updatePost()}>
             Update
           </button>
+        ) : (
+          <button className="wrapper_form__button" onClick={() => createPost()}>
+            Submit
+          </button>
         )}
       </div>
+      <button onClick={() => {console.log(previewImg)}}>asdasdasd</button>
     </div>
   )
 }
