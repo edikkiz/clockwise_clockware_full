@@ -162,7 +162,9 @@ const AddPost = () => {
       <div className="title-inputs-and-image">
         <FileInput
           files={previewImg ? [previewImg] : []}
-          setFiles={}
+          setFiles={files => {
+            setPreviewImg(files[0])
+          }}
           filesLimit={1}
           fileNames={postId ? ['prev Image'] : []}
         />
@@ -194,7 +196,13 @@ const AddPost = () => {
           </button>
         )}
       </div>
-      <button onClick={() => {console.log(previewImg)}}>asdasdasd</button>
+      <button
+        onClick={() => {
+          console.log(previewImg)
+        }}
+      >
+        asdasdasd
+      </button>
     </div>
   )
 }

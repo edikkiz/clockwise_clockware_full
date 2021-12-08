@@ -4,7 +4,7 @@ import { useToasts } from 'react-toast-notifications'
 interface FileInputProps {
   fileNames?: string[]
   files: string[]
-  setFiles: React.Dispatch<React.SetStateAction<string[]>>
+  setFiles: (files: string[]) => void
   filesLimit: number
 }
 const FileInput: FC<FileInputProps> = ({
@@ -19,26 +19,34 @@ const FileInput: FC<FileInputProps> = ({
 
   const [innerFileNames, setInnerFileNames] = useState<string[]>([])
 
-  const fileRender = useCallback(() => {
+  const fileRender = useCallback(async () => {
     if (innerFiles) {
       if (innerFiles.some(file => file.size > 1024 * 1024)) {
         addToast('max 1 mb for one file')
         return
       }
-      innerFiles.forEach(innerFiles => {
-        setInnerFileNames(prevInnerFileNames => [
-          ...prevInnerFileNames,
-          innerFiles.name,
-        ])
-        const fileReader = new FileReader()
-        fileReader.readAsDataURL(innerFiles)
-        fileReader.onload = () => {
-          const res = fileReader.result
-          if (res && typeof res === 'string') {
-            setFiles(prevFiles => [...prevFiles, res])
-          }
-        }
-      })
+      const readFiles = await Promise.all(
+        innerFiles.map(async innerFile => {
+          setInnerFileNames(prevInnerFileNames => [
+            ...prevInnerFileNames,
+            innerFile.name,
+          ])
+          const fileReader = new FileReader()
+          fileReader.readAsDataURL(innerFile)
+          const readInnerFile = (fileReader.onload = () => {
+            const res = fileReader.result as string
+            // const res = fileReader.result
+            // if (res && typeof res === 'string') {
+            return res // var 2
+            // }
+            // return ''
+          })
+          return readInnerFile()
+        }),
+      )
+      // .filter(file => file.length > 0)
+      const result = readFiles // var 2
+      setFiles(result)
     }
   }, [innerFiles])
 
