@@ -150,7 +150,7 @@ const OrderTable: FC<ControllerOrderTableProps> = () => {
             'accessToken',
           )}`}
         >
-          Download exel
+          Download excel
         </a>
       </div>
       <div className="wrapper_orders">
