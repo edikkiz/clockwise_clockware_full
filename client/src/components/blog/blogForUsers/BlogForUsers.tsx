@@ -98,6 +98,11 @@ const BlogForUsers = () => {
       {posts.total > posts.posts.length && (
         <div ref={setOnLoadElement} className="on-load-element"></div>
       )}
+      {!posts.posts.length && (
+        <div className='no-post-yet'>
+          No posts yet
+        </div>
+      )}
     </div>
   )
 }

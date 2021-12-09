@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 export const addPostSchema = z.object({
-    images: z.array(z.string()),
-    content: z.string(),
+    images: z.array(z.string()).max(10),
+    content: z.string().max(12000),
     previewImg: z.string(),
     title: z.string(),
     previewText: z.string().max(200),

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
-import { Link } from 'react-router-dom'
 import './opened-post-module.css'
 import Preloader from 'src/components/Preloader'
 import axios from 'axios'
@@ -44,12 +43,6 @@ const OpenedPost = () => {
       <Preloader isLoading={isLoading} />
       <div className="post">
         <div dangerouslySetInnerHTML={{ __html: content }}></div>
-        <div className="button-wrapper">
-          <Link to="/blog" className="wrapper_form__button">
-            Close post
-          </Link>
-        </div>
-        <div className="button-wrapper"></div>
       </div>
     </div>
   )

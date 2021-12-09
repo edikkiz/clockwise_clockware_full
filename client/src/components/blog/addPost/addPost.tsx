@@ -9,6 +9,7 @@ import Preloader from '../../Preloader'
 import { useToasts } from 'react-toast-notifications'
 import AdminHeader from '../../Admin/adminHeader/AdminHeader'
 import { Post } from 'src/models'
+import { debounce } from 'debounce'
 
 const regex = /<img.*?src="(.*?)"/g
 const AddPost = () => {
@@ -29,22 +30,44 @@ const AddPost = () => {
 
   const { addToast } = useToasts()
 
+  const textWithoutImgBlob = (text: string) => {
+    let i = -1
+    const contentWithoutImages = content.replace(regex, () => {
+      i++
+      return `<img src="${i}"`
+    })
+    return contentWithoutImages
+  }
+
+  const allImg = (text: string) => Array.from(text.matchAll(regex))
+
+  const maxSymbolErr = debounce(() => {
+    addToast('Max 10 000 symbol', { appearance: 'error' })
+  }, 1000)
+
+  const maxImagesErr = debounce(() => {
+    addToast('Max 10 image', { appearance: 'error' })
+  }, 1000)
+
   const handleEditorChange = (innerContent: string) => {
-    setContent(innerContent)
+    if (textWithoutImgBlob(innerContent).length > 10500) {
+      maxSymbolErr()
+    }
+    if (allImg(innerContent).length > 10) {
+      maxImagesErr()
+    }
+    else {
+      setContent(innerContent)
+    }
   }
 
   const createPost = async () => {
     if (content) {
       try {
         setIsLoading(true)
-        const src = content.matchAll(regex)
-        const srcArray = Array.from(src)
+        const srcArray = allImg(content)
         const images = srcArray.map(image => image[1])
-        let i = -1
-        const contentWithoutImages = content.replace(regex, () => {
-          i++
-          return `<img src="${i}"`
-        })
+        const contentWithoutImages = textWithoutImgBlob(content)
         await axios.post(`/admin/add-post`, {
           images: images,
           content: contentWithoutImages,
@@ -72,17 +95,12 @@ const AddPost = () => {
     if (content && postId) {
       try {
         setIsLoading(true)
-        const src = content.matchAll(regex)
-        const srcArray = Array.from(src)
+        const srcArray = allImg(content)
         const images = srcArray.map(image => image[1])
-        let i = 0
-        const contentWithOutImages = content.replace(regex, () => {
-          i++
-          return `<img src="${i}"`
-        })
+        const contentWithoutImages = textWithoutImgBlob(content)
         await axios.put(`/admin/update-post`, {
           images: images,
-          content: contentWithOutImages,
+          content: contentWithoutImages,
           previewImg: previewImg,
           title: title,
           previewText: previewText,
@@ -156,6 +174,7 @@ const AddPost = () => {
           toolbar:
             'undo redo | styleselect | fontsizeselect| code | bold italic | alignleft aligncenter alignright alignjustify | outdent indent ',
         }}
+        value={content}
         onEditorChange={handleEditorChange}
         outputFormat="html"
       />
@@ -196,13 +215,8 @@ const AddPost = () => {
           </button>
         )}
       </div>
-      <button
-        onClick={() => {
-          console.log(previewImg)
-        }}
-      >
-        asdasdasd
-      </button>
+      <button onClick={() =>
+        console.log(allImg(content))}>asdasd</button>
     </div>
   )
 }

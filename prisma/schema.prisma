@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_LOCAL")
-  // shadowDatabaseUrl = env("DATABASE_LOCAL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("DATABASE_LOCAL")
 }
 
 generator client {
@@ -104,9 +104,9 @@ model Order {
 
 model Post {
   id          Int      @id @default(autoincrement())
-  content     String
+  content     String   @db.VarChar(12000)
   previewImg  String
-  createAt    DateTime @default(now())
+  createdAt   DateTime @default(now())
   title       String
   previewText String
 

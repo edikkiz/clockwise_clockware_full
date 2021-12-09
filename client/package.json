@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "chart.js": "^3.5.1",
     "date-fns": "^2.25.0",
+    "debounce": "^1.2.1",
     "email-validator": "^2.0.4",
     "file-saver": "^2.0.5",
     "jwt-decode": "^3.1.2",
@@ -62,5 +63,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/debounce": "^1.2.1"
   }
 }

@@ -29,3 +29,12 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+.no-post-yet {
+  font-weight: 900;
+  font-size: 30px;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

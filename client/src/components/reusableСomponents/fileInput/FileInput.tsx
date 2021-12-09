@@ -25,28 +25,23 @@ const FileInput: FC<FileInputProps> = ({
         addToast('max 1 mb for one file')
         return
       }
-      const readFiles = await Promise.all(
+      const readFiles = await Promise.all<string | null>(
         innerFiles.map(async innerFile => {
           setInnerFileNames(prevInnerFileNames => [
             ...prevInnerFileNames,
             innerFile.name,
           ])
-          const fileReader = new FileReader()
-          fileReader.readAsDataURL(innerFile)
-          const readInnerFile = (fileReader.onload = () => {
-            const res = fileReader.result as string
-            // const res = fileReader.result
-            // if (res && typeof res === 'string') {
-            return res // var 2
-            // }
-            // return ''
+          return new Promise((resolve, reject) => {
+            const fileReader = new FileReader()
+            fileReader.readAsDataURL(innerFile)
+            fileReader.onload = () => {
+              const res = fileReader.result
+              resolve(typeof res === 'string' ? res : null)
+            }
           })
-          return readInnerFile()
         }),
       )
-      // .filter(file => file.length > 0)
-      const result = readFiles // var 2
-      setFiles(result)
+      setFiles(readFiles.filter((file): file is string => typeof file === 'string'))
     }
   }, [innerFiles])
 
@@ -104,7 +99,7 @@ const FileInput: FC<FileInputProps> = ({
           setFiles([])
         }}
       >
-        Clean photos
+        {filesLimit === 1 ? "Clean photo" : "Clean photos"}
       </button>
     </div>
   )
