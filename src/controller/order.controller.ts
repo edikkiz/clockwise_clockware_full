@@ -30,7 +30,6 @@ import { orderCheckPdf } from '../pdf/pdf'
 import xlsx from 'xlsx'
 import { Readable } from 'stream'
 
-
 type DataForFilter = {
     cityId?: number
     masterId?: number

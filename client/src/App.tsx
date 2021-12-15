@@ -18,18 +18,37 @@ import MasterWorkList from './components/Master/masterWorkList/masterWorkList'
 import Calendar from './components/calendar/Calendar'
 import UserList from './components/User/userList/UserList'
 import OrderCharts from './components/Admin/controllerOrder/orderCharts/OrderCharts'
+import addPost from './components/blog/addPost/addPost'
+import BlogTable from './components/blog/blogTable/BlogTable'
+import BlogForUsers from './components/blog/blogForUsers/BlogForUsers'
+import OpenedPost from './components/blog/blogForUsers/openedPost/OpenedPost'
 
 function App() {
   return (
     <ToastProvider placement="top-right">
       <Router>
         <Switch>
+          <PrivateRoute path="/admin/add-post/:id?" component={addPost} />
+
+          <PrivateRoute path="/admin/blogTable" component={BlogTable} />
+
           <PrivateRoute path="/role/user/:id?" component={UserList} />
 
-          <PrivateRoute path="/role/master/:masterId?" component={MasterWorkList} />
+          <PrivateRoute
+            path="/role/master/:masterId?"
+            component={MasterWorkList}
+          />
 
           <Route path="/master/registration">
             <Header /> <MasterRegistration />
+          </Route>
+
+          <Route path="/opened-post/:id">
+            <Header /> <OpenedPost />
+          </Route>
+
+          <Route path="/blog">
+            <Header /> <BlogForUsers />
           </Route>
 
           <Route path="/" exact>
@@ -38,7 +57,9 @@ function App() {
 
           <PrivateRoute path="/admin/charts" component={OrderCharts} />
 
-          <Route path="/calendar/:masterId?" exact>  <Calendar /> </Route>
+          <Route path="/calendar/:masterId?" exact>
+            <Calendar />
+          </Route>
 
           <Route path="/rate/:feedbackToken">
             <Header /> <RateMaster />

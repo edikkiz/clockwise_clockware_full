@@ -159,3 +159,11 @@ export type MasterForAdminTable = {
   cityId: number
   city: { name: string }
 }
+
+export type Post = {
+  id: number
+  title: string
+  previewImg: string
+  content: string
+  previewText: string
+}

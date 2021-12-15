@@ -101,3 +101,14 @@ model Order {
 
   @@map("orders")
 }
+
+model Post {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.VarChar(12000)
+  previewImg  String
+  createdAt   DateTime @default(now())
+  title       String
+  previewText String
+
+  @@map("posts")
+}

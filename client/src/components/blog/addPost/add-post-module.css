@@ -1,0 +1,15 @@
+.title-inputs-and-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-inputs {
+  display: flex;
+  flex-direction: column;
+}
+.title-inputs textarea {
+  font-size: 15px;
+  height: 80px;
+  margin: 10px 0;
+}

@@ -66,7 +66,15 @@ const ModalAddPhotos: FC<ModalAddPhotosProps> = ({
           <div>
             <FileInput
               files={files}
-              setFiles={setFiles}
+              setFiles={files => {
+                if (!files.length) {
+                  setFiles([])
+                }
+                else {
+                  setFiles((prevFiles) => [...prevFiles, ...files])
+                }
+              }
+              }
               filesLimit={filesLimit}
             />
             <button className="wrapper_form__button" onClick={addPhotos}>

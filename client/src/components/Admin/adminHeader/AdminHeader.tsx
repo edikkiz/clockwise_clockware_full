@@ -23,6 +23,9 @@ const AdminHeader: FC<ControllerHeaderProps> = () => {
               </Link>
             </div>
             <div className="menu__link">
+              <Link to="/admin/blogTable" className="menu_link">
+                Blog
+              </Link>
               <Link to="/admin/charts" className="menu_link">
                 Charts
               </Link>

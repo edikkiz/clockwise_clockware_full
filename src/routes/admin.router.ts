@@ -3,6 +3,7 @@ import orderController from '../controller/order.controller'
 import masterController from '../controller/master.controller'
 import cityController from '../controller/city.controller'
 import userController from '../controller/user.controller'
+import blogController from '../controller/blog.controller'
 
 const router = Router()
 
@@ -42,5 +43,9 @@ router.get('/graph/master', orderController.getDataForMasterGraph)
 router.get('/masters-list', orderController.getDataForMasterTable)
 
 router.get('/exportToXLSX', orderController.exportToXLSX)
+
+router.post('/add-post', blogController.addPost)
+
+router.put('/update-post', blogController.updatePost)
 
 export default router

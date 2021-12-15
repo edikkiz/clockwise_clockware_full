@@ -14,6 +14,9 @@ const Header: FC<ControllerHeaderProps> = () => {
               <Link to='/'><img src={logo} alt={'logo'}></img></Link>
             </div>
             <div className="menu__link">
+              <Link to="/blog" className="menu_link">
+                Blog
+              </Link>
               <Link to="/" className="menu_link">
                 Order
               </Link>
