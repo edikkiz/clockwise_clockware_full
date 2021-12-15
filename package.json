@@ -50,5 +50,7 @@
         "xlsx": "0.11.0",
         "zod": "^3.8.2"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@types/debounce": "^1.2.1"
+    }
 }
